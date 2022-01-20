@@ -1,0 +1,11 @@
+
+#ifndef COMP345RISKGAME_CARDS_H
+#define COMP345RISKGAME_CARDS_H
+
+
+class Cards {
+
+};
+
+
+#endif //COMP345RISKGAME_CARDS_H
