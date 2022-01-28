@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include <set>
 using namespace std;
 
 //test classes for territories, orders, and cards
@@ -17,24 +18,28 @@ class TestTerritories{
 };
 class TestCards{};
 class TestOrders{};
-//main class for players
+
+// Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
 class Player{
-    public:
-        //collection of territories, cards, and orders
+    private:
         map<int, TestTerritories> *territories;
         list<TestCards> *cards;
         list<TestOrders> *orders;
-        //name of player
-        string *name;
-        //constructor with name
-        Player(string *newName);
-        //display territories that can be defended(territories that are occupied by the player)
-        void toDefend();
-        //display territories that can be attacked(territories that are adjacent to the player's territories)
-        void toAttack();
-        void issueOrder(TestOrders order);
-    private:
-};
+        string *name; // name/identifier of the player
 
+    public:
+        Player(string *newName);
+
+        map<int, TestTerritories>* getTerritories();
+
+        //returns and displays arbitrary territories to be defended
+        set<int> toDefend();
+
+        //returns and displays arbitrary territories to be attacked
+        set<int> toAttack();
+
+        //creates an order object and adds it to the player's list of orders
+        void issueOrder(TestOrders order);
+};
 
 #endif //COMP345RISKGAME_PLAYER_H

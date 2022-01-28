@@ -1,6 +1,7 @@
 #include <iostream>
 #include <array>
 #include <set>
+#include <list>
 #include "Player.h"
 
 TestTerritories::TestTerritories(){
@@ -8,14 +9,12 @@ TestTerritories::TestTerritories(){
     adjacentTerritories = new int[5] {0, 0, 0, 0, 0};
 }
 
-
 TestTerritories::TestTerritories(int *newID, int *newAT){
     id = newID;
     adjacentTerritories = newAT;
 }
 
-
-//constructor for Player class to intialize the name and the collection of territories, cards, and orders
+//constructor for Player class to initialize the name and the collection of territories, cards, and orders
 Player::Player(string *newName){
     territories = new map<int, TestTerritories>;
     cards = new list<TestCards>;
@@ -23,18 +22,24 @@ Player::Player(string *newName){
     name = newName;
 }
 
-
-//display all territories that can be defended
-void Player::toDefend(){
-    cout << "Player " << *name << " can defend:" << endl;
-    for(map<int,TestTerritories>::iterator it = territories->begin(); it != territories->end(); it++){
-        cout << *(it->second.id) << endl;
-    }
+map<int, TestTerritories>* Player::getTerritories() {
+    return this->territories;
 }
 
+//return and display all territories that can be defended
+set<int> Player::toDefend(){
+    set<int> *territoriesToDefend = new set<int>;
+    cout << "Player " << *name << " can defend:" << endl;
+    for(map<int,TestTerritories>::iterator it = territories->begin(); it != territories->end(); it++){
+        territoriesToDefend->insert(*(it->second.id));
+        cout << *(it->second.id) << endl;
+    }
 
-//display all territories that can be attacked
-void Player::toAttack(){
+    return *territoriesToDefend;
+}
+
+//return and display all territories that can be attacked
+set<int> Player::toAttack(){
     cout << "Player " << *name << " can attack:" << endl;
     set<int> *temp = new set<int>;  //used to collect all unique adjacent territories
     for(map<int,TestTerritories>::iterator it = territories->begin(); it != territories->end(); ++it){
@@ -50,8 +55,9 @@ void Player::toAttack(){
     for(set<int>::iterator it = temp->begin(); it != temp->end(); ++it){
         cout << *it << endl;
     }
-}
 
+    return *temp;
+}
 
 void Player::issueOrder(TestOrders order){
     (*orders).insert(orders->end(),order);

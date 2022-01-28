@@ -3,7 +3,7 @@
 #include <map>
 using namespace std;
 
-int main(int argc, char *argv[]){
+int main(){
     int *id = new int(1);
     int *at = new int[2] {2, 7};
     TestTerritories *one = new TestTerritories(id, at);
@@ -22,11 +22,12 @@ int main(int argc, char *argv[]){
 
     Player *playerOne = new Player(new string("One"));
 
-    playerOne->territories->insert(pair<int, TestTerritories>(*(one->id), *one));
-    playerOne->territories->insert(pair<int, TestTerritories>(*(eight->id), *eight));
+    playerOne->getTerritories()->insert(pair<int, TestTerritories>(*(one->id), *one));
+    playerOne->getTerritories()->insert(pair<int, TestTerritories>(*(eight->id), *eight));
 
     playerOne->toDefend();
 
     playerOne->toAttack();
 
-    return 0;}
+    return 0;
+}
