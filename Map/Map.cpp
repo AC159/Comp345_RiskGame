@@ -124,7 +124,11 @@ bool Map::validate() {
     return false;
 }
 
-Map::~Map() = default;
+Map::~Map() {
+    for (Territory *territory : this->territories) {
+        delete territory;
+    }
+}
 
 
 // ================= MapLoader Class =====================
