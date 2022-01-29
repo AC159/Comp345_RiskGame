@@ -5,6 +5,11 @@
 
 class Player {
 
+public:
+    Player(const Player &p);
+
+    ~Player();
+
 };
 
 
