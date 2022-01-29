@@ -39,6 +39,13 @@ public:
     Territory* source;
     Territory* destination;
 
+    Edge();
+    Edge(Territory &src, Territory &dest);
+    // todo: implement overloaded assignment operator + copy constructor
+    friend ostream& operator<<(ostream &out, const Edge &edge);
+
+    ~Edge();
+
 };
 
 class Continent {
@@ -47,6 +54,15 @@ public:
     string name;
     int bonusValue;
     vector<Territory *> territories;
+
+    Continent();
+    Continent(int continentNum, string &name, int bonus);
+    friend ostream& operator<<(ostream &out, const Continent &continent); // overloaded stream insertion operator
+
+    // todo: implement overloaded assignment operator + copy constructor
+
+    ~Continent();
+
 };
 
 
@@ -55,8 +71,8 @@ class Map {
 public:
 
     vector<Territory *> territories;
-//    vector<Continent *> continents;
-//    vector<Edge *> edges;
+    vector<Continent *> continents;
+    vector<Edge *> edges;
 
     Map();
     Map(const Map &map); // copy constructor
@@ -71,7 +87,6 @@ public:
 
 
 class MapLoader {
-
 public:
     Map* map;
 
@@ -81,7 +96,9 @@ public:
     MapLoader& operator=(const MapLoader &loader); // overloaded assignment operator
     friend ostream& operator<<(ostream &out, const MapLoader &loader); // overloaded stream insertion operator
 
-    void loadMap(const string &path);
+    static vector<string> splitLine(string &line, string &delimiter); // helper function to help split lines while reading .map files
+    static bool validateMapFile(const string &path); // helper function that makes preliminary checks on a .map file
+    bool loadMap(const string &path) const;
 
     ~MapLoader();
 

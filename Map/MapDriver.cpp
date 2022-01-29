@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
 
     MapLoader ml {};
     cout << ml << endl;
-    ml.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
+    bool result = ml.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
 
 //    MapLoader ml2;
 //    ml2 = ml;
