@@ -106,24 +106,7 @@ Continent::~Continent() = default;
 
 // ================= Map Class =====================
 
-Map::Map() {
-
-    string s = "Quebec";
-    Territory* t1  = new Territory{1, 1, s};
-
-    string s2 = "Ontario";
-    Territory* t2 = new Territory{1, 1, s2};
-
-    string s3 = "Alberta";
-    Territory* t3 = new Territory{2, 1, s3};
-
-    cout << "Inserting territories into map" << endl;
-    vector<Territory *> v;
-    v.push_back(t1);
-    v.push_back(t2);
-    v.push_back(t3);
-
-}
+Map::Map() = default;
 
 Map::Map(const Map &map) {
     cout << "Map copy constructor invoked" << endl;
