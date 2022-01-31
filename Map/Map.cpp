@@ -3,22 +3,22 @@
 #include "Map.h"
 
 // ================= Territory Class =====================
-
+//default constructor
 Territory::Territory() {
     owner = nullptr;
     continent = -1;
     countryNumber = -1;
     numberOfArmies = -1;
 }
-
+// creates a territory
 Territory::Territory(int countryNum, int continent, string &name) {
     this->name = name;
     this->countryNumber = countryNum;
     this->continent = continent;
-    this->owner = nullptr;
-    this->numberOfArmies = 0;
+    this->owner = nullptr; //player
+    this->numberOfArmies = 0; //calculated depending on the number of territories a player has
 }
-
+// copy constructor
 Territory::Territory(const Territory &territory) {
     cout << "Inside copy constructor of Territory: " << territory.name << endl;
     this->continent = territory.continent;
@@ -34,7 +34,7 @@ Territory::Territory(const Territory &territory) {
 //        this->borders.push_back(new Territory(*t));
 //    }
 }
-
+// how does the operator works/purpose? and what about delete owner line 50?
 Territory &Territory::operator=(const Territory &territory) {
     cout << "Inside = overload of Territory: " << endl;
 
@@ -56,14 +56,14 @@ ostream &operator<<(ostream &out, const Territory &territory) {
     out << "Name: " << territory.name << "\tContinent: " << territory.continent << "\tCountry: " << territory.countryNumber << "\tNbrOfArmies: " << territory.numberOfArmies << endl;
     return out;
 }
-
+// destructor
 Territory::~Territory() {
     cout << "Territory destructor invoked..." << endl;
-    delete this->owner;
+    delete this->owner; // to confirm because we used new keyword on owner on line 28?
 }
 
 // ================= Edge Class =====================
-
+// connection between territories and continents
 Edge::Edge() {
     this->source = nullptr;
     this->destination = nullptr;
@@ -73,7 +73,7 @@ Edge::Edge(Territory &src, Territory &dest) {
     this->source = &src;
     this->destination = &dest;
 }
-
+// TODO copy constructor and assignment operator
 ostream& operator<<(ostream &out, const Edge &edge) {
     out << "Edge: " << endl;
     out << "\tSource: " << "\t" << *edge.source << endl;
@@ -96,7 +96,7 @@ Continent::Continent(int continentNum, string &name, int bonus) {
     this->name = name;
     this->bonusValue = bonus;
 }
-
+//TODO copy constructor and assignment operator
 ostream& operator<<(ostream &out, const Continent &continent) {
     out << "Name: " << continent.name << "\tBonus value: " << continent.bonusValue << "\tContinent Nbr: " << continent.continentNumber << endl;
     return out;
@@ -107,7 +107,7 @@ Continent::~Continent() = default;
 // ================= Map Class =====================
 
 Map::Map() = default;
-
+// copy constructor
 Map::Map(const Map &map) {
     cout << "Map copy constructor invoked" << endl;
     // make a deep copy of all the territories in the map
@@ -143,13 +143,13 @@ ostream &operator<<(ostream &out, const Map &map) {
     }
     return out;
 }
-
+// Checks (1) the map is a connected graph (2) continent are connected subgraphs (3) each country belongs to one and only one continent
 bool Map::validate() {
     // todo: implement this method
     return false;
 }
 
-Map::~Map() {
+Map::~Map() { //why are we destroying continent and edges when there is no new keyword
     cout << "Map destructor invoked..." << endl;
     for (Continent *cont : this->continents) {
         delete cont;
