@@ -18,28 +18,25 @@ class TestOrders{};
 // Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
 class Player{
     private:
-        string name;
         map<int, Territory*> *territories;
         list<TestCards*> *cards;
         list<TestOrders*> *orders;
+        string name;
 
     public:
         Player();   // default constructor
         Player(string newName);
         Player(const Player &player);   // copy constructor
-        ~Player(); // destructor
 
-        // assignment operator
-        Player& operator=(const Player &player); 
+        Player& operator=(const Player &player); // assignment operator
         friend ostream& operator<<(ostream& out, const Player& player);
 
-        // accessor method for territories
         map<int, Territory*>* getTerritories();
 
-        //returns a list of territories to be defended
+        //returns and displays arbitrary territories to be defended
         map<int, Territory*>* toDefend();
 
-        //returns a list of territories to be attacked
+        //returns and displays arbitrary territories to be attacked
         map<int, Territory*>* toAttack(list<Edge*> &edges);
 
         //creates an order object and adds it to the player's list of orders
