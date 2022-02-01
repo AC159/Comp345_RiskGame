@@ -64,6 +64,7 @@ int main(){
     // playerOne->getTerritories()->insert(pair<int, Territory*>(Belgium->countryNumber, Belgium));
     // playerOne->getTerritories()->insert(pair<int, Territory*>(Netherlands->countryNumber, Netherlands));
 
+
     // test method Player::toDefend()
     map<int, Territory*> *territoriesToDefend = playerOne->toDefend();
     cout << "Player " << *playerOne << " returned list of method Player::toDefend(): " << endl;
@@ -73,6 +74,7 @@ int main(){
     cout << endl;
     delete(territoriesToDefend);
     territoriesToDefend = nullptr;
+ 
  
     // test method Player::toAttack()
     map<int, Territory*> *temp = playerOne->toAttack(*edges);
