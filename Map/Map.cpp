@@ -25,7 +25,7 @@ Territory::Territory(const Territory &territory) {
     this->countryNumber = territory.countryNumber;
     this->name = territory.name;
     this->numberOfArmies = territory.numberOfArmies;
-    this->owner = new Player(*territory.owner); // deep copy of Player object
+    this->owner = territory.owner; // shallow copy of Player object
 
     // this->borders = territory.borders; // shallow copy
 //    this->borders = vector<Territory *>(territory.borders.size());
@@ -35,7 +35,7 @@ Territory::Territory(const Territory &territory) {
 //    }
 }
 
-Territory &Territory::operator=(const Territory &territory) {
+Territory& Territory::operator=(const Territory &territory) {
     cout << "Inside = overload of Territory: " << endl;
 
     // Check if the current object and the passed object is the same
@@ -48,7 +48,7 @@ Territory &Territory::operator=(const Territory &territory) {
 //    this->borders.clear();
 //    this->borders = territory.borders;
     delete this->owner;
-    this->owner = territory.owner; // deep copy will be made as overload assignment operator will be called for the Player class
+    this->owner = territory.owner; // shallow copy will be made as overload assignment operator will be called for the Player class
     return *this;
 }
 
@@ -74,6 +74,22 @@ Edge::Edge(Territory &src, Territory &dest) {
     this->destination = &dest;
 }
 
+Edge::Edge(const Edge &edge) {
+    // shallow copy of the Territory objects
+    this->source = edge.source;
+    this->destination = edge.destination;
+}
+
+Edge& Edge::operator=(const Edge &edge) {
+     if (this == &edge) return *this;
+     delete this->source;
+     delete this->destination;
+     // shallow copy
+     this->source = edge.source;
+     this->destination = edge.destination;
+     return *this;
+}
+
 ostream& operator<<(ostream &out, const Edge &edge) {
     out << "Edge: " << endl;
     out << "\tSource: " << "\t" << *edge.source << endl;
@@ -97,6 +113,32 @@ Continent::Continent(int continentNum, string &name, int bonus) {
     this->bonusValue = bonus;
 }
 
+Continent::Continent(const Continent &continent) {
+    this->continentNumber = continent.continentNumber;
+    this->bonusValue = continent.bonusValue;
+    this->name = continent.name;
+
+    // make shallow copies of all territories in this continent
+    for (Territory *t : continent.territories) {
+        Territory *territory = t;
+        this->territories.push_back(territory);
+    }
+}
+
+Continent& Continent::operator=(const Continent &continent) {
+    if (this == &continent) return *this;
+
+    this->continentNumber = continent.continentNumber;
+    this->bonusValue = continent.bonusValue;
+    this->name = continent.name;
+    this->territories.clear(); // remove all the territory pointers owned by the current continent
+    for (Territory *t : continent.territories) {
+        Territory *territory = t;
+        this->territories.push_back(territory);
+    }
+    return *this;
+}
+
 ostream& operator<<(ostream &out, const Continent &continent) {
     out << "Name: " << continent.name << "\tBonus value: " << continent.bonusValue << "\tContinent Nbr: " << continent.continentNumber << endl;
     return out;
@@ -110,10 +152,18 @@ Map::Map() = default;
 
 Map::Map(const Map &map) {
     cout << "Map copy constructor invoked" << endl;
-    // make a deep copy of all the territories in the map
+    // make a shallow copy of all the territories in the map
     this->territories = vector<Territory *>(map.territories.size());
+    this->continents = vector<Continent *>(map.continents.size());
+    this->edges = vector<Edge *>(map.edges.size());
     for(auto *territory : map.territories) {
-        this->territories.push_back(new Territory(*territory));
+        this->territories.push_back(territory); // territory pointer will be copied when pushed into vector
+    }
+    for(auto *continent : map.continents) {
+        this->continents.push_back(continent); // continent pointer will be copied when pushed into vector
+    }
+    for(auto *edge : map.edges) {
+        this->edges.push_back(edge); // edge pointer will be copied when pushed into vector
     }
 }
 
@@ -127,6 +177,8 @@ Map &Map::operator=(const Map &map) {
         territory = nullptr; // pointer no longer dangling
     }
     this->territories.clear();
+    this->continents.clear();
+    this->edges.clear();
 
     // make a deep copy of all the territories in the map
     for(auto *territory : map.territories) {
@@ -207,17 +259,75 @@ bool MapLoader::validateMapFile(const string &path) {
     string space_delimiter {" "};
 
     // Determine the presence of countries, continents and border identifiers
+
     bool countriesFlag {false};
     bool continentsFlag {false};
     bool bordersFlag {false};
 
+    bool countriesSection {false};
+    bool continentsSection {false};
+    bool bordersSection {false};
+
+    bool hasContinents {false};
+    bool invalidContinent {false};
+    bool hasCountries {false};
+    bool invalidCountry {false};
+    bool hasBorders {false};
+    bool invalidBorder {false};
+
     while(getline(file, line)) {
-        if (line.contains("[countries]")) countriesFlag = true;
-        if (line.contains("[continents]")) continentsFlag = true;
-        if (line.contains("[borders]")) bordersFlag = true;
+        bool emptyLine = isLineEmpty(line);
+        if (line.contains("[countries]")) {
+            countriesFlag = true;
+            countriesSection = true;
+            continentsSection = false;
+        }
+        if (line.contains("[continents]")) {
+            continentsFlag = true;
+            continentsSection = true;
+        }
+        if (line.contains("[borders]")) {
+            bordersFlag = true;
+            bordersSection = true;
+            countriesSection = false;
+            continentsSection = false;
+        }
+        if (continentsSection && !line.contains("[continents]")) {
+            vector<string> words = splitLine(line, space_delimiter);
+            if (words.size() < NBR_CONTINENT_ATTR && !emptyLine) {
+                invalidContinent = true;
+                break;
+            } else if (!emptyLine) hasContinents = true;
+        }
+        if (countriesSection && !line.contains("[countries]")) {
+            vector<string> words = splitLine(line, space_delimiter);
+            if (words.size() < NBR_COUNTRY_ATTR && !emptyLine) {
+                invalidCountry = true;
+                break;
+            } else if (!emptyLine) hasCountries = true;
+        }
+        if (bordersSection && !line.contains("[borders]")) {
+            vector<string> words = splitLine(line, space_delimiter);
+            if (words.size() < NBR_BORDER_ATTR && !emptyLine) {
+                invalidBorder = true;
+                break;
+            } else if (!emptyLine) hasBorders = true;
+        }
     }
     file.close();
 
+    if (invalidContinent) {
+        cout << "Invalid .map file: invalid continent specified... continents should have at least " << NBR_CONTINENT_ATTR << " attributes." << endl;
+        return false;
+    }
+    if (invalidCountry) {
+        cout << "Invalid .map file: invalid country specified... countries should have at least " << NBR_COUNTRY_ATTR << " attributes." << endl;
+        return false;
+    }
+    if (invalidBorder) {
+        cout << "Invalid .map file: invalid border specified... borders should have at least " << NBR_BORDER_ATTR << " attributes." << endl;
+        return false;
+    }
     if (!countriesFlag) {
         cout << "Invalid .map file: missing \"[countries]\" indicator..." << endl;
         return false;
@@ -230,11 +340,22 @@ bool MapLoader::validateMapFile(const string &path) {
         cout << "Invalid .map file: missing \"[borders]\" indicator..." << endl;
         return false;
     }
+    if (!hasContinents || !hasCountries || !hasBorders) {
+        cout << "Invalid .map file: there must be at least one continent, country and border..." << endl;
+        return false;
+    }
 
     return true;
 }
 
-vector<string> MapLoader::splitLine(string &line, string &delimiter) {
+bool MapLoader::isLineEmpty(string &line) {
+    for (const char &c : line) {
+        if (c != '\r' && c != '\t' && c != '\n' && c != ' ') return false;
+    }
+    return true;
+}
+
+vector<string> MapLoader::splitLine(string line, string &delimiter) {
     vector<string> words {};
     size_t pos {0};
     while ((pos = line.find(delimiter)) != string::npos) {
@@ -249,8 +370,15 @@ vector<string> MapLoader::splitLine(string &line, string &delimiter) {
 
 bool MapLoader::loadMap(const string &path) const {
 
-    bool validated = validateMapFile(path);
+    bool validated {false};
+    try {
+        validated = validateMapFile(path);
+    } catch (const exception& ex) {
+        cout << "Invalid .map file: " << ex.what() << endl;
+        return false;
+    }
     if (!validated) return validated;
+    cout << "Valid .map file" << endl;
 
     ifstream file {path};
     string line;

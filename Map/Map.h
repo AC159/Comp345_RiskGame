@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <vector>
-#include <unordered_map>
 #include <string>
 #include "../Player/Player.h"
 
@@ -41,7 +40,9 @@ public:
 
     Edge();
     Edge(Territory &src, Territory &dest);
-    // todo: implement overloaded assignment operator + copy constructor
+    Edge(const Edge &edge); // copy constructor
+
+    Edge& operator=(const Edge &edge); // overloaded assignment operator
     friend ostream& operator<<(ostream &out, const Edge &edge);
 
     ~Edge();
@@ -57,12 +58,12 @@ public:
 
     Continent();
     Continent(int continentNum, string &name, int bonus);
+    Continent(const Continent &continent);
+
+    Continent& operator=(const Continent &continent);
     friend ostream& operator<<(ostream &out, const Continent &continent); // overloaded stream insertion operator
 
-    // todo: implement overloaded assignment operator + copy constructor
-
     ~Continent();
-
 };
 
 
@@ -90,13 +91,19 @@ class MapLoader {
 public:
     Map* map;
 
+    // These values specify the minimum number of attributes that continents, countries and borders should specify in the .map file
+    static const int NBR_CONTINENT_ATTR = 3;
+    static const int NBR_COUNTRY_ATTR = 5;
+    static const int NBR_BORDER_ATTR = 2;
+
     MapLoader();
     MapLoader(const MapLoader &MapLoader); // copy constructor
 
     MapLoader& operator=(const MapLoader &loader); // overloaded assignment operator
     friend ostream& operator<<(ostream &out, const MapLoader &loader); // overloaded stream insertion operator
 
-    static vector<string> splitLine(string &line, string &delimiter); // helper function to help split lines while reading .map files
+    static bool isLineEmpty(string &line);
+    static vector<string> splitLine(string line, string &delimiter); // helper function to help split lines while reading .map files
     static bool validateMapFile(const string &path); // helper function that makes preliminary checks on a .map file
     bool loadMap(const string &path) const;
 
