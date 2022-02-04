@@ -166,25 +166,24 @@ bool Map::validate() {
         cout << "territory name: "<< territoryName->at(i)<<endl;
     }
     //iterate over vector and count the duplicates encountered
-    vector<int> *counter = new vector<int>;
-    for(int i =0; i<territoryName->size();i++){
+    for(int i =0; i<territoryName->size();i++) {
         string tName1 = territoryName->at(i);
-        for(int k=i+1;k<territoryName->size();k++){
-
+        for (int k = i + 1; k < territoryName->size(); k++) {
             string tName2 = territoryName->at(k);
             //cout<< "name 1: " <<tName1 <<" name2: "<<tName2<<endl;
-            if(tName1 == (tName2)){
-                counter->push_back(1);
-                cout<< "The same name! name 1: " <<tName1 <<" name2: "<<tName2<<endl;
-                cout<<"INVALID MAP"<< endl;
+            if (tName1 == (tName2)) {
+                cout << "The same name! name 1: " << tName1 << " name2: " << tName2 << endl;
+                cout << "INVALID MAP" << endl;
+                delete territoryName;
+                return false;
             }
         }
-    }cout<<"counter size: "<<counter->size()<<endl;
+    }
 
     //check if there are any duplicated egdes in the map file, if yes the map is invalid
 
 
-    //TODO check for duplicate edges
+
 
     //----------------------Part 2 -------------------------
     //method/lambda to delete an edge and its reverse edge, given the edge index, reverse edge index, and an edge pair list
@@ -241,6 +240,22 @@ bool Map::validate() {
         edgePairList->push_back(
                 make_pair(Map::edges.at(i)->source->countryNumber, Map::edges.at(i)->destination->countryNumber));
     }
+    //TODO check for duplicate edges
+    //iterate over vector and count the duplicate edges encountered
+    for(int i =0; i<edgePairList->size();i++) {
+       pair<int,int> edgePair1 = make_pair(edgePairList->at(i).first,edgePairList->at(i).second);
+        for (int k = i + 1; k < edgePairList->size(); k++) {
+            pair<int,int> edgePair2 = make_pair(edgePairList->at(k).first,edgePairList->at(k).second);
+            cout << "duplicate edges! Edgepair1" <<edgePair1.first<<","<<edgePair1.second << " Edge pair 2:  " << edgePair2.first<<", "<<edgePair2.second << endl;
+            if ((edgePair1.first == edgePair2.first) && (edgePair1.second == edgePair2.second)) {
+                cout << "duplicate edges! Edgepair1" <<edgePair1.first<<","<<edgePair1.second << " Edge pair 2:  " << edgePair2.first<<", "<<edgePair2.second << endl;
+                cout << "INVALID MAP" << endl;
+                return false;
+            }
+        }
+
+    }
+    cout<<"no duplicate edges!"<<endl;
 
     //using first element in the edgePairList as our starting point
     int reverseEdgeIndex = findReverseEdge(0, edgePairList);
@@ -333,8 +348,7 @@ bool Map::validate() {
     delete disconnected;
     delete connected;
     delete edgePairList;
-    delete territoryName;
-    delete counter;
+
 
     return true;
 }
