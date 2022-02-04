@@ -5,9 +5,12 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    MapLoader ml {};
+    MapLoader ml{};
     cout << ml << endl;
-    bool result = ml.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
+    bool result = ml.loadMap("../WarzoneMaps/solar/smallsolar.map");
+
+    bool mapIsValid = ml.map->validate();
+    cout << boolalpha << "map is valid = " << mapIsValid << endl;
 
 //    MapLoader ml2;
 //    ml2 = ml;
