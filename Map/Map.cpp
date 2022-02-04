@@ -150,6 +150,7 @@ ostream &operator<<(ostream &out, const Map &map) {
     for (const auto *territory: map.territories) {
         out << *territory;
     }
+
     return out;
 }
 
@@ -157,6 +158,35 @@ ostream &operator<<(ostream &out, const Map &map) {
 bool Map::validate() {
     // todo: implement this method
 
+    //----------------------Part 3 -------------------------
+    // validate that each country belongs to one and only one continent
+    vector<string> *territoryName = new vector<string>;
+    for(int i =0; i<Map::territories.size();i++){
+        territoryName->push_back(Map::territories.at(i)->name);
+        cout << "territory name: "<< territoryName->at(i)<<endl;
+    }
+    //iterate over vector and count the duplicates encountered
+    vector<int> *counter = new vector<int>;
+    for(int i =0; i<territoryName->size();i++){
+        string tName1 = territoryName->at(i);
+        for(int k=i+1;k<territoryName->size();k++){
+
+            string tName2 = territoryName->at(k);
+            //cout<< "name 1: " <<tName1 <<" name2: "<<tName2<<endl;
+            if(tName1 == (tName2)){
+                counter->push_back(1);
+                cout<< "The same name! name 1: " <<tName1 <<" name2: "<<tName2<<endl;
+                cout<<"INVALID MAP"<< endl;
+            }
+        }
+    }cout<<"counter size: "<<counter->size()<<endl;
+
+    //check if there are any duplicated egdes in the map file, if yes the map is invalid
+
+
+    //TODO check for duplicate edges
+
+    //----------------------Part 2 -------------------------
     //method/lambda to delete an edge and its reverse edge, given the edge index, reverse edge index, and an edge pair list
     auto deleteEdgeAndReverseEdge = [&](int edgeIndex, int reverseEdgeIndex, vector<pair<int, int>> *edgePairList) {
         if (edgeIndex < 0 || reverseEdgeIndex < 0 || edgeIndex == reverseEdgeIndex || reverseEdgeIndex < edgeIndex ||
@@ -303,6 +333,8 @@ bool Map::validate() {
     delete disconnected;
     delete connected;
     delete edgePairList;
+    delete territoryName;
+    delete counter;
 
     return true;
 }
