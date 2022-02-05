@@ -17,6 +17,12 @@ int main(int argc, char *argv[]) {
     MapLoader ml2{};
     bool result = ml.loadMap("../WarzoneMaps/canada/canada.map");
     bool mapIsValid = ml2.map->validate();
+    //    bool result = ml.loadMap("../WarzoneMaps/solar/smallsolar.map");
+//    cout << ml << endl;
+    //invalid: not connected graph
+    //bool invalidResult = ml.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
+    //invalid: duplicate country
+//    bool invalidResult = ml.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
     cout << boolalpha << "map is valid = " << mapIsValid << endl;
 
     string s1 = "quebec";
