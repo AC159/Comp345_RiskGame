@@ -9,13 +9,10 @@
 
 using namespace std;
 
-// todo: add getters and setters for each class
-
 // A territory/country is the smallest unit in the Map connected graph
 class Territory {
 
 public:
-//    vector<Territory *> borders;
     Player* owner;
     int numberOfArmies;
     string name;

@@ -26,13 +26,6 @@ Territory::Territory(const Territory &territory) {
     this->name = territory.name;
     this->numberOfArmies = territory.numberOfArmies;
     this->owner = territory.owner; // shallow copy of Player object
-
-    // this->borders = territory.borders; // shallow copy
-//    this->borders = vector<Territory *>(territory.borders.size());
-//    // make a deep copy of all the borders of this territory
-//    for (const Territory* t : territory.borders) {
-//        this->borders.push_back(new Territory(*t));
-//    }
 }
 
 Territory& Territory::operator=(const Territory &territory) {
@@ -180,9 +173,9 @@ Map &Map::operator=(const Map &map) {
     this->continents.clear();
     this->edges.clear();
 
-    // make a deep copy of all the territories in the map
+    // make a shallow copy of all the territories in the map
     for(auto *territory : map.territories) {
-        this->territories.push_back(new Territory(*territory));
+        this->territories.push_back(territory);
     }
     return *this;
 }
@@ -203,33 +196,38 @@ bool Map::validate() {
 
 Map::~Map() {
     cout << "Map destructor invoked..." << endl;
+    for (Edge *edge : this->edges) {
+        delete edge;
+        edge = nullptr;
+    }
     for (Continent *cont : this->continents) {
         delete cont;
+        cont = nullptr;
     }
     for (Territory *territory : this->territories) {
         delete territory;
+        territory = nullptr;
     }
-    for (Edge *edge : this->edges) {
-        delete edge;
-    }
+    this->territories.clear();
+    this->continents.clear();
+    this->edges.clear();
 }
-
 
 // ================= MapLoader Class =====================
 
 MapLoader::MapLoader() {
-    map = new Map();
+    this->map = new Map();
 }
 
 MapLoader::MapLoader(const MapLoader &MapLoader) {
-    this->map = new Map(*MapLoader.map);
+    this->map = MapLoader.map; // shallow copy of map object
 }
 
 MapLoader &MapLoader::operator=(const MapLoader &loader) {
     cout << "Inside = overload for MapLoader..." << endl;
     if (this == &loader) return *this;
     delete this->map;
-    this->map = new Map(*loader.map); // deep clone of map object
+    this->map = loader.map; // shallow copy of map object
     return *this;
 }
 
@@ -275,6 +273,9 @@ bool MapLoader::validateMapFile(const string &path) {
     bool hasBorders {false};
     bool invalidBorder {false};
 
+    int nbrOfContinents {0};
+    int nbrOfCountries {0};
+
     while(getline(file, line)) {
         bool emptyLine = isLineEmpty(line);
         if (line.contains("[countries]")) {
@@ -297,21 +298,48 @@ bool MapLoader::validateMapFile(const string &path) {
             if (words.size() < NBR_CONTINENT_ATTR && !emptyLine) {
                 invalidContinent = true;
                 break;
-            } else if (!emptyLine) hasContinents = true;
+            } else if (!emptyLine) {
+                hasContinents = true;
+                nbrOfContinents++;
+            }
         }
         if (countriesSection && !line.contains("[countries]")) {
             vector<string> words = splitLine(line, space_delimiter);
             if (words.size() < NBR_COUNTRY_ATTR && !emptyLine) {
                 invalidCountry = true;
                 break;
-            } else if (!emptyLine) hasCountries = true;
+            } else if (!emptyLine) {
+                hasCountries = true;
+                nbrOfCountries++;
+                // Determine if the country references an invalid continent number
+                int continentId = stoi(words.at(2));
+                if (continentId-1 >= nbrOfContinents) {
+                    cout << "Invalid .map file: country " << words.at(1) << " references invalid continent #" << continentId << endl;
+                    return false;
+                }
+            }
         }
         if (bordersSection && !line.contains("[borders]")) {
             vector<string> words = splitLine(line, space_delimiter);
             if (words.size() < NBR_BORDER_ATTR && !emptyLine) {
                 invalidBorder = true;
                 break;
-            } else if (!emptyLine) hasBorders = true;
+            } else if (!emptyLine) {
+                hasBorders = true;
+                // Determine if the border references invalid country numbers
+                int sourceCountryId = stoi(words.at(0));
+                if (sourceCountryId-1 >= nbrOfCountries) {
+                    cout << "Invalid .map file: border references invalid country #" << sourceCountryId << endl;
+                    return false;
+                }
+                for (int i = 1; i < words.size(); i++) {
+                    int destinationId = stoi(words.at(i));
+                    if (destinationId-1 >= nbrOfCountries) {
+                        cout << "Invalid .map file: border references invalid country #" << destinationId << endl;
+                        return false;
+                    }
+                }
+            }
         }
     }
     file.close();
@@ -421,17 +449,16 @@ bool MapLoader::loadMap(const string &path) const {
             Territory* t = new Territory(territoryId, continentOfTerritory, territoryName);
 
             this->map->territories.push_back(t);
-            // place this territory into its respective continent in the map
-            // -1 because the continents vector is 0 indexed
-            this->map->continents.at(continentOfTerritory-1)->territories.push_back(t);
+            int continentIndex = continentOfTerritory-1;
+            this->map->continents.at(continentIndex)->territories.push_back(t);
             cout << *t << endl;
             words.clear();
         }
 
         if (borders && !line.contains("[borders]")) {
             vector<string> words = splitLine(line, space_delimiter);
-            int countryId = stoi(words.at(0));
-            Territory* src = this->map->territories.at(countryId-1);
+            int sourceCountryId = stoi(words.at(0));
+            Territory* src = this->map->territories.at(sourceCountryId-1);
             for (int i = 1; i < words.size(); i++) {
                 int destinationId = stoi(words.at(i));
                 Territory* dest = this->map->territories.at(destinationId-1);
@@ -445,11 +472,11 @@ bool MapLoader::loadMap(const string &path) const {
     }
 
     file.close();
+    return true;
 }
 
 MapLoader::~MapLoader() {
     cout << "MapLoader destructor invoked..." << endl;
     delete map;
+    map = nullptr;
 }
-
-

@@ -7,7 +7,12 @@ int main(int argc, char *argv[]) {
 
     MapLoader ml {};
     cout << ml << endl;
-    bool result = ml.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
+    bool valid = ml.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
+
+    if (!valid) {
+        cout << "Invalid .map file...exiting." << endl;
+        exit(1);
+    }
 
     string s1 = "quebec";
     string s2 = "ontario";
