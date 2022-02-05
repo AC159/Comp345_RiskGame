@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     }
 
     MapLoader ml2{};
-    bool result = ml.loadMap("../WarzoneMaps/canada/canada.map");
+    bool result = ml2.loadMap("../WarzoneMaps/canada/canada.map");
     bool mapIsValid = ml2.map->validate();
     //    bool result = ml.loadMap("../WarzoneMaps/solar/smallsolar.map");
 //    cout << ml << endl;
