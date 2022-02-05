@@ -156,34 +156,33 @@ ostream &operator<<(ostream &out, const Map &map) {
 
 // Checks (1) the map is a connected graph (2) continent are connected subgraphs (3) each country belongs to one and only one continent
 bool Map::validate() {
-    // todo: implement this method
+    cout << "----------Inside Map::validate() method----------\n";
 
     //----------------------Part 3 -------------------------
     // validate that each country belongs to one and only one continent
     vector<string> *territoryName = new vector<string>;
-    for(int i =0; i<Map::territories.size();i++){
+    for (int i = 0; i < Map::territories.size(); i++) {
         territoryName->push_back(Map::territories.at(i)->name);
-        cout << "territory name: "<< territoryName->at(i)<<endl;
+        cout << "territory name: " << territoryName->at(i) << endl;
     }
+
     //iterate over vector and count the duplicates encountered
-    for(int i =0; i<territoryName->size();i++) {
+    for (int i = 0; i < territoryName->size(); i++) {
         string tName1 = territoryName->at(i);
         for (int k = i + 1; k < territoryName->size(); k++) {
             string tName2 = territoryName->at(k);
             //cout<< "name 1: " <<tName1 <<" name2: "<<tName2<<endl;
             if (tName1 == (tName2)) {
-                cout << "The same name! name 1: " << tName1 << " name2: " << tName2 << endl;
-                cout << "INVALID MAP" << endl;
+//                cout << "The same name! name 1: " << tName1 << " name2: " << tName2 << endl;
+//                cout << "INVALID MAP" << endl;
+                cout << "ERROR: INVALID MAP! Duplicate territory/country name found!" << endl;
                 delete territoryName;
                 return false;
             }
         }
     }
 
-    //check if there are any duplicated egdes in the map file, if yes the map is invalid
-
-
-
+    delete territoryName; //delete territoryName vector from heap, as it is no longer needed
 
     //----------------------Part 2 -------------------------
     //method/lambda to delete an edge and its reverse edge, given the edge index, reverse edge index, and an edge pair list
@@ -223,39 +222,74 @@ bool Map::validate() {
         return false;
     };
 
-    cout << "----------Inside Map::validate() method----------\n";
-    vector<pair<int, int>> *edgePairList = new vector<pair<int, int>>; //vector of type int number pair
-    vector<int> *connected = new vector<int>; //vector to store connected territories
-    vector<pair<int, int>> *disconnected = new vector<pair<int, int>>; //vector to store disconnected territories as a pair
+    auto isInContinents = [=](int continentNumber, vector<int> *continentNumbers) {
+        for (int i = 0; i < continentNumbers->size(); i++) {
+            if (continentNumber == continentNumbers->at(i))
+                return true;
+        }
+        return false;
+    };
 
     //if the number of edges is odd, then the map is invalid
     //each node must have 2 edges to any given node (outbound + inbound), so total number of edges must be even
     if (Map::edges.size() % 2 != 0) {
-        cout << "One of the edges on this map goes in only one direction between territories. INVALID MAP!" << endl;
+        cout << "ERROR: One of the edges on this map goes in only one direction between territories. INVALID MAP!"
+             << endl;
         return false;
     }
 
-    //creating edges as pair list
+    vector<pair<int, int>> *edgePairList = new vector<pair<int, int>>; //vector of type int number pair
+    vector<int> *connected = new vector<int>; //vector to store connected territories
+    vector<pair<int, int>> *disconnected = new vector<pair<int, int>>; //vector to store disconnected territories as a pair
+    vector<int> *continentNumbers = new vector<int>;
+
+    //creating edges as pair list; adding continent numbers to continentNumbers vector for continent validation
     for (int i = 0; i < Map::edges.size(); i++) {
         edgePairList->push_back(
                 make_pair(Map::edges.at(i)->source->countryNumber, Map::edges.at(i)->destination->countryNumber));
+        if (!isInContinents(edges.at(i)->source->continent, continentNumbers))
+            continentNumbers->push_back(edges.at(i)->source->continent);
+        if (!isInContinents(edges.at(i)->destination->continent, continentNumbers))
+            continentNumbers->push_back(edges.at(i)->destination->continent);
     }
-    //TODO check for duplicate edges
+
+    //check if there are any duplicated edges in the map file; if yes, the map is invalid
     //iterate over vector and count the duplicate edges encountered
     for(int i =0; i<edgePairList->size();i++) {
        pair<int,int> edgePair1 = make_pair(edgePairList->at(i).first,edgePairList->at(i).second);
         for (int k = i + 1; k < edgePairList->size(); k++) {
             pair<int,int> edgePair2 = make_pair(edgePairList->at(k).first,edgePairList->at(k).second);
-            cout << "duplicate edges! Edgepair1" <<edgePair1.first<<","<<edgePair1.second << " Edge pair 2:  " << edgePair2.first<<", "<<edgePair2.second << endl;
             if ((edgePair1.first == edgePair2.first) && (edgePair1.second == edgePair2.second)) {
-                cout << "duplicate edges! Edgepair1" <<edgePair1.first<<","<<edgePair1.second << " Edge pair 2:  " << edgePair2.first<<", "<<edgePair2.second << endl;
-                cout << "INVALID MAP" << endl;
+                cout << "ERROR: INVALID MAP! Duplicate edges found! edgePair1: (" <<edgePair1.first<<", "<<edgePair1.second << "); edgePair 2: (" << edgePair2.first<<", "<<edgePair2.second << ")" <<endl;
+                cout << "ERROR: INVALID MAP! Duplicate edges found!" << endl;
+                delete continentNumbers;
+                delete disconnected;
+                delete connected;
+                delete edgePairList;
                 return false;
             }
         }
-
     }
-    cout<<"no duplicate edges!"<<endl;
+
+//    cout<<"No duplicate edges!"<<endl;
+
+//    //printing continentNumbers vector
+//    for (int x: *continentNumbers)
+//        cout << x << endl;
+//
+//    //printing total number of continents that actually exist in the map file
+//    cout << "number of continents = " << Map::continents.size() << endl;
+
+    //check to see if one or more continents are disconnected; if so, map is invalid!
+    if (continentNumbers->size() != Map::continents.size()) {
+        cout << "ERROR: INVALID MAP! One or more of the continents are not connected, or is duplicated." << endl;
+        delete continentNumbers;
+        delete disconnected;
+        delete connected;
+        delete edgePairList;
+        return false;
+    } else
+        delete continentNumbers; //delete continentNumbers vector from heap, as it is no longer needed
 
     //using first element in the edgePairList as our starting point
     int reverseEdgeIndex = findReverseEdge(0, edgePairList);
@@ -264,7 +298,7 @@ bool Map::validate() {
         connected->push_back(edgePairList->at(0).second);
         deleteEdgeAndReverseEdge(0, reverseEdgeIndex, edgePairList);
     } else { //this handles cases where there is only an outbound/inbound edge, without its reverse existing; invalid map
-        cout << "Could not find a reverse edge. This should not be possible! INVALID MAP!" << endl;
+        cout << "ERROR: INVALID MAP! Could not find a reverse edge. This should not be possible!" << endl;
         delete disconnected;
         delete connected;
         delete edgePairList;
@@ -278,13 +312,15 @@ bool Map::validate() {
             int edgeTerritory1 = edgePairList->at(0).first;
             int edgeTerritory2 = edgePairList->at(0).second;
             if (isConnected(edgeTerritory1, connected)) {
-                if (!isConnected(edgeTerritory2, connected)) { //handles cases where first territory in the edge is connected, but second territory in edge is not connected
+                if (!isConnected(edgeTerritory2,
+                                 connected)) { //handles cases where first territory in the edge is connected, but second territory in edge is not connected
                     connected->push_back(edgeTerritory2);
                     deleteEdgeAndReverseEdge(0, reverseEdgeIndex, edgePairList);
                 } else { //handles cases where first and second territory in the edge are connected
                     deleteEdgeAndReverseEdge(0, reverseEdgeIndex, edgePairList);
                 }
-            } else if (isConnected(edgeTerritory2, connected)) { //handles cases where second territory in the edge is connected, but first territory in edge is not connected
+            } else if (isConnected(edgeTerritory2,
+                                   connected)) { //handles cases where second territory in the edge is connected, but first territory in edge is not connected
                 connected->push_back(edgeTerritory1);
                 deleteEdgeAndReverseEdge(0, reverseEdgeIndex, edgePairList);
             } else { //handles cases where neither first nor second territory in the edge are connected (i.e. both territories are disconnected)
@@ -292,7 +328,7 @@ bool Map::validate() {
                 deleteEdgeAndReverseEdge(0, reverseEdgeIndex, edgePairList);
             }
         } else { //this handles cases where there is only an outbound/inbound edge, without its reverse existing; invalid map
-            cout << "Could not find a reverse edge. This should not be possible! INVALID MAP!" << endl;
+            cout << "ERROR: INVALID MAP! Could not find a reverse edge. This should not be possible!" << endl;
             delete disconnected;
             delete connected;
             delete edgePairList;
@@ -307,13 +343,15 @@ bool Map::validate() {
         int edgeTerritory1 = disconnected->at(disconnectedCounter).first;
         int edgeTerritory2 = disconnected->at(disconnectedCounter).second;
         if (isConnected(edgeTerritory1, connected)) {
-            if (!isConnected(edgeTerritory2, connected)) { //handles cases where first territory in the edge is connected, but second territory in edge is not connected
+            if (!isConnected(edgeTerritory2,
+                             connected)) { //handles cases where first territory in the edge is connected, but second territory in edge is not connected
                 connected->push_back(edgeTerritory2);
                 disconnected->erase(disconnected->begin() + disconnectedCounter);
             } else { //handles cases where first and second territory in the edge are connected
                 disconnected->erase(disconnected->begin() + disconnectedCounter);
             }
-        } else if (isConnected(edgeTerritory2, connected)) { //handles cases where second territory in the edge is connected, but first territory in edge is not connected
+        } else if (isConnected(edgeTerritory2,
+                               connected)) { //handles cases where second territory in the edge is connected, but first territory in edge is not connected
             connected->push_back(edgeTerritory1);
             disconnected->erase(disconnected->begin() + disconnectedCounter);
         } else { //handles cases where neither first nor second territory in the edge are connected (i.e. both territories are disconnected)
@@ -348,7 +386,6 @@ bool Map::validate() {
     delete disconnected;
     delete connected;
     delete edgePairList;
-
 
     return true;
 }

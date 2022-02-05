@@ -9,12 +9,13 @@ int main(int argc, char *argv[]) {
 
     cout << ml << endl;
     //valid map
-   // bool result = ml.loadMap("../WarzoneMaps/solar/smallsolar.map");
-    cout << ml << endl;
+    bool result = ml.loadMap("../WarzoneMaps/canada/canada.map");
+//    bool result = ml.loadMap("../WarzoneMaps/solar/smallsolar.map");
+//    cout << ml << endl;
     //invalid: not connected graph
-    bool invalidResult = ml.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
+    //bool invalidResult = ml.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
     //invalid: duplicate country
-    //bool invalidResult = ml.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
+//    bool invalidResult = ml.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
 
     bool mapIsValid = ml.map->validate();
     cout << boolalpha << "map is valid = " << mapIsValid << endl;
