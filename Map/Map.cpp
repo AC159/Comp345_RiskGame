@@ -222,8 +222,7 @@ bool Map::validate() {
     //----------------------Part 2 -------------------------
     //method/lambda to delete an edge and its reverse edge, given the edge index, reverse edge index, and an edge pair list
     auto deleteEdgeAndReverseEdge = [&](int edgeIndex, int reverseEdgeIndex, vector<pair<int, int>> *edgePairList) {
-        if (edgeIndex < 0 || reverseEdgeIndex < 0 || edgeIndex == reverseEdgeIndex || reverseEdgeIndex < edgeIndex ||
-            edgePairList->empty() == true) {
+        if (edgeIndex < 0 || reverseEdgeIndex < 0 || edgeIndex == reverseEdgeIndex || reverseEdgeIndex < edgeIndex || edgePairList->empty()) {
             cout << "ERROR: check edgeIndex and reverseEdgeIndex values; check that edgePairList is not empty." << endl;
             return false;
         }
