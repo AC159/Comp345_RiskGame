@@ -19,9 +19,9 @@ int main(int argc, char *argv[]) {
 //    bool result = ml2.loadMap("../WarzoneMaps/solar/smallsolar.map");
 //    cout << ml2 << endl;
     // invalid: not connected graph
-    // bool invalidResult = ml2.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
+     bool invalidResult = ml2.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
     //invalid: duplicate country
-    bool invalidResult = ml2.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
+//    bool invalidResult = ml2.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
 
     bool mapIsValid = ml2.map->validate();
     cout << boolalpha << "map is valid = " << mapIsValid << endl;

@@ -193,6 +193,12 @@ ostream &operator<<(ostream &out, const Map &map) {
 bool Map::validate() {
     cout << "----------Inside Map::validate() method----------\n";
 
+    //check for empty map or empty portions of the map
+    if (Map::continents.size() == 0 || Map::territories.size() == 0 || Map::edges.size() == 0){
+        cout << "ERROR: INVALID MAP! Check that continents, territories/countries, and edges on this map are not empty or undefined." << endl;
+        return false;
+    }
+
     //----------------------Part 3 -------------------------
     // validate that each country belongs to one and only one continent
     vector<string> *territoryName = new vector<string>;
@@ -294,7 +300,7 @@ bool Map::validate() {
         for (int k = i + 1; k < edgePairList->size(); k++) {
             pair<int,int> edgePair2 = make_pair(edgePairList->at(k).first,edgePairList->at(k).second);
             if ((edgePair1.first == edgePair2.first) && (edgePair1.second == edgePair2.second)) {
-                cout << "ERROR: INVALID MAP! Duplicate edges found! edgePair1: (" <<edgePair1.first<<", "<<edgePair1.second << "); edgePair 2: (" << edgePair2.first<<", "<<edgePair2.second << ")" <<endl;
+//                cout << "ERROR: INVALID MAP! Duplicate edges found! edgePair1: (" <<edgePair1.first<<", "<<edgePair1.second << "); edgePair 2: (" << edgePair2.first<<", "<<edgePair2.second << ")" <<endl;
                 cout << "ERROR: INVALID MAP! Duplicate edges found!" << endl;
                 delete continentNumbers;
                 delete disconnected;
