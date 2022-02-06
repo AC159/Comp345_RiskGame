@@ -19,7 +19,7 @@ Pluto 2 yellow
 5 Pluto-East 2 80 31
 6 Pluto-West 2 61 29
 
-[]
+[borders]
 1 2 3
 2 1 3 4
 3 1 2 4
