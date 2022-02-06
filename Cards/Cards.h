@@ -8,93 +8,98 @@
 
 using namespace std;
 
+// Card class is an abstract class that will be implemented by subclasses
 class Card {
 public:
-
-    Card();
-    Card(const Card &card);
-
-    Card& operator=(const Card &card);
     friend ostream& operator<<(ostream &out, const Card &card);
-
-    void play();
-
-    ~Card();
+    virtual string getType() = 0;
+    virtual void play() = 0;
+    virtual ~Card();
 };
 
 
 // Card of type Bomb
 class Bomb : public Card {
+private:
+    string type;
 public:
     Bomb();
     Bomb(const Bomb &bomb);
 
     Bomb& operator=(const Bomb &bomb);
-    friend ostream& operator<<(ostream &out, const Bomb &bomb);
 
-    void play();
+    string getType() override;
+    void play() override;
 
-    ~Bomb();
+    ~Bomb() override;
 };
 
 
 // Card of type Reinforcement
 class Reinforcement : public Card {
+private:
+    string type;
 public:
     Reinforcement();
     Reinforcement(const Reinforcement &r);
 
     Reinforcement& operator=(const Reinforcement &r);
-    friend ostream& operator<<(ostream &out, const Reinforcement &r);
 
-    void play();
+    string getType() override;
+    void play() override;
 
-    ~Reinforcement();
+    ~Reinforcement() override;
 };
 
 
 // Card of type Blockade
 class Blockade : public Card {
+private:
+    string type;
 public:
     Blockade();
     Blockade(const Blockade &blockade);
 
     Blockade& operator=(const Blockade &blockade);
-    friend ostream& operator<<(ostream &out, const Blockade &blockade);
 
-    void play();
+    string getType() override;
+    void play() override;
 
-    ~Blockade();
+    ~Blockade() override;
 };
 
 
 // Card of type Airlift
 class Airlift : public Card {
+private:
+    string type;
 public:
     Airlift();
     Airlift(const Airlift &airlift);
 
     Airlift& operator=(const Airlift &airlift);
-    friend ostream& operator<<(ostream &out, const Airlift &airlift);
 
-    void play();
+    string getType() override;
+    void play() override;
 
-    ~Airlift();
+    ~Airlift() override;
 };
 
 
 // Card of type Diplomacy
 class Diplomacy : public Card {
+private:
+    string type;
 public:
     Diplomacy();
     Diplomacy(const Diplomacy &diplomacy);
 
     Diplomacy& operator=(const Diplomacy &diplomacy);
-    friend ostream& operator<<(ostream &out, const Diplomacy &diplomacy);
 
-    void play();
+    string getType() override;
+    void play() override;
 
-    ~Diplomacy();
+    ~Diplomacy() override;
 };
 
 

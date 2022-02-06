@@ -93,3 +93,134 @@ Hand::~Hand() {
         card = nullptr;
     }
 }
+
+// ======================== Card class ========================
+
+ostream &operator<<(ostream &out, const Card &card) {
+    out << "Card type: " << card.getType() << endl;
+    return out;
+}
+
+Card::~Card() = default;
+
+// ======================== Bomb class ========================
+
+Bomb::Bomb() = default;
+
+Bomb::Bomb(const Bomb &bomb) {
+    this->type = bomb.type;
+}
+
+Bomb& Bomb::operator=(const Bomb &bomb) {
+    if (this == &bomb) return *this;
+    this->type = bomb.type;
+    return *this;
+}
+
+string Bomb::getType() {
+    return this->type;
+}
+
+void Bomb::play() {
+
+}
+
+Bomb::~Bomb() = default;
+
+
+// ======================== Reinforcement class ========================
+
+Reinforcement::Reinforcement() = default;
+
+Reinforcement::Reinforcement(const Reinforcement &r) {
+    this->type = r.type;
+}
+
+Reinforcement &Reinforcement::operator=(const Reinforcement &r) {
+    if (this == &r) return *this;
+    this->type = r.type;
+    return *this;
+}
+
+string Reinforcement::getType() {
+    return this->type;
+}
+
+void Reinforcement::play() {
+
+}
+
+Reinforcement::~Reinforcement() = default;
+
+// ======================== Blockade class ========================
+
+Blockade::Blockade() = default;
+
+Blockade::Blockade(const Blockade &blockade) {
+    this->type = blockade.type;
+}
+
+Blockade &Blockade::operator=(const Blockade &blockade) {
+    if (this == &blockade) return *this;
+    this->type = blockade.type;
+    return *this;
+}
+
+string Blockade::getType() {
+    return this->type;
+}
+
+void Blockade::play() {
+
+}
+
+Blockade::~Blockade() = default;
+
+// ======================== Airlift class ========================
+
+Airlift::Airlift() = default;
+
+Airlift::Airlift(const Airlift &airlift) {
+    this->type = airlift.type;
+}
+
+Airlift &Airlift::operator=(const Airlift &airlift) {
+    if (this == &airlift) return *this;
+    this->type = airlift.type;
+    return *this;
+}
+
+string Airlift::getType() {
+    return this->type;
+}
+
+void Airlift::play() {
+
+}
+
+Airlift::~Airlift() = default;
+
+// ======================== Diplomacy class ========================
+
+Diplomacy::Diplomacy() = default;
+
+Diplomacy::Diplomacy(const Diplomacy &diplomacy) {
+    this->type = diplomacy.type;
+}
+
+Diplomacy &Diplomacy::operator=(const Diplomacy &diplomacy) {
+    if (this == &diplomacy) return *this;
+    this->type = diplomacy.type;
+    return *this;
+}
+
+string Diplomacy::getType() {
+    return this->type;
+}
+
+void Diplomacy::play() {
+
+}
+
+Diplomacy::~Diplomacy() = default;
+
