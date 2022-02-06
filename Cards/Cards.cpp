@@ -6,8 +6,8 @@
 Deck::Deck() = default;
 
 Deck::Deck(const Deck &deck) {
-    for (const Card* card : cards) {
-        Card* c = new Card(*c); // create a deep copy of card objects
+    for (Card* card : cards) {
+        Card* c = card->clone(); // create a deep copy of card objects
         this->cards.push_back(c);
     }
 }
@@ -23,8 +23,8 @@ Deck &Deck::operator=(const Deck &deck) {
     }
     this->cards.clear();
 
-    for (const Card* card : deck.cards) {
-        Card* c = new Card(*c); // create a deep copy of card objects
+    for (Card* card : deck.cards) {
+        Card* c = card->clone(); // create a deep copy of card objects
         this->cards.push_back(c);
     }
     return *this;
@@ -59,7 +59,7 @@ Hand::Hand() = default;
 
 Hand::Hand(const Hand &hand) {
     for (Card* card : hand.cards) {
-        Card* c = new Card(*c); // create a deep copy of card objects
+        Card* c = card->clone(); // create a deep copy of card objects
         this->cards.push_back(c);
     }
 }
@@ -74,7 +74,7 @@ Hand &Hand::operator=(const Hand &hand) {
     }
     this->cards.clear();
     for (Card* card : hand.cards) {
-        Card* c = new Card(*c); // create a deep copy of card objects
+        Card* c = card->clone(); // create a deep copy of card objects
         this->cards.push_back(c);
     }
     return *this;
@@ -117,8 +117,12 @@ Bomb& Bomb::operator=(const Bomb &bomb) {
     return *this;
 }
 
-string Bomb::getType() {
+string Bomb::getType() const {
     return this->type;
+}
+
+Card* Bomb::clone() {
+    return new Bomb(*this);
 }
 
 void Bomb::play() {
@@ -142,12 +146,16 @@ Reinforcement &Reinforcement::operator=(const Reinforcement &r) {
     return *this;
 }
 
-string Reinforcement::getType() {
+string Reinforcement::getType() const {
     return this->type;
 }
 
 void Reinforcement::play() {
 
+}
+
+Card *Reinforcement::clone() {
+    return new Reinforcement(*this);
 }
 
 Reinforcement::~Reinforcement() = default;
@@ -166,12 +174,16 @@ Blockade &Blockade::operator=(const Blockade &blockade) {
     return *this;
 }
 
-string Blockade::getType() {
+string Blockade::getType() const {
     return this->type;
 }
 
 void Blockade::play() {
 
+}
+
+Card *Blockade::clone() {
+    return new Blockade(*this);
 }
 
 Blockade::~Blockade() = default;
@@ -190,12 +202,16 @@ Airlift &Airlift::operator=(const Airlift &airlift) {
     return *this;
 }
 
-string Airlift::getType() {
+string Airlift::getType() const {
     return this->type;
 }
 
 void Airlift::play() {
 
+}
+
+Card *Airlift::clone() {
+    return new Airlift(*this);
 }
 
 Airlift::~Airlift() = default;
@@ -214,12 +230,16 @@ Diplomacy &Diplomacy::operator=(const Diplomacy &diplomacy) {
     return *this;
 }
 
-string Diplomacy::getType() {
+string Diplomacy::getType() const {
     return this->type;
 }
 
 void Diplomacy::play() {
 
+}
+
+Card *Diplomacy::clone() {
+    return new Diplomacy(*this);
 }
 
 Diplomacy::~Diplomacy() = default;

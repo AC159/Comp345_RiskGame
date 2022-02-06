@@ -12,8 +12,9 @@ using namespace std;
 class Card {
 public:
     friend ostream& operator<<(ostream &out, const Card &card);
-    virtual string getType() = 0;
+    virtual string getType() const = 0;
     virtual void play() = 0;
+    virtual Card* clone() = 0;
     virtual ~Card();
 };
 
@@ -28,7 +29,8 @@ public:
 
     Bomb& operator=(const Bomb &bomb);
 
-    string getType() override;
+    Card* clone() override;
+    string getType() const override;
     void play() override;
 
     ~Bomb() override;
@@ -45,7 +47,8 @@ public:
 
     Reinforcement& operator=(const Reinforcement &r);
 
-    string getType() override;
+    Card* clone() override;
+    string getType() const override;
     void play() override;
 
     ~Reinforcement() override;
@@ -62,7 +65,8 @@ public:
 
     Blockade& operator=(const Blockade &blockade);
 
-    string getType() override;
+    Card* clone() override;
+    string getType() const override;
     void play() override;
 
     ~Blockade() override;
@@ -79,7 +83,8 @@ public:
 
     Airlift& operator=(const Airlift &airlift);
 
-    string getType() override;
+    Card* clone() override;
+    string getType() const override;
     void play() override;
 
     ~Airlift() override;
@@ -96,7 +101,8 @@ public:
 
     Diplomacy& operator=(const Diplomacy &diplomacy);
 
-    string getType() override;
+    Card* clone() override;
+    string getType() const override;
     void play() override;
 
     ~Diplomacy() override;
