@@ -15,6 +15,12 @@ class Edge;
 class TestCards{};
 class TestOrders{};
 
+
+public:
+    Player(const Player &p);
+
+    ~Player();
+
 // Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
 class Player{
     private:

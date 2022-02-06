@@ -5,6 +5,11 @@
 #include "Player.h"
 
 
+Player::Player(const Player &p) = default;
+
+Player::~Player() = default;
+
+
 Player::Player(){
     name = "No Name";
     territories = new map<int, Territory*>;
@@ -132,3 +137,4 @@ map<int, Territory*>* Player::toAttack(list<Edge*> &edges){
 void Player::issueOrder(TestOrders *order){
     (*orders).insert(orders->end(),order);
 }
+
