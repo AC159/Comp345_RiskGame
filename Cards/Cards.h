@@ -15,7 +15,7 @@ public:
     Card(const Card &card);
 
     Card& operator=(const Card &card);
-    friend ostream& operator<<(const ostream &out, const Card &card);
+    friend ostream& operator<<(ostream &out, const Card &card);
 
     void play();
 
@@ -30,7 +30,7 @@ public:
     Bomb(const Bomb &bomb);
 
     Bomb& operator=(const Bomb &bomb);
-    friend ostream& operator<<(const ostream &out, const Bomb &bomb);
+    friend ostream& operator<<(ostream &out, const Bomb &bomb);
 
     void play();
 
@@ -45,7 +45,7 @@ public:
     Reinforcement(const Reinforcement &r);
 
     Reinforcement& operator=(const Reinforcement &r);
-    friend ostream& operator<<(const ostream &out, const Reinforcement &r);
+    friend ostream& operator<<(ostream &out, const Reinforcement &r);
 
     void play();
 
@@ -60,7 +60,7 @@ public:
     Blockade(const Blockade &blockade);
 
     Blockade& operator=(const Blockade &blockade);
-    friend ostream& operator<<(const ostream &out, const Blockade &blockade);
+    friend ostream& operator<<(ostream &out, const Blockade &blockade);
 
     void play();
 
@@ -75,7 +75,7 @@ public:
     Airlift(const Airlift &airlift);
 
     Airlift& operator=(const Airlift &airlift);
-    friend ostream& operator<<(const ostream &out, const Airlift &airlift);
+    friend ostream& operator<<(ostream &out, const Airlift &airlift);
 
     void play();
 
@@ -90,7 +90,7 @@ public:
     Diplomacy(const Diplomacy &diplomacy);
 
     Diplomacy& operator=(const Diplomacy &diplomacy);
-    friend ostream& operator<<(const ostream &out, const Diplomacy &diplomacy);
+    friend ostream& operator<<(ostream &out, const Diplomacy &diplomacy);
 
     void play();
 
@@ -106,7 +106,7 @@ public:
     Hand(const Hand &hand);
 
     Hand& operator=(const Hand &hand);
-    friend ostream& operator<<(const ostream &out, const Hand &hand);
+    friend ostream& operator<<(ostream &out, const Hand &hand);
 
     ~Hand();
 };
@@ -120,9 +120,9 @@ public:
     Deck(const Deck &deck);
 
     Deck& operator=(const Deck &deck);
-    friend ostream& operator<<(const ostream &out, const Deck &deck);
+    friend ostream& operator<<(ostream &out, const Deck &deck);
 
-    void draw();
+    Card* draw();
 
     ~Deck();
 
