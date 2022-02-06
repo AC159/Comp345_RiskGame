@@ -32,7 +32,7 @@ Deck &Deck::operator=(const Deck &deck) {
 
 ostream& operator<<(ostream &out, const Deck &deck) {
     for (const Card* c : deck.cards) {
-        out << *c << endl;
+        out << *c;
     }
     return out;
 }
@@ -105,7 +105,9 @@ Card::~Card() = default;
 
 // ======================== Bomb class ========================
 
-Bomb::Bomb() = default;
+Bomb::Bomb() {
+    this->type = "bomb";
+}
 
 Bomb::Bomb(const Bomb &bomb) {
     this->type = bomb.type;
@@ -134,7 +136,9 @@ Bomb::~Bomb() = default;
 
 // ======================== Reinforcement class ========================
 
-Reinforcement::Reinforcement() = default;
+Reinforcement::Reinforcement() {
+    this->type = "reinforcement";
+}
 
 Reinforcement::Reinforcement(const Reinforcement &r) {
     this->type = r.type;
@@ -162,7 +166,9 @@ Reinforcement::~Reinforcement() = default;
 
 // ======================== Blockade class ========================
 
-Blockade::Blockade() = default;
+Blockade::Blockade() {
+    this->type = "blockade";
+}
 
 Blockade::Blockade(const Blockade &blockade) {
     this->type = blockade.type;
@@ -190,7 +196,9 @@ Blockade::~Blockade() = default;
 
 // ======================== Airlift class ========================
 
-Airlift::Airlift() = default;
+Airlift::Airlift() {
+    this->type = "airlift";
+}
 
 Airlift::Airlift(const Airlift &airlift) {
     this->type = airlift.type;
@@ -218,7 +226,9 @@ Airlift::~Airlift() = default;
 
 // ======================== Diplomacy class ========================
 
-Diplomacy::Diplomacy() = default;
+Diplomacy::Diplomacy() {
+    this->type = "diplomacy";
+}
 
 Diplomacy::Diplomacy(const Diplomacy &diplomacy) {
     this->type = diplomacy.type;
