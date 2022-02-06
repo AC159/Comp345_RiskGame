@@ -1,6 +1,7 @@
 #include "Cards.h"
 #include <experimental/random>
 
+// ======================== Deck class ========================
 
 Deck::Deck() = default;
 
@@ -16,7 +17,7 @@ Deck &Deck::operator=(const Deck &deck) {
     if (this == &deck) return *this;
 
     // Deallocate all the memory associated with this Deck of cards
-    for (const Card* card : cards) {
+    for (const Card* card : this->cards) {
         delete card;
         card = nullptr;
     }
@@ -47,6 +48,47 @@ Card* Deck::draw() {
 
 Deck::~Deck() {
     for (const Card* card : cards) {
+        delete card;
+        card = nullptr;
+    }
+}
+
+// ======================== Hand class ========================
+
+Hand::Hand() = default;
+
+Hand::Hand(const Hand &hand) {
+    for (Card* card : hand.cards) {
+        Card* c = new Card(*c); // create a deep copy of card objects
+        this->cards.push_back(c);
+    }
+}
+
+Hand &Hand::operator=(const Hand &hand) {
+    if (this ==  &hand) return *this;
+
+    // Deallocate all the memory associated with this Hand of cards
+    for (const Card* card : this->cards) {
+        delete card;
+        card = nullptr;
+    }
+    this->cards.clear();
+    for (Card* card : hand.cards) {
+        Card* c = new Card(*c); // create a deep copy of card objects
+        this->cards.push_back(c);
+    }
+    return *this;
+}
+
+ostream &operator<<(ostream &out, const Hand &hand) {
+    for (const Card* c : hand.cards) {
+        out << *c << endl;
+    }
+    return out;
+}
+
+Hand::~Hand() {
+    for (const Card* card : this->cards) {
         delete card;
         card = nullptr;
     }
