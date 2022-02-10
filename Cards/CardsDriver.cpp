@@ -48,12 +48,15 @@ int main(int argc, char *argv[]) {
     cout << "Deck 2: " << endl;
     cout << deck2;
 
-    // Draw card from deck
-    Card* c = deck2.draw();
-    cout << "\nDrawn card from deck: " << endl;
-    cout << *c;
+    Hand hand{};
 
-    delete c;
+    // Draw cards from deck and add them to the hand object
+    hand.cards.push_back(deck2.draw());
+    hand.cards.push_back(deck2.draw());
+    hand.cards.push_back(deck2.draw());
+
+    cout << "Cards in the hand: " << endl;
+    cout << hand << endl;
 
     return 0;
 }
