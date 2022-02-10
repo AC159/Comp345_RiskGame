@@ -127,7 +127,7 @@ Card* Bomb::clone() {
     return new Bomb(*this);
 }
 
-void Bomb::play() {
+void Bomb::play(Player &player) {
 
 }
 
@@ -154,7 +154,7 @@ string Reinforcement::getType() const {
     return this->type;
 }
 
-void Reinforcement::play() {
+void Reinforcement::play(Player &player) {
 
 }
 
@@ -184,7 +184,7 @@ string Blockade::getType() const {
     return this->type;
 }
 
-void Blockade::play() {
+void Blockade::play(Player &player) {
 
 }
 
@@ -214,7 +214,7 @@ string Airlift::getType() const {
     return this->type;
 }
 
-void Airlift::play() {
+void Airlift::play(Player &player) {
 
 }
 
@@ -244,7 +244,7 @@ string Diplomacy::getType() const {
     return this->type;
 }
 
-void Diplomacy::play() {
+void Diplomacy::play(Player &player) {
 
 }
 

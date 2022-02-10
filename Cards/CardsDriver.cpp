@@ -48,5 +48,12 @@ int main(int argc, char *argv[]) {
     cout << "Deck 2: " << endl;
     cout << deck2;
 
+    // Draw card from deck
+    Card* c = deck2.draw();
+    cout << "\nDrawn card from deck: " << endl;
+    cout << *c;
+
+    delete c;
+
     return 0;
 }

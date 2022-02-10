@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "../Player/Player.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ class Card {
 public:
     friend ostream& operator<<(ostream &out, const Card &card);
     virtual string getType() const = 0;
-    virtual void play() = 0;
+    virtual void play(Player &player) = 0;
     virtual Card* clone() = 0;
     virtual ~Card();
 };
@@ -31,7 +32,7 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player) override;
 
     ~Bomb() override;
 };
@@ -49,7 +50,7 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player) override;
 
     ~Reinforcement() override;
 };
@@ -67,7 +68,7 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player) override;
 
     ~Blockade() override;
 };
@@ -85,7 +86,7 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player) override;
 
     ~Airlift() override;
 };
@@ -103,7 +104,7 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player) override;
 
     ~Diplomacy() override;
 };
