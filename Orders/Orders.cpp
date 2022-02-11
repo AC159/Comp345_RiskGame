@@ -290,16 +290,10 @@ OrdersList::OrdersList() {
 }
 
 OrdersList::OrdersList(const OrdersList &ordersList) {
-    // TODO: figure out why vector elements don't copy and how to fix
-    // deep copy:
-//    orders.reserve(ordersList.orders.size());
-//    for (Order *order: orders) {
-//        orders.push_back(new Order(*order))); //this doesn't work either, also Order is abstract
-//    }
-    // shallow copy
-    cout << "copy constructor";
-    for (Order *order: orders) {
-        this->orders.push_back(order);
+    // deep copy
+    orders.reserve(ordersList.orders.size());
+    for (Order *order: ordersList.orders) {
+        orders.push_back(order->clone());
     }
 }
 
@@ -310,11 +304,18 @@ OrdersList::~OrdersList() {
 }
 
 OrdersList & OrdersList::operator=(const OrdersList &ordersList) {
-    // TODO: figure out why vector elements don't copy and how to fix
-    // shallow copy
-    cout << "assignemtn operatr";
-    for (Order *order: orders) {
-        this->orders.push_back(order);
+    if (this != &ordersList) {
+        // deallocate memory from lhs
+        for (Order *order: orders) {
+            delete order;
+        }
+        orders.clear();
+
+        // create deep copy of rhs into lhs
+        orders.reserve(ordersList.orders.size());
+        for (Order *order: ordersList.orders) {
+            orders.push_back(order->clone());
+        }
     }
     return *this;
 }
