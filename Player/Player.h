@@ -10,11 +10,6 @@
 #include "../Cards/Cards.h"
 using namespace std;
 
-//test classes for territories, orders, and cards
-class Territory;
-class Edge;
-class TestOrders{};
-class Hand;
 
 // Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
 class Player{

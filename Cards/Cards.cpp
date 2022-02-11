@@ -1,5 +1,8 @@
 #include "Cards.h"
+#include "../Orders/Orders.h"
 #include <experimental/random>
+
+using namespace Cards;
 
 // ======================== Deck class ========================
 
@@ -127,7 +130,8 @@ Card* Bomb::clone() {
     return new Bomb(*this);
 }
 
-void Bomb::play(Player &player) {
+void Bomb::play(Player &player, Deck &deck) {
+    Order* order = new Bomb();
 
 }
 
@@ -154,7 +158,7 @@ string Reinforcement::getType() const {
     return this->type;
 }
 
-void Reinforcement::play(Player &player) {
+void Reinforcement::play(Player &player, Deck &deck) {
 
 }
 
@@ -184,7 +188,7 @@ string Blockade::getType() const {
     return this->type;
 }
 
-void Blockade::play(Player &player) {
+void Blockade::play(Player &player, Deck &deck) {
 
 }
 
@@ -214,7 +218,7 @@ string Airlift::getType() const {
     return this->type;
 }
 
-void Airlift::play(Player &player) {
+void Airlift::play(Player &player, Deck &deck) {
 
 }
 
@@ -244,7 +248,7 @@ string Diplomacy::getType() const {
     return this->type;
 }
 
-void Diplomacy::play(Player &player) {
+void Diplomacy::play(Player &player, Deck &deck) {
 
 }
 
