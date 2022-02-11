@@ -273,7 +273,7 @@ bool Map::validate() {
     //if the number of edges is odd, then the map is invalid
     //each node must have 2 edges to any given node (outbound + inbound), so total number of edges must be even
     if (Map::edges.size() % 2 != 0) {
-        cout << "ERROR: One of the edges on this map goes in only one direction between territories. INVALID MAP!"
+        cout << "ERROR: INVALID MAP! One of the edges on this map goes in only one direction between territories."
              << endl;
         return false;
     }
@@ -407,7 +407,7 @@ bool Map::validate() {
             cout << "number of territories = " << Map::territories.size() << endl;
             cout << "number of connected territories = " << connected->size() << endl;
             cout << "number of disconnected territories = " << Map::territories.size() - connected->size() << endl;
-            cout << "This map is disconnected. INVALID MAP!" << endl;
+            cout << "ERROR: INVALID MAP! This map is disconnected." << endl;
             delete disconnected;
             delete connected;
             delete edgePairList;
