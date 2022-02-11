@@ -9,8 +9,16 @@
 
 using namespace std;
 
+namespace Graph {
+    class Territory;
+    class Edge;
+    class Continent;
+    class Map;
+    class MapLoader;
+}
+
 // A territory/country is the smallest unit in the Map connected graph
-class Territory {
+class Graph::Territory {
 
 public:
     Player* owner;
@@ -30,7 +38,7 @@ public:
 
 };
 
-class Edge {
+class Graph::Edge {
 public:
     Territory* source;
     Territory* destination;
@@ -46,7 +54,7 @@ public:
 
 };
 
-class Continent {
+class Graph::Continent {
 public:
     int continentNumber;
     string name;
@@ -64,7 +72,7 @@ public:
 };
 
 
-class Map {
+class Graph::Map {
 
 public:
 
@@ -84,7 +92,7 @@ public:
 };
 
 
-class MapLoader {
+class Graph::MapLoader {
 public:
     Map* map;
 

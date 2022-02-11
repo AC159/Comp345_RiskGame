@@ -4,6 +4,7 @@
 #include <list>
 #include "Player.h"
 
+using namespace Cards;
 
 // default constructor
 Player::Player(){

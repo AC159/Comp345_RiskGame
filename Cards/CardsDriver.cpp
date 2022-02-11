@@ -2,6 +2,7 @@
 #include "Cards.h"
 
 using namespace std;
+using namespace Cards;
 
 int main(int argc, char *argv[]) {
 
