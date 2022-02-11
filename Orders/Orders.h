@@ -134,7 +134,7 @@ public:
 
     void add(Order *newOrder);
     [[nodiscard]] size_t length() const;
-    [[nodiscard]] Order * element(int index) const;
+    [[nodiscard]] Order * element(size_t index) const;
 
 
 private:

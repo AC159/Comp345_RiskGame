@@ -379,7 +379,7 @@ size_t OrdersList::length() const{
 }
 
 //returns the element at the given index
-Order * OrdersList::element(int index) const {
+Order * OrdersList::element(size_t index) const {
     //validate index
     if (index >= orders.size()) {
         return nullptr;
