@@ -65,6 +65,10 @@ string Deploy::className() {
     return "Deploy";
 }
 
+Deploy * Deploy::clone() const {
+    return new Deploy(*this);
+}
+
 // ====================== Advance class ======================
 Advance::Advance() {
     cout << "Created an Advance order." << endl;
@@ -102,6 +106,10 @@ void Advance::execute() {
 
 string Advance::className() {
     return "Advance";
+}
+
+Advance * Advance::clone() const {
+    return new Advance(*this);
 }
 
 // ====================== Bomb class ======================
@@ -143,6 +151,10 @@ string Bomb::className() {
     return "Bomb";
 }
 
+Bomb * Bomb::clone() const {
+    return new Bomb(*this);
+}
+
 // ====================== Blockade class ======================
 Blockade::Blockade() {
     cout << "Created a Blockade order." << endl;
@@ -180,6 +192,10 @@ void Blockade::execute() {
 
 string Blockade::className() {
     return "Blockade";
+}
+
+Blockade * Blockade::clone() const {
+    return new Blockade(*this);
 }
 
 // ====================== Airlift class ======================
@@ -221,6 +237,10 @@ string Airlift::className() {
     return "Airlift";
 }
 
+Airlift * Airlift::clone() const {
+    return new Airlift(*this);
+}
+
 // ====================== Negotiate class ======================
 Negotiate::Negotiate() {
     cout << "Created a Negotiate order." << endl;
@@ -258,6 +278,10 @@ void Negotiate::execute() {
 
 string Negotiate::className() {
     return "Negotiate";
+}
+
+Negotiate * Negotiate::clone() const {
+    return new Negotiate(*this);
 }
 
 // ====================== OrdersList class ======================

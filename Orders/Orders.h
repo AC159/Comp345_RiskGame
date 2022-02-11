@@ -17,6 +17,7 @@ public:
     virtual bool validate() = 0;
     virtual void execute() = 0;
     virtual string className() = 0;
+    [[nodiscard]] virtual Order* clone() const = 0;
 };
 
 class Deploy : public Order {
@@ -29,6 +30,7 @@ public:
     bool validate() override;
     void execute() override;
     string className() override;
+    [[nodiscard]] Deploy * clone() const override;
 };
 
 class Advance : public Order {
@@ -41,6 +43,7 @@ public:
     bool validate() override;
     void execute() override;
     string className() override;
+    [[nodiscard]] Advance * clone() const override;
 };
 
 class Bomb : public Order {
@@ -53,6 +56,7 @@ public:
     bool validate() override;
     void execute() override;
     string className() override;
+    [[nodiscard]] Bomb * clone() const override;
 };
 
 class Blockade : public Order {
@@ -65,6 +69,7 @@ public:
     bool validate() override;
     void execute() override;
     string className() override;
+    [[nodiscard]] Blockade * clone() const override;
 };
 
 class Airlift : public Order {
@@ -77,6 +82,7 @@ public:
     bool validate() override;
     void execute() override;
     string className() override;
+    [[nodiscard]] Airlift * clone() const override;
 };
 
 class Negotiate : public Order {
@@ -89,6 +95,7 @@ public:
     bool validate() override;
     void execute() override;
     string className() override;
+    [[nodiscard]] Negotiate * clone() const override;
 };
 
 class OrdersList {
