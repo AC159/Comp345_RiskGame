@@ -2,6 +2,9 @@
 #include <string>
 #include "Map.h"
 
+using namespace std;
+using namespace Graph;
+
 // ================= Territory Class =====================
 
 Territory::Territory() {
@@ -45,7 +48,7 @@ Territory& Territory::operator=(const Territory &territory) {
     return *this;
 }
 
-ostream &operator<<(ostream &out, const Territory &territory) {
+ostream& Graph::operator<<(ostream &out, const Territory &territory) {
     out << "Name: " << territory.name << "\tContinent: " << territory.continent << "\tCountry: " << territory.countryNumber << "\tNbrOfArmies: " << territory.numberOfArmies << endl;
     return out;
 }
@@ -83,7 +86,7 @@ Edge& Edge::operator=(const Edge &edge) {
      return *this;
 }
 
-ostream& operator<<(ostream &out, const Edge &edge) {
+ostream& Graph::operator<<(ostream &out, const Edge &edge) {
     out << "Edge: " << endl;
     out << "\tSource: " << "\t" << *edge.source << endl;
     out << "\tDestination: " << "\t" << *edge.destination << endl;
@@ -132,7 +135,7 @@ Continent& Continent::operator=(const Continent &continent) {
     return *this;
 }
 
-ostream& operator<<(ostream &out, const Continent &continent) {
+ostream& Graph::operator<<(ostream &out, const Continent &continent) {
     out << "Name: " << continent.name << "\tBonus value: " << continent.bonusValue << "\tContinent Nbr: " << continent.continentNumber << endl;
     return out;
 }
@@ -180,7 +183,7 @@ Map &Map::operator=(const Map &map) {
     return *this;
 }
 
-ostream &operator<<(ostream &out, const Map &map) {
+ostream& Graph::operator<<(ostream &out, const Map &map) {
     out << "Inside << overload for Map" << endl;
     // iterate over all elements of the map and print all countries by continent
     for(const auto *territory : map.territories) {
@@ -468,7 +471,7 @@ MapLoader &MapLoader::operator=(const MapLoader &loader) {
     return *this;
 }
 
-ostream &operator<<(ostream &out, const MapLoader &loader) {
+ostream& Graph::operator<<(ostream &out, const MapLoader &loader) {
     out << "Inside << overload for MapLoader" << endl;
     out << *loader.map;
     return out;
