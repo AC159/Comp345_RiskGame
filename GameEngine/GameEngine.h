@@ -13,87 +13,63 @@ class GameEngine {
 
 
 public:
-    //Start state
-    class Start {
-    public:
-        Start();
-        string userInput;
+//============= start state ================
+    void welcomeMessage();
 
-        void welcomeMessage();
+    //user command loadMap
+    bool validateStartStateCommand();
 
-        //user command loadMap
-        bool validateCommand();
 
-    private:
-        //Start *currentState;
+//============= map loaded state =================
+    void mapLoadedStateChange();
 
-    };
+    void chooseMapToLoad();
 
-    //map loaded state
-    class MapLoaded {
+    void validateMapLoadedCommand();
 
-    public:
-        int userNumInput;
+    MapLoader mapLoader{};
 
-        void chooseMapToLoad();
 
-        int validateCommand();
+//============= map validated state =================
+    void mapValidatedStateChange();
 
-        MapLoader ml{};
-    };
+    bool validateMapValidatedCommand();
 
-    //map validated state
-    class MapValidated {
-    public:
+//============= players added state =================
+    int playerAmount = 1;
 
-        bool validateCommand();
-    };
+    void playersAddedStateChange();
 
-    //players added state
-    class PlayersAdded {
-    public:
-        int playerAmount=1;
-        void addPlayer();
-        bool validateCommand();
+    void addPlayer();
 
-    };
+    bool validatePlayersAddedCommand();
 
-    //assign reinforcement state
-    class AssignReinforcement {
-    public:
-        void assignReinforcement();
+//============= assign reinforcement state =================
+    void assignReinforcementStateChange();
 
-        void validateCommand();
-    };
+    void validateAssignReinforcementCommand();
 
-    //issue orders state
-    class IssueOrders {
-    public:
-        void issueOrdersStateChange();
+//============= issue orders state =================
+    void issueOrdersStateChange();
 
-        void validateCommand();
+    void validateIssueOrdersCommand();
 
-    private:
-        void createAndAddOrder(int commandNumber);
-    };
+//============= execute orders state =================
+    void executeOrdersStateChange();
 
-    //execute orders state
-    class ExecuteOrders {
-    public:
-        void executeOrdersStateChange();
+    int validateExecuteOrdersCommand();
 
-        int validateCommand();
+//============= win state =================
+    void winStateChange();
 
-    private:
-        void executeOrders();
-    };
+    int validateWinCommand();
 
-    //win state
-    class Win {
-    public:
-        void winStateChange();
-    };
+private:
+    string state; //state variable
 
+    void changeState(string state); //state to change current stated and output current state
+    void createAndAddOrder(int commandNumber); //issue orders state
+    void executeOrders(); //execute orders state
 };
 
 
