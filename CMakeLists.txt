@@ -9,7 +9,7 @@ add_executable(Comp345RiskGame
         #/MapDriver.cpp
         Player/Player.cpp Player/Player.h
 #        Player/PlayerDriver.cpp
-#        Orders/Orders.cpp Orders/Orders.h Orders/OrdersDriver.cpp
+        Orders/Orders.cpp Orders/Orders.h Orders
 #        Cards/Cards.cpp Cards/Cards.h Cards/CardsDriver.cpp
         GameEngine/GameEngine.cpp GameEngine/GameEngine.h GameEngine/GameEngineDriver.cpp
         )

@@ -3,16 +3,17 @@
 #define COMP345RISKGAME_GAMEENGINE_H
 
 #include "../Map/Map.h"
+#include "../Orders/Orders.h"
 #include <istream>
 
 using namespace std;
 
 class GameEngine {
 //    static string state;
-    static vector<string> ordersList; //dummy var to test adding and executing orders
 
-//Start state
+
 public:
+    //Start state
     class Start {
     public:
         Start();
@@ -37,6 +38,7 @@ public:
 
     };
 
+    //map loaded state
     class MapLoaded {
 
         //MapLoaded(const MapLoaded)
@@ -52,13 +54,14 @@ public:
         MapLoader ml{};
     };
 
+    //map validated state
     class MapValidated {
     public:
 
         bool validateCommand();
     };
 
-
+    //players added state
     class PlayersAdded {
     public:
         int playerAmount;
@@ -67,6 +70,7 @@ public:
 
     };
 
+    //assign reinforcement state
     class AssignReinforcement {
     public:
         void assignReinforcement();
@@ -74,6 +78,7 @@ public:
         void validateCommand();
     };
 
+    //issue orders state
     class IssueOrders {
     public:
         void issueOrdersStateChange();
@@ -84,6 +89,7 @@ public:
         void createAndAddOrder(int commandNumber);
     };
 
+    //execute orders state
     class ExecuteOrders {
     public:
         void executeOrdersStateChange();
@@ -94,7 +100,8 @@ public:
         void executeOrders();
     };
 
-    class Win{
+    //win state
+    class Win {
     public:
         void winStateChange();
     };

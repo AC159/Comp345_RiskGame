@@ -1,7 +1,7 @@
 
 #include "GameEngine.h"
 #include "GameEngine.h"
-vector<string> GameEngine::ordersList = vector<string>();
+OrdersList ordersList;
 
 //=============Start state ================
 GameEngine::Start::Start() = default;
@@ -130,57 +130,37 @@ void GameEngine::IssueOrders::issueOrdersStateChange() {
 }
 
 void GameEngine::IssueOrders::createAndAddOrder(int commandNumber) {
-    //create and add orders in the cases below
     switch (commandNumber) {
         case 1:
             cout << "Adding 'deploy' order to order list..." << endl;
-            ordersList.push_back("deploy");
+            ordersList.add(new Deploy);
             break;
         case 2:
             cout << "Adding 'advance' order to order list..." << endl;
-            ordersList.push_back("advance");
+            ordersList.add(new Advance);
             break;
         case 3:
             cout << "Adding 'bomb' order to order list..." << endl;
-            ordersList.push_back("bomb");
+            ordersList.add(new Bomb);
             break;
         case 4:
             cout << "Adding 'blockade' order to order list..." << endl;
-            ordersList.push_back("blockade");
+            ordersList.add(new Blockade);
             break;
         case 5:
             cout << "Adding 'airlift' order to order list..." << endl;
-            ordersList.push_back("airlift");
+            ordersList.add(new Airlift);
             break;
         case 6:
             cout << "Adding 'negotiate' order to order list..." << endl;
-            ordersList.push_back("negotiate");
+            ordersList.add(new Negotiate);
             break;
     }
-//    switch (commandNumber) {
-//        case 1:
-//            cout << "Deploying forces..." << endl;
-//            break;
-//        case 2:
-//            cout << "Advancing forces..." << endl;
-//            break;
-//        case 3:
-//            cout << "Bombing territory..." << endl;
-//            break;
-//        case 4:
-//            cout << "Adding blockade..." << endl;
-//            break;
-//        case 5:
-//            cout << "Airlifting armies..." << endl;
-//            break;
-//        case 6:
-//            cout << "Negotiating..." << endl;
-//            break;
-//    }
 }
 
 void GameEngine::IssueOrders::validateCommand() {
-    cout << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders" << endl;
+    cout << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
+         << endl;
     cout << "Please enter command number:";
     int userInput;
     cin >> userInput;
@@ -191,7 +171,9 @@ void GameEngine::IssueOrders::validateCommand() {
             cin >> userInput;
         } else {
             GameEngine::IssueOrders::createAndAddOrder(userInput);
-            cout << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders" << endl;
+            cout
+                    << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
+                    << endl;
             cout << "Please enter command number:";
             cin >> userInput;
         }
@@ -204,9 +186,11 @@ void GameEngine::ExecuteOrders::executeOrdersStateChange() {
 }
 
 void GameEngine::ExecuteOrders::executeOrders() {
-    for(string order:ordersList)
-        cout << "Executing \'" << order << "\' order..." << endl;
-    ordersList.clear();
+    for (size_t i = 0; i < ordersList.length(); i++) {
+        ordersList.element(i)->execute();
+        ordersList.remove(i);
+        i--;
+    }
 }
 
 int GameEngine::ExecuteOrders::validateCommand() {
@@ -215,18 +199,18 @@ int GameEngine::ExecuteOrders::validateCommand() {
     int userInput;
     cin >> userInput;
 
-    while (userInput != 1 && userInput != 2){
+    while (userInput != 1 && userInput != 2) {
         cout << "Invalid selection. Please enter command number:" << endl;
         cin >> userInput;
     }
 
-    if (userInput == 1){
+    if (userInput == 1) {
         GameEngine::ExecuteOrders::executeOrders();
         cout << "Command list:\n1. endexecorder\n2. win" << endl;
         cout << "Please enter command number:";
         cin >> userInput;
 
-        while (userInput != 1 && userInput != 2){
+        while (userInput != 1 && userInput != 2) {
             cout << "Invalid selection. Please enter command number:" << endl;
             cin >> userInput;
         }
