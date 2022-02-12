@@ -2,6 +2,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace Orders;
 
 /**
  * Test the move functionality of the OrdersList class

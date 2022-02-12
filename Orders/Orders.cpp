@@ -1,7 +1,8 @@
-
-#include "Orders.h"
 #include <iostream>
+#include "Orders.h"
+
 using namespace std;
+using namespace Orders;
 
 // ====================== Order class ======================
 Order::Order() {
@@ -329,7 +330,7 @@ OrdersList & OrdersList::operator=(const OrdersList &ordersList) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & operator<<(ostream &out, const OrdersList &ordersList) {
+ostream& Orders::operator<<(ostream &out, const OrdersList &ordersList) {
     out << "{";
     if (!ordersList.orders.empty()) {
         out << "[0]=" << ordersList.orders[0]->className();
