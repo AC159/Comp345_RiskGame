@@ -5,25 +5,19 @@
 #include <map>
 #include <list>
 #include <string>
-#include "..\Map\Map.h"
-#include "..\Cards\Cards.h"
-#include "..\Orders\Orders.h"
+#include "../Map/Map.h"
+#include "../Cards/Cards.h"
+#include "../Orders/Orders.h"
+
 using namespace std;
 using namespace Graph;
-// using namespace Cards;
-// using namespace Orders;
 
-// class Territory;
-// class Edge;
-// class Hand;
-class OrdersList;   
-
-namespace Players{
+namespace Players {
     class Player;
 }
 
 // Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
-class Player{
+class Players::Player {
     private:
         string *name; // name of player
 

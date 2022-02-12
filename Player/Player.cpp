@@ -1,11 +1,10 @@
 #include <iostream>
 #include <list>
 #include "Player.h"
-// #include "..\Cards\Cards.h"
-// using namespace Players;
+
 using namespace Cards;
 using namespace Orders;
-
+using namespace Players;
 
 // default constructor
 Player::Player(){
