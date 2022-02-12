@@ -1,5 +1,4 @@
 #include "Cards.h"
-#include "../Orders/Orders.h"
 #include <experimental/random>
 
 using namespace Cards;
@@ -33,7 +32,7 @@ Deck &Deck::operator=(const Deck &deck) {
     return *this;
 }
 
-ostream& operator<<(ostream &out, const Deck &deck) {
+std::ostream& operator<<(std::ostream &out, const Deck &deck) {
     for (const Card* c : deck.cards) {
         out << *c;
     }
@@ -43,7 +42,7 @@ ostream& operator<<(ostream &out, const Deck &deck) {
 Card* Deck::draw() {
     // randomly draw a card from the deck, remove it from the deck and return a pointer to that card
     int nbrOfCards = this->cards.size()-1;
-    int random = experimental::randint(0, nbrOfCards);
+    int random = std::experimental::randint(0, nbrOfCards);
     Card* c =this->cards.at(random);
     this->cards.erase(this->cards.begin() + random);
     return c;
@@ -83,9 +82,9 @@ Hand &Hand::operator=(const Hand &hand) {
     return *this;
 }
 
-ostream &operator<<(ostream &out, const Hand &hand) {
+std::ostream &operator<<(std::ostream &out, const Hand &hand) {
     for (const Card* c : hand.cards) {
-        out << *c << endl;
+        out << *c << std::endl;
     }
     return out;
 }
@@ -99,8 +98,8 @@ Hand::~Hand() {
 
 // ======================== Card class ========================
 
-ostream &operator<<(ostream &out, const Card &card) {
-    out << "Card type: " << card.getType() << endl;
+std::ostream& Cards::operator<<(std::ostream &out, const Card &card) {
+    out << "Card type: " << card.getType() << std::endl;
     return out;
 }
 
@@ -122,7 +121,7 @@ Bomb& Bomb::operator=(const Bomb &bomb) {
     return *this;
 }
 
-string Bomb::getType() const {
+std::string Bomb::getType() const {
     return this->type;
 }
 
@@ -131,7 +130,7 @@ Card* Bomb::clone() {
 }
 
 void Bomb::play(Player &player, Deck &deck) {
-    Order* order = new Bomb();
+//    Order* order = new Bomb();
 
 }
 
@@ -154,7 +153,7 @@ Reinforcement &Reinforcement::operator=(const Reinforcement &r) {
     return *this;
 }
 
-string Reinforcement::getType() const {
+std::string Reinforcement::getType() const {
     return this->type;
 }
 
@@ -184,7 +183,7 @@ Blockade &Blockade::operator=(const Blockade &blockade) {
     return *this;
 }
 
-string Blockade::getType() const {
+std::string Blockade::getType() const {
     return this->type;
 }
 
@@ -214,7 +213,7 @@ Airlift &Airlift::operator=(const Airlift &airlift) {
     return *this;
 }
 
-string Airlift::getType() const {
+std::string Airlift::getType() const {
     return this->type;
 }
 
@@ -244,7 +243,7 @@ Diplomacy &Diplomacy::operator=(const Diplomacy &diplomacy) {
     return *this;
 }
 
-string Diplomacy::getType() const {
+std::string Diplomacy::getType() const {
     return this->type;
 }
 

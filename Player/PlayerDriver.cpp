@@ -1,7 +1,9 @@
 #include "Player.h"
 #include <iostream>
+
 using namespace std;
-// using namespace Graph;
+//using namespace Players;
+using namespace Cards;
 
 int main(){
     // test territories
@@ -51,8 +53,8 @@ int main(){
     edges->insert(it,GN);
 
     // test cards
-    Cards::Bomb *bombCard = new Cards::Bomb();
-    Cards::Airlift *airliftCard = new Cards::Airlift();
+//    Cards::Bomb *bombCard = new Cards::Bomb();
+//    Cards::Airlift *airliftCard = new Cards::Airlift();
 
     // test players
     string *playerOneName = new string("One");
@@ -77,8 +79,8 @@ int main(){
 
 
     // insert bomb and airlift cards
-    playerOne->addCard(bombCard);
-    playerOne->addCard(airliftCard);
+//    playerOne->addCard(bombCard);
+//    playerOne->addCard(airliftCard);
 
     cout << "Insert bomb and airlift card to playerOne." << endl;
     cout << endl;

@@ -1,15 +1,15 @@
 #include <iostream>
 #include <list>
 #include "Player.h"
+//#include "../Orders/Orders.h"
 
-using namespace Cards;
-using namespace Orders;
-using namespace Players;
+using namespace std;
+//using namespace Players;
 
 // default constructor
 Player::Player(){
     name = new string("No name");
-    hand = new Hand();
+    hand = new Cards::Hand();
     orders = new Orders::OrdersList();
 }
 
@@ -17,7 +17,7 @@ Player::Player(){
 //constructor for Player class to initialize the name and the collection of territories, cards, and orders
 Player::Player(string &newName){
     name = &newName;
-    hand = new Hand();
+    hand = new Cards::Hand();
     orders = new Orders::OrdersList();
 }
 
@@ -37,7 +37,7 @@ Player::Player(const Player &player){
     }
 
     // create a new list of cards and use copy constructor of Hand class to copy the hand of the other player
-    this->hand = new Hand(*(player.hand));
+    this->hand = new Cards::Hand(*(player.hand));
 
     // create a new list of orders and use copy constructor to copy orders from other player
     this->orders = new Orders::OrdersList(*(player.orders));
@@ -69,9 +69,9 @@ Player &Player::operator=(const Player &player){
     // delete the current collection of cards and use 
     this->hand->cards.clear();
     delete this->hand;
-    this->hand = new Hand(*(player.hand));
+    this->hand = new Cards::Hand(*(player.hand));
 
-    // delete the currect list of orders, create a new orderslist then issue all orders from the other player
+    // delete the current list of orders, create a new orderslist then issue all orders from the other player
     delete this->orders;
     this->orders = new Orders::OrdersList(*(player.orders));
 
@@ -79,7 +79,7 @@ Player &Player::operator=(const Player &player){
 }
 
 
-// ostream operator displays the player's terrritories, hand, and orders
+// ostream operator displays the player's territories, hand, and orders
 ostream& operator<<(ostream &out, const Player &player){
     out << "Player " << *(player.name) << "'s" << endl;
     out << "territories: " << endl;
@@ -87,7 +87,7 @@ ostream& operator<<(ostream &out, const Player &player){
         out << "\t" << it->second->name << endl;
     }
     out << "hand: " << endl;
-    for(vector<Card*>::const_iterator it = player.hand->cards.begin(); it != player.hand->cards.end(); it++){
+    for(vector<Cards::Card*>::const_iterator it = player.hand->cards.begin(); it != player.hand->cards.end(); it++){
         out << "\t" << (*it)->getType() << endl;
     }
     out << "orders: " << endl;
@@ -128,7 +128,7 @@ map<int, Territory*> Player::toAttack(list<Edge*> &edges){
 // inserts an order to the player's list of orders
 // orderType: deploy, advance, bomb, blockade, airlift
 void Player::issueOrder(string orderType){
-    Order *newOrder;
+    Orders::Order *newOrder;
     if(orderType.compare("deploy")){ newOrder = new Orders::Deploy(); }
     else if(orderType.compare("advance")){ newOrder = new Orders::Advance(); }
     else if(orderType.compare("bomb")){ newOrder = new Orders::Bomb(); }
@@ -138,7 +138,7 @@ void Player::issueOrder(string orderType){
 }
 
 
-// acessor method for name
+// accessor method for name
 string Player::getName(){
     return *name;
 }
@@ -166,8 +166,8 @@ void Player::addTerritory(Territory &territory){
 
 
 // remove territory from player's territories
-void Player::removeTerritory(Graph::Territory &territory){
-    map<int, Graph::Territory*>::iterator it = territories.find(territory.countryNumber);
+void Player::removeTerritory(Territory &territory){
+    map<int, Territory*>::iterator it = territories.find(territory.countryNumber);
     // notifies user that player does not own territory if player does not own it
     if(it == territories.end()){
         cout << *name << " does not own " << territory.name << "." << endl;
@@ -182,7 +182,7 @@ void Player::removeTerritory(Graph::Territory &territory){
 // display player's cards
 void Player::displayCards(){
     cout << *name << "'s hand:";
-    for(vector<Card*>::const_iterator it = hand->cards.begin(); it != hand->cards.end(); it++){
+    for(vector<Cards::Card*>::const_iterator it = hand->cards.begin(); it != hand->cards.end(); it++){
         cout << "\t" << (*it)->getType() << endl;
     }
 }

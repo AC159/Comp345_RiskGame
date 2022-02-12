@@ -2,6 +2,7 @@
 #ifndef COMP345RISKGAME_PLAYER_H
 #define COMP345RISKGAME_PLAYER_H
 
+
 #include <map>
 #include <list>
 #include <string>
@@ -9,48 +10,49 @@
 #include "../Cards/Cards.h"
 #include "../Orders/Orders.h"
 
-using namespace std;
-using namespace Graph;
+//using namespace std;
+//using namespace Graph;
+//using namespace Cards;
 
-namespace Players {
-    class Player;
-}
+//namespace Players {
+//    class Player;
+//}
 
 // Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
-class Players::Player {
+class Player {
     private:
-        string *name; // name of player
+        std::string *name; // name of player
 
     public:
-        map<int, Territory*> territories; // collection of territories
-        Hand *hand; // collection of cards
-        OrdersList *orders; // list of orders
+        std::map<int, Territory*> territories; // collection of territories
+        Cards::Hand *hand; // collection of cards
+        Orders::OrdersList *orders; // list of orders
 
         Player();   // default constructor
-        Player(string &newName); 
+        Player(std::string &newName);
         Player(const Player &player);   // copy constructor
         ~Player(); // destructor
 
         // assignment operator
         Player& operator=(const Player &player); 
         // ostream operator
-        friend ostream& operator<<(ostream& out, const Player& player);
+        friend std::ostream& operator<<(std::ostream& out, const Player& player);
 
         //returns a list of territories to be defended
-        map<int, Territory*> toDefend();
+        std::map<int, Territory*> toDefend();
 
         //returns a list of territories to be attacked
-        map<int, Territory*> toAttack(list<Edge*> &edges);
+        std::map<int, Territory*> toAttack(std::list<Edge*> &edges);
 
         //creates an order object and adds it to the player's list of orders
-        void issueOrder(string orderType); // orderType: deploy, advance, bomb, blockade, airlift
+        void issueOrder(std::string orderType); // orderType: deploy, advance, bomb, blockade, airlift
 
 
         // accessor method for name
-        string getName();
+        std::string getName();
 
         // mutator method for name
-        void setName(string newName);
+        void setName(std::string newName);
 
         // display player's territories
         void displayTerritories();
@@ -65,10 +67,10 @@ class Players::Player {
         void displayCards();
 
         // add card
-        void addCard(Card *card);
+        void addCard(Cards::Card *card);
 
         // remove card
-        void removeCard(Card &card);
+        void removeCard(Cards::Card &card);
 
         // display player's orders
         void displayOrders();
