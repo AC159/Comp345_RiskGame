@@ -1,4 +1,3 @@
-#include <iostream>
 #include "GameEngine.h"
 #include "../Map"
 
@@ -16,6 +15,11 @@ int main(int argc, char *argv[]) {
         GameEngine::MapValidated mapValidated;
         mapValidated.validateCommand();
         //add players into map
+             GameEngine::PlayersAdded playersAdded;
+       bool playerAddedValidateCommand = true;
+       while (playerAddedValidateCommand) {
+           playerAddedValidateCommand =  playersAdded.validateCommand();
+       }
         //assign countries here
         loop:
         GameEngine::AssignReinforcement assignReinforcement;
@@ -33,7 +37,6 @@ int main(int argc, char *argv[]) {
         GameEngine::Win win;
         win.winStateChange();
     };
-
 
     return 0;
 }

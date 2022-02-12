@@ -1,6 +1,5 @@
 
 #include "GameEngine.h"
-#include "GameEngine.h"
 OrdersList ordersList;
 
 //=============Start state ================
@@ -63,7 +62,6 @@ void GameEngine::MapLoaded::chooseMapToLoad() {
                 ml.map = new Map;
             }
         }
-
     }
     cout << "The file has been loaded and validates! Moving to the next step" << endl;
 }
@@ -96,16 +94,45 @@ bool GameEngine::MapValidated::validateCommand() {
 };
 
 //=============players added state =================
+void GameEngine::PlayersAdded::addPlayer() {
+    cout<<"Current amount of players: "<<playerAmount<<endl;
+        cout << "Adding 1 more player" << endl;
+            playerAmount += 1;
+}
 
-int GameEngine::PlayersAdded::chooseAmountOfPlayersToAdd() {
-    bool notenoughPlayers = false;
-    while (!notenoughPlayers) {
-        cout << "Select the amount of players for the game:" << endl;
-        cin >> playerAmount;
-        if (playerAmount > 1)
-            notenoughPlayers = true;
+bool GameEngine::PlayersAdded::validateCommand() {
+    cout<<"Currently, "<<playerAmount<<" players added to the game."<<endl;
+    cout<<"Command list:\n1. addplayer\n2. confirmplayers\n3. assigncountries"<<endl;
+    cout<<"Please enter command number: ";
+    string userInput;
+    cin >> userInput;
+    while(userInput != "1" && userInput != "2" && userInput !="3") {
+        cout<< "Invalid selection. Please enter command number: ";
+        cin >> userInput;
     }
-    return playerAmount;
+    if(userInput == "1"){
+        addPlayer();
+    }
+    else if((userInput =="2" || userInput=="3") && playerAmount<=1){
+        if(playerAmount<=1){
+            cout<<"The minimum amount of players to play the game is 2. Add another player."<<endl;
+            return true;
+        }
+    }
+    else if (userInput =="3"){
+        cout<<playerAmount<<" players will be created."<<endl;
+        cout<<"assigning territories to the players."<<endl;
+        return false ;
+    }
+    else if(userInput =="2"){
+        cout<<"Enter the names of the players: ";
+        for(int i=0;i<playerAmount;i++){
+            string name;
+            cin >> name;
+        }
+
+    }
+    return true ;
 }
 
 //=============assign reinforcement state =================
@@ -224,3 +251,4 @@ void GameEngine::Win::winStateChange() {
     cout << "========== state = win ==========" << endl;
     cout << "Congratulations! You are the winner of this game!" << endl;
 }
+

@@ -5,11 +5,11 @@
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
 #include <istream>
+#include <string>
 
 using namespace std;
 
 class GameEngine {
-//    static string state;
 
 
 public:
@@ -17,22 +17,13 @@ public:
     class Start {
     public:
         Start();
-
-
         string userInput;
-
-//    Start(const Start &start); //copy constructor
-//    Start& operator=(const Start &start); //overloaded assignment operator
-//    friend ostream& operator<<(ostream &out, const Start &start);
 
         void welcomeMessage();
 
         //user command loadMap
         bool validateCommand();
 
-
-
-        // ~Start();
     private:
         //Start *currentState;
 
@@ -41,10 +32,7 @@ public:
     //map loaded state
     class MapLoaded {
 
-        //MapLoaded(const MapLoaded)
-
     public:
-        //MapLoaded();
         int userNumInput;
 
         void chooseMapToLoad();
@@ -64,9 +52,9 @@ public:
     //players added state
     class PlayersAdded {
     public:
-        int playerAmount;
-
-        int chooseAmountOfPlayersToAdd();
+        int playerAmount=1;
+        void addPlayer();
+        bool validateCommand();
 
     };
 
