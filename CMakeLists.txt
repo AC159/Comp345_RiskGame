@@ -6,13 +6,13 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_executable(Comp345RiskGame
 #        main.cpp
-        Player/Player.cpp Player/Player.h
-        Player/PlayerDriver.cpp
         Map/Map.cpp Map/Map.h
 #        Map/MapDriver.cpp
         Orders/Orders.cpp Orders/Orders.h
 #        Orders/OrdersDriver.cpp
+        Player/Player.cpp Player/Player.h
+#        Player/PlayerDriver.cpp
         Cards/Cards.cpp Cards/Cards.h
-        # Cards/CardsDriver.cpp
+        Cards/CardsDriver.cpp
 #        GameEngine/GameEngine.cpp GameEngine/GameEngine.h GameEngine/GameEngineDriver.cpp
         )

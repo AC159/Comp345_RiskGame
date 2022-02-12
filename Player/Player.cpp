@@ -2,15 +2,10 @@
 #include <list>
 #include <map>
 #include "Player.h"
-#include "../Map/Map.h"
-#include "../Cards/Cards.h"
-#include "../Orders/Orders.h"
 
 using namespace std;
 using namespace Players;
 using namespace Graph;
-using namespace Cards;
-using namespace Orders;
 
 // default constructor
 Player::Player(){
@@ -20,7 +15,7 @@ Player::Player(){
 }
 
 
-//constructor for Player class to initialize the name and the collection of territories, cards, and orders
+// constructor for Player class to initialize the name and the collection of territories, cards, and orders
 Player::Player(string newName){
     name = newName;
     hand = new Cards::Hand();
@@ -123,14 +118,15 @@ map<int, Territory*> Player::toAttack(list<Edge*> &edges){
 
 
 // inserts an order to the player's list of orders
-// orderType: deploy, advance, bomb, blockade, airlift
-void Player::issueOrder(string orderType){
+// orderType: deploy, advance, bomb, blockade, airlift, negotiate
+void Player::issueOrder(const string& orderType) const {
     Orders::Order *newOrder;
-    if(orderType.compare("deploy")){ newOrder = new Orders::Deploy(); }
-    else if(orderType.compare("advance")){ newOrder = new Orders::Advance(); }
-    else if(orderType.compare("bomb")){ newOrder = new Orders::Bomb(); }
-    else if(orderType.compare("blockade")){ newOrder = new Orders::Blockade(); }
-    else if(orderType.compare("airlift")){ newOrder = new Orders::Airlift(); }
+    if(orderType == "deploy"){ newOrder = new Orders::Deploy(); }
+    else if(orderType == "advance"){ newOrder = new Orders::Advance(); }
+    else if(orderType == "bomb"){ newOrder = new Orders::Bomb(); }
+    else if(orderType == "blockade"){ newOrder = new Orders::Blockade(); }
+    else if(orderType == "airlift"){ newOrder = new Orders::Airlift(); }
+    else if(orderType == "negotiate"){ newOrder = new Orders::Negotiate(); }
     orders->add(newOrder);
 }
 
@@ -143,7 +139,7 @@ string Player::getName(){
 
 // mutator method for name
 void Player::setName(string newName){
-    name = newName;
+    name = std::move(newName);
 }
 
 // displays player's territories
