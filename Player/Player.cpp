@@ -123,7 +123,7 @@ map<int, Territory*> Player::toAttack(list<Edge*> &edges){
 
 
 // inserts an order to the player's list of orders
-// orderType: deploy, advance, bomb, blockade, airlift
+// orderType: deploy, advance, bomb, blockade, airlift, negotiate
 void Player::issueOrder(string orderType){
     Orders::Order *newOrder;
     if(orderType.compare("deploy")){ newOrder = new Orders::Deploy(); }
@@ -131,6 +131,7 @@ void Player::issueOrder(string orderType){
     else if(orderType.compare("bomb")){ newOrder = new Orders::Bomb(); }
     else if(orderType.compare("blockade")){ newOrder = new Orders::Blockade(); }
     else if(orderType.compare("airlift")){ newOrder = new Orders::Airlift(); }
+    else if (orderType.compare("negotiate")){ newOrder = new Orders::Negotiate(); }
     orders->add(newOrder);
 }
 

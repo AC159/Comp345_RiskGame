@@ -41,7 +41,7 @@ class Players::Player {
         std::map<int, Graph::Territory*> toAttack(std::list<Graph::Edge*> &edges);
 
         //creates an order object and adds it to the player's list of orders
-        void issueOrder(std::string orderType); // orderType: deploy, advance, bomb, blockade, airlift
+        void issueOrder(std::string orderType); // orderType: deploy, advance, bomb, blockade, airlift, negotiate
 
         // accessor method for name
         std::string getName();
