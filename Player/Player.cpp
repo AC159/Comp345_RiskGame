@@ -1,22 +1,21 @@
 #include <iostream>
 #include <list>
+#include <map>
 #include "Player.h"
-//#include "../Orders/Orders.h"
 
 using namespace std;
-//using namespace Players;
 
 // default constructor
 Player::Player(){
-    name = new string("No name");
+    name = "No name";
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
 }
 
 
 //constructor for Player class to initialize the name and the collection of territories, cards, and orders
-Player::Player(string &newName){
-    name = &newName;
+Player::Player(string newName){
+    name = newName;
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
 }
@@ -25,11 +24,9 @@ Player::Player(string &newName){
 // copy constructor(not tested)
 Player::Player(const Player &player){
 
-    cout << "**Copy constructor" << endl;
-
     // initialize and copy the name from the other player
-    this->name = new string();
-    *(this->name) = *(player.name);
+    // this->name = new string();
+    this->name = player.name;
 
     // create a new mapping of territories and copy all territories from other player
     for(map<int, Territory*>::const_iterator it = player.territories.begin(); it != player.territories.end(); it++){
@@ -56,9 +53,7 @@ Player &Player::operator=(const Player &player){
     if (this == &player) return *this;
     
     // delete the previous and copy the name from the other player
-    delete this->name;
-    this->name = new string();
-    *(this->name) = *(player.name);
+    this->name = player.name;
 
     // clear the list of territories and copy all territories from other player
     territories.erase(territories.begin(), territories.end());
@@ -67,9 +62,9 @@ Player &Player::operator=(const Player &player){
     }
     
     // delete the current collection of cards and use 
-    this->hand->cards.clear();
-    delete this->hand;
-    this->hand = new Cards::Hand(*(player.hand));
+    this->hand->cards.erase(hand->cards.begin(), hand->cards.end());
+    this->hand = player.hand;
+    // this->hand = new Cards::Hand(*(player.hand));
 
     // delete the current list of orders, create a new orderslist then issue all orders from the other player
     delete this->orders;
@@ -81,7 +76,7 @@ Player &Player::operator=(const Player &player){
 
 // ostream operator displays the player's territories, hand, and orders
 ostream& operator<<(ostream &out, const Player &player){
-    out << "Player " << *(player.name) << "'s" << endl;
+    out << "Player " << player.name << "'s" << endl;
     out << "territories: " << endl;
     for(map<int, Territory*>::const_iterator it = player.territories.begin(); it != player.territories.end(); it++){
         out << "\t" << it->second->name << endl;
@@ -98,12 +93,12 @@ ostream& operator<<(ostream &out, const Player &player){
 
 // return a list of territories that can be defended by the player
 map<int, Territory*> Player::toDefend(){
-    map<int, Territory*> *territoriesToDefend = new map<int, Territory*>;   // a list of territories to defend
+    map<int, Territory*> territoriesToDefend;   // a list of territories to defend
     // put all the elements from this object's territories to the territoriesToDefend
     for(map<int, Territory*>::iterator it = territories.begin(); it != territories.end(); it++){
-        territoriesToDefend->insert(pair<int, Territory*>(it->second->countryNumber, (it->second)));
+        territoriesToDefend.insert(pair<int, Territory*>(it->second->countryNumber, (it->second)));
     }
-    return *territoriesToDefend;
+    return territoriesToDefend;
 }
 
 
@@ -140,19 +135,18 @@ void Player::issueOrder(string orderType){
 
 // accessor method for name
 string Player::getName(){
-    return *name;
+    return name;
 }
 
 
 // mutator method for name
 void Player::setName(string newName){
-    delete name;
-    *name = newName;
+    name = newName;
 }
 
 // displays player's territories
 void Player::displayTerritories(){
-    cout << *name << "'s territories: " << endl;
+    cout << name << "'s territories: " << endl;
     for(map<int, Territory*>::const_iterator it = territories.begin(); it != territories.end(); it++){
         cout << "\t" << it->second->name << endl;
     }
@@ -170,7 +164,7 @@ void Player::removeTerritory(Territory &territory){
     map<int, Territory*>::iterator it = territories.find(territory.countryNumber);
     // notifies user that player does not own territory if player does not own it
     if(it == territories.end()){
-        cout << *name << " does not own " << territory.name << "." << endl;
+        cout << name << " does not own " << territory.name << "." << endl;
     }
     // otherwise, remove it
     else{
@@ -181,7 +175,7 @@ void Player::removeTerritory(Territory &territory){
 
 // display player's cards
 void Player::displayCards(){
-    cout << *name << "'s hand:";
+    cout << name << "'s hand:" << endl;
     for(vector<Cards::Card*>::const_iterator it = hand->cards.begin(); it != hand->cards.end(); it++){
         cout << "\t" << (*it)->getType() << endl;
     }
@@ -189,8 +183,8 @@ void Player::displayCards(){
 
 
 // add a card to player's hand
-void Player::addCard(Cards::Card *card){
-    hand->cards.emplace_back(card);
+void Player::addCard(Cards::Card &card){
+    hand->cards.emplace_back(&card);
 }
 
 
@@ -202,14 +196,12 @@ void Player::removeCard(Cards::Card &card){
             return;
         }
     }
-    cout << *name << "'s does not own a " << card.getType() << " card." << endl;
+    cout << name << " does not own a " << card.getType() << " card." << endl;
 }
 
 
 // display player's orders
 void Player::displayOrders(){
-    cout << *name << "'s orders:";
-    for(int i = 0; i < orders->length(); i++){
-        cout << "\t" << orders->element(i) << endl;
-    }
+    cout << name << "'s orders:" << endl;
+    cout << "\t" << *orders;
 }

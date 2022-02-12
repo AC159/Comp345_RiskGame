@@ -53,12 +53,11 @@ int main(){
     edges->insert(it,GN);
 
     // test cards
-//    Cards::Bomb *bombCard = new Cards::Bomb();
-//    Cards::Airlift *airliftCard = new Cards::Airlift();
+    Cards::Bomb *bombCard = new Cards::Bomb();
+    Cards::Airlift *airliftCard = new Cards::Airlift();
 
     // test players
-    string *playerOneName = new string("One");
-    Player *playerOne = new Player(*playerOneName);
+    Player *playerOne = new Player("One");
 
     cout << endl;
     cout << "===========================" << endl;
@@ -79,8 +78,8 @@ int main(){
 
 
     // insert bomb and airlift cards
-//    playerOne->addCard(bombCard);
-//    playerOne->addCard(airliftCard);
+    playerOne->addCard(*bombCard);
+    playerOne->addCard(*airliftCard);
 
     cout << "Insert bomb and airlift card to playerOne." << endl;
     cout << endl;
@@ -119,12 +118,12 @@ int main(){
     cout << "Test assignment operator"<< endl;
 
     // test assignment operator
-    string *playerTwoName = new string("Two");
-    Player *playerTwo = new Player(*playerTwoName);
+    Player *playerTwo = new Player("Two");
     cout << "Created Player playerTwo"<< endl;
     *playerTwo = *playerOne;
     cout << "Assigned playerOne to playerTwo" << endl;
     delete playerOne;
+    playerOne = nullptr;
     cout << "Deleted playerOne" << endl;
     cout << endl;
 
@@ -155,6 +154,7 @@ int main(){
     Player *playerThree = new Player(*playerTwo);
     cout << "Copied playerTwo to playerThree" << endl;
     delete playerTwo;
+    playerTwo = nullptr;
     cout << "Deleted playerTwo" << endl;
     cout << endl;
 
