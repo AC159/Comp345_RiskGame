@@ -1,8 +1,7 @@
 #include "Player.h"
-// #include "..\Map\Map.h"
-// #include "..\Cards\Cards.h"
 #include <iostream>
 using namespace std;
+// using namespace Graph;
 
 int main(){
     // test territories
@@ -51,49 +50,55 @@ int main(){
     it++;
     edges->insert(it,GN);
 
+    // test cards
+    Cards::Bomb *bombCard = new Cards::Bomb();
+    Cards::Airlift *airliftCard = new Cards::Airlift();
+
     // test players
     string *playerOneName = new string("One");
     Player *playerOne = new Player(*playerOneName);
 
     cout << endl;
     cout << "===========================" << endl;
-    cout << "Created player " << *playerOne << endl;
+    cout << endl;
+    cout << "Created Player playerOne" << endl;
     
 
     // insert France, Germany and Switzerland to player one's territories
-    // playerOne->getTerritories()->insert(pair<int, Territory*>(Portugal->countryNumber, Portugal));
-    // playerOne->getTerritories()->insert(pair<int, Territory*>(Spain->countryNumber, Spain));
-    playerOne->territories.insert(pair<int, Territory*>(France->countryNumber, France));
-    playerOne->territories.insert(pair<int, Territory*>(Germany->countryNumber, Germany));
-    playerOne->territories.insert(pair<int, Territory*>(Switzerland->countryNumber, Switzerland));
-    // playerOne->getTerritories()->insert(pair<int, Territory*>(Italy->countryNumber, Italy));
-    // playerOne->getTerritories()->insert(pair<int, Territory*>(Belgium->countryNumber, Belgium));
-    // playerOne->getTerritories()->insert(pair<int, Territory*>(Netherlands->countryNumber, Netherlands));
+    playerOne->addTerritory(*France);
+    playerOne->addTerritory(*Germany);
+    playerOne->addTerritory(*Switzerland);
 
-    cout << "Inserted Territory: Adjacent Territories in player's territories" << endl;
+    cout << "Inserted Territory: Adjacent Territories to playerOne's territories" << endl;
     cout << "\tFrance: Spain, Germany, Belgium, Switzerland" << endl;
     cout << "\tGermany: France, Switzerland, Belgium, Netherlands" << endl;
     cout << "\tSwitzerland: France, Germany" << endl;
     cout << endl;
 
-    // test cards
-    Bomb *bombCard = new Bomb();
-    Airlift *airliftCard = new Airlift();
 
     // insert bomb and airlift cards
-    playerOne->hand->cards.emplace_back(bombCard);
-    playerOne->hand->cards.emplace_back(airliftCard);
+    playerOne->addCard(bombCard);
+    playerOne->addCard(airliftCard);
 
-    // playerOne's hand
-    cout << "Player " << *playerOne << "' hand:" << endl;
-    for(vector<Card*>::iterator it = playerOne->hand->cards.begin(); it != playerOne->hand->cards.end(); it++){
-        cout << (*it)->getType() << endl;
-    }
+    cout << "Insert bomb and airlift card to playerOne." << endl;
+    cout << endl;
+
+    // insert orders deploy and advance
+    playerOne->issueOrder("deploy");
+    playerOne->issueOrder("advance");
+
+    cout << "Insert deploy and advance order to playerOne." << endl;
+
+    // test ostream operator
+    cout << endl;
+    cout << "Player playerOne--------------" << endl;
+    cout << *playerOne;
+    cout << "------------------------------" << endl;
     cout << endl;
 
     // test method Player::toDefend()
     map<int, Territory*> territoriesToDefend = playerOne->toDefend();
-    cout << "Player " << *playerOne << "'s returned list from method Player::toDefend(): " << endl;
+    cout << "playerOne's returned list from method Player::toDefend(): " << endl;
     for(map<int,Territory*>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++){
         cout << it->second->name << endl;
     }
@@ -102,7 +107,7 @@ int main(){
  
     // test method Player::toAttack()
     map<int, Territory*> temp = playerOne->toAttack(*edges);
-    cout << "Player " << (*playerOne) << "'s returned list from method Player::toAttack(): " << endl;
+    cout << "playerOne's returned list from method Player::toAttack(): " << endl;
     for(map<int, Territory*>::iterator it = temp.begin(); it != temp.end(); it++){
         cout << (it->second->name) << endl;
     }
@@ -114,30 +119,28 @@ int main(){
     // test assignment operator
     string *playerTwoName = new string("Two");
     Player *playerTwo = new Player(*playerTwoName);
-    cout << "Created Player " << *playerTwo << endl;
+    cout << "Created Player playerTwo"<< endl;
     *playerTwo = *playerOne;
     cout << "Assigned playerOne to playerTwo" << endl;
     delete playerOne;
     cout << "Deleted playerOne" << endl;
     cout << endl;
 
-    // playerTwo's hand
-    cout << "Player " << *playerTwo << "' hand:" << endl;
-    for(vector<Card*>::iterator it = playerTwo->hand->cards.begin(); it != playerTwo->hand->cards.end(); it++){
-        cout << (*it)->getType() << endl;
-    }
+    cout << "Player playerTwo--------------" << endl;
+    cout << *playerTwo;
+    cout << "------------------------------" << endl;
     cout << endl;
 
     // territories to defend for player two
     territoriesToDefend = playerTwo->toDefend();
-    cout << "Player " << *playerTwo << "'s returned list from method Player::toDefend(): " << endl;
+    cout << "playerTwo's returned list from method Player::toDefend(): " << endl;
     for(map<int,Territory*>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++){
         cout << (it->second->name) << endl;
     }
     cout << endl;
 
     // territories to attack for player two
-    cout << "Player " << *playerTwo << "'s returned list from method Player::toAttack(): " << endl;
+    cout << "playerTwo's returned list from method Player::toAttack(): " << endl;
     temp = playerTwo->toAttack(*edges);
     for(map<int, Territory*>::iterator it = temp.begin(); it != temp.end(); it++){
         cout << (it->second->name) << endl;
@@ -153,23 +156,21 @@ int main(){
     cout << "Deleted playerTwo" << endl;
     cout << endl;
 
-    // playerThree's hand
-    cout << "Player " << *playerThree << "' hand:" << endl;
-    for(vector<Card*>::iterator it = playerThree->hand->cards.begin(); it != playerThree->hand->cards.end(); it++){
-        cout << (*it)->getType() << endl;
-    }
+    cout << "Player playerThree------------" << endl;
+    cout << *playerThree;
+    cout << "------------------------------" << endl;
     cout << endl;
 
     // territories to defend for player three
     territoriesToDefend = playerThree->toDefend();
-    cout << "Player " << *playerThree << "'s returned list from method Player::toDefend(): " << endl;
+    cout << "playerThree's returned list from method Player::toDefend(): " << endl;
     for(map<int,Territory*>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++){
         cout << (it->second->name) << endl;
     }
     cout << endl;
 
     // territories to attack for player three
-    cout << "Player " << *playerThree << "'s returned list from method Player::toAttack(): " << endl;
+    cout << "playerThree's returned list from method Player::toAttack(): " << endl;
     temp = playerThree->toAttack(*edges);
     for(map<int, Territory*>::iterator it = temp.begin(); it != temp.end(); it++){
         cout << (it->second->name) << endl;
