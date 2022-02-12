@@ -2,6 +2,7 @@
 #include "Cards.h"
 
 using namespace std;
+using namespace Cards;
 
 int main(int argc, char *argv[]) {
 
@@ -47,6 +48,16 @@ int main(int argc, char *argv[]) {
     deck2 = deck;
     cout << "Deck 2: " << endl;
     cout << deck2;
+
+    Hand hand{};
+
+    // Draw cards from deck and add them to the hand object
+    hand.cards.push_back(deck2.draw());
+    hand.cards.push_back(deck2.draw());
+    hand.cards.push_back(deck2.draw());
+
+    cout << "Cards in the hand: " << endl;
+    cout << hand << endl;
 
     return 0;
 }

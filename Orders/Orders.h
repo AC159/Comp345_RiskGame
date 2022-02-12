@@ -6,8 +6,19 @@
 #include <vector>
 using namespace std;
 
+namespace Orders {
+    class Order;
+    class Deploy;
+    class Advance;
+    class Bomb;
+    class Blockade;
+    class Airlift;
+    class Negotiate;
+    class OrdersList;
+}
+
 // Abstract base class for Deploy, Advance, Bomb, Blockade, Airlift and Negotiate player order actions
-class Order {
+class Orders::Order {
 public:
     Order();
     Order(const Order&);
@@ -24,7 +35,7 @@ public:
 };
 
 // Deploy action order (arbitrary behaviour for now)
-class Deploy : public Order {
+class Orders::Deploy : public Order {
 public:
     Deploy();
     Deploy(const Deploy &deploy);
@@ -40,7 +51,7 @@ public:
 };
 
 // Advance action order (arbitrary behaviour for now)
-class Advance : public Order {
+class Orders::Advance : public Order {
 public:
     Advance();
     Advance(const Advance &advance);
@@ -56,7 +67,7 @@ public:
 };
 
 // Bomb action order (arbitrary behaviour for now)
-class Bomb : public Order {
+class Orders::Bomb : public Order {
 public:
     Bomb();
     Bomb(const Bomb &bomb);
@@ -72,7 +83,7 @@ public:
 };
 
 // Blockade action order (arbitrary behaviour for now)
-class Blockade : public Order {
+class Orders::Blockade : public Order {
 public:
     Blockade();
     Blockade(const Blockade&);
@@ -88,7 +99,7 @@ public:
 };
 
 // Airlift action order (arbitrary behaviour for now)
-class Airlift : public Order {
+class Orders::Airlift : public Order {
 public:
     Airlift();
     Airlift(const Airlift &airlift);
@@ -104,7 +115,7 @@ public:
 };
 
 // Negotiate action order (arbitrary behaviour for now)
-class Negotiate : public Order {
+class Orders::Negotiate : public Order {
 public:
     Negotiate();
     Negotiate(const Negotiate &negotiate);
@@ -120,7 +131,7 @@ public:
 };
 
 // Represents a sequential list of orders with basic functionalities
-class OrdersList {
+class Orders::OrdersList {
 public:
     OrdersList();
     OrdersList(const OrdersList &ordersList);

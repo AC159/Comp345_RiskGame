@@ -5,22 +5,34 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "../Player/Player.h"
 
 using namespace std;
 
+namespace Cards {
+    class Card;
+    class Bomb;
+    class Reinforcement;
+    class Blockade;
+    class Airlift;
+    class Diplomacy;
+    class Hand;
+    class Deck;
+}
+
 // Card class is an abstract class that will be implemented by subclasses
-class Card {
+class Cards::Card {
 public:
     friend ostream& operator<<(ostream &out, const Card &card);
     virtual string getType() const = 0;
-    virtual void play() = 0;
+    virtual void play(Player &player, Deck &deck) = 0;
     virtual Card* clone() = 0;
     virtual ~Card();
 };
 
 
 // Card of type Bomb
-class Bomb : public Card {
+class Cards::Bomb : public Card {
 private:
     string type;
 public:
@@ -31,14 +43,16 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player, Deck &deck) override;
 
     ~Bomb() override;
+
+    void play(Player &player, Deck &deck);
 };
 
 
 // Card of type Reinforcement
-class Reinforcement : public Card {
+class Cards::Reinforcement : public Card {
 private:
     string type;
 public:
@@ -49,14 +63,14 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player, Deck &deck) override;
 
     ~Reinforcement() override;
 };
 
 
 // Card of type Blockade
-class Blockade : public Card {
+class Cards::Blockade : public Card {
 private:
     string type;
 public:
@@ -67,14 +81,14 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player, Deck &deck) override;
 
     ~Blockade() override;
 };
 
 
 // Card of type Airlift
-class Airlift : public Card {
+class Cards::Airlift : public Card {
 private:
     string type;
 public:
@@ -85,14 +99,14 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player, Deck &deck) override;
 
     ~Airlift() override;
 };
 
 
 // Card of type Diplomacy
-class Diplomacy : public Card {
+class Cards::Diplomacy : public Card {
 private:
     string type;
 public:
@@ -103,13 +117,13 @@ public:
 
     Card* clone() override;
     string getType() const override;
-    void play() override;
+    void play(Player &player, Deck &deck) override;
 
     ~Diplomacy() override;
 };
 
 
-class Hand {
+class Cards::Hand {
 public:
     vector<Card*> cards;
 
@@ -123,7 +137,7 @@ public:
 };
 
 
-class Deck {
+class Cards::Deck {
 public:
     vector<Card*> cards;
 
