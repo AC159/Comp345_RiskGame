@@ -27,7 +27,7 @@ public:
 
     void validateMapLoadedCommand();
 
-    MapLoader mapLoader{};
+    Graph::MapLoader mapLoader{};
 
 
 //============= map validated state =================

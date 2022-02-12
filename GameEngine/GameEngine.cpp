@@ -1,7 +1,7 @@
 
 #include "GameEngine.h"
 
-OrdersList *ordersList = new OrdersList;
+Orders::OrdersList *ordersList = new Orders::OrdersList();
 
 void GameEngine::changeState(string state) {
     this->state = state;
@@ -64,7 +64,7 @@ void GameEngine::chooseMapToLoad() {
                 mapIsValid = true;
             } else {
                 delete mapLoader.map;
-                mapLoader.map = new Map;
+                mapLoader.map = new Graph::Map();
             }
         }
     }
@@ -169,27 +169,27 @@ void GameEngine::createAndAddOrder(int commandNumber) {
     switch (commandNumber) {
         case 1:
             cout << "Adding 'deploy' order to order list..." << endl;
-            ordersList->add(new Deploy);
+            ordersList->add(new Orders::Deploy);
             break;
         case 2:
             cout << "Adding 'advance' order to order list..." << endl;
-            ordersList->add(new Advance);
+            ordersList->add(new Orders::Advance);
             break;
         case 3:
             cout << "Adding 'bomb' order to order list..." << endl;
-            ordersList->add(new Bomb);
+            ordersList->add(new Orders::Bomb);
             break;
         case 4:
             cout << "Adding 'blockade' order to order list..." << endl;
-            ordersList->add(new Blockade);
+            ordersList->add(new Orders::Blockade);
             break;
         case 5:
             cout << "Adding 'airlift' order to order list..." << endl;
-            ordersList->add(new Airlift);
+            ordersList->add(new Orders::Airlift);
             break;
         case 6:
             cout << "Adding 'negotiate' order to order list..." << endl;
-            ordersList->add(new Negotiate);
+            ordersList->add(new Orders::Negotiate);
             break;
     }
 }
@@ -273,7 +273,7 @@ int GameEngine::validateWinCommand() {
 
     if (userInput == "1") {
         delete mapLoader.map;
-        mapLoader.map = new Map;
+        mapLoader.map = new Graph::Map;
         //---> empty player list here
     } else if (userInput == "2") {
         delete ordersList;
