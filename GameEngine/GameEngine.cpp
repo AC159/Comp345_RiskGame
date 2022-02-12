@@ -1,22 +1,23 @@
 
 #include "GameEngine.h"
-
+OrdersList ordersList;
 
 //=============Start state ================
-GameEngine::Start::Start()=default;
+GameEngine::Start::Start() = default;
 
 void GameEngine::Start::welcomeMessage() {
-    cout<<"========== state = start =========="<<endl;
-    cout<<"Welcome to c++ Risk game!"<<endl;
+    cout << "========== state = start ==========" << endl;
+    cout << "Welcome to c++ Risk game!" << endl;
 }
 
-bool GameEngine::Start::validateCommand(){
-    cout<<"Command list:\n1. loadmap"<<endl;
-    cout<<"Please enter command number: ";
+bool GameEngine::Start::validateCommand() {
+    cout << "Command list:\n1. loadmap" << endl;
+    cout << "Please enter command number: ";
     cin >> userInput;
-    while(userInput != "1"){
-        cout<< "Invalid selection. Please enter command number: ";
-        cin >> userInput;}
+    while (userInput != "1") {
+        cout << "Invalid selection. Please enter command number: ";
+        cin >> userInput;
+    }
     return true;
 }
 
@@ -65,35 +66,34 @@ void GameEngine::MapLoaded::chooseMapToLoad() {
     cout << "The file has been loaded and validates! Moving to the next step" << endl;
 }
 
-    int GameEngine::MapLoaded::validateCommand(){
-        cout<<"Command list:\n1. validatemap"<<endl;
-        cout<<"Please enter command number: ";
-        string userInput;
+int GameEngine::MapLoaded::validateCommand() {
+    cout << "Command list:\n1. validatemap" << endl;
+    cout << "Please enter command number: ";
+    string userInput;
+    cin >> userInput;
+    while (userInput != "1") {
+        cout << "Invalid selection. Please enter command number: ";
         cin >> userInput;
-        while(userInput != "1"){
-            cout<< "Invalid selection. Please enter command number: ";
-            cin >> userInput;
-        }
-        return stoi(userInput);
     }
+    return stoi(userInput);
+}
 
 
 //=============Map validated state =================
 // checks that the map is a connected graph, if it isnt, reload a map file
 bool GameEngine::MapValidated::validateCommand() {
-    cout<<"Command list:\n1. addplayer"<<endl;
-    cout<<"Please enter command number: ";
+    cout << "Command list:\n1. addplayer" << endl;
+    cout << "Please enter command number: ";
     string userInput;
     cin >> userInput;
-    while(userInput != "1"){
-        cout<< "Invalid selection. Please enter command number: ";
+    while (userInput != "1") {
+        cout << "Invalid selection. Please enter command number: ";
         cin >> userInput;
     }
     return true;
 };
 
 //=============players added state =================
-
 void GameEngine::PlayersAdded::addPlayer() {
     cout<<"Current amount of players: "<<playerAmount<<endl;
         cout << "Adding 1 more player" << endl;
@@ -136,5 +136,119 @@ bool GameEngine::PlayersAdded::validateCommand() {
 }
 
 //=============assign reinforcement state =================
+void GameEngine::AssignReinforcement::assignReinforcement() {
+    cout << "========== state = assign reinforcement ==========" << endl;
+}
 
+void GameEngine::AssignReinforcement::validateCommand() {
+    cout << "Command list:\n1. issueorder" << endl;
+    cout << "Please enter command number:";
+    string userInput;
+    cin >> userInput;
+    while (userInput != "1") {
+        cout << "Invalid selection. Please enter command number:";
+        cin >> userInput;
+    }
+}
+
+//=============issue orders state =================
+void GameEngine::IssueOrders::issueOrdersStateChange() {
+    cout << "========== state = issue orders ==========" << endl;
+}
+
+void GameEngine::IssueOrders::createAndAddOrder(int commandNumber) {
+    switch (commandNumber) {
+        case 1:
+            cout << "Adding 'deploy' order to order list..." << endl;
+            ordersList.add(new Deploy);
+            break;
+        case 2:
+            cout << "Adding 'advance' order to order list..." << endl;
+            ordersList.add(new Advance);
+            break;
+        case 3:
+            cout << "Adding 'bomb' order to order list..." << endl;
+            ordersList.add(new Bomb);
+            break;
+        case 4:
+            cout << "Adding 'blockade' order to order list..." << endl;
+            ordersList.add(new Blockade);
+            break;
+        case 5:
+            cout << "Adding 'airlift' order to order list..." << endl;
+            ordersList.add(new Airlift);
+            break;
+        case 6:
+            cout << "Adding 'negotiate' order to order list..." << endl;
+            ordersList.add(new Negotiate);
+            break;
+    }
+}
+
+void GameEngine::IssueOrders::validateCommand() {
+    cout << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
+         << endl;
+    cout << "Please enter command number:";
+    int userInput;
+    cin >> userInput;
+
+    while (userInput != 7) {
+        if (userInput < 1 || userInput > 7) {
+            cout << "Invalid selection. Please enter command number:" << endl;
+            cin >> userInput;
+        } else {
+            GameEngine::IssueOrders::createAndAddOrder(userInput);
+            cout
+                    << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
+                    << endl;
+            cout << "Please enter command number:";
+            cin >> userInput;
+        }
+    }
+}
+
+//=============execute orders state =================
+void GameEngine::ExecuteOrders::executeOrdersStateChange() {
+    cout << "========== state = execute orders ==========" << endl;
+}
+
+void GameEngine::ExecuteOrders::executeOrders() {
+    for (size_t i = 0; i < ordersList.length(); i++) {
+        ordersList.element(i)->execute();
+        ordersList.remove(i);
+        i--;
+    }
+}
+
+int GameEngine::ExecuteOrders::validateCommand() {
+    cout << "Command list:\n1. execorder\n2. win" << endl;
+    cout << "Please enter command number:";
+    int userInput;
+    cin >> userInput;
+
+    while (userInput != 1 && userInput != 2) {
+        cout << "Invalid selection. Please enter command number:" << endl;
+        cin >> userInput;
+    }
+
+    if (userInput == 1) {
+        GameEngine::ExecuteOrders::executeOrders();
+        cout << "Command list:\n1. endexecorder\n2. win" << endl;
+        cout << "Please enter command number:";
+        cin >> userInput;
+
+        while (userInput != 1 && userInput != 2) {
+            cout << "Invalid selection. Please enter command number:" << endl;
+            cin >> userInput;
+        }
+    }
+
+    return userInput;
+}
+
+//=============win state =================
+void GameEngine::Win::winStateChange() {
+    cout << "========== state = win ==========" << endl;
+    cout << "Congratulations! You are the winner of this game!" << endl;
+}
 
