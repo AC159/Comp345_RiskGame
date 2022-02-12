@@ -4,7 +4,6 @@
 
 #include <string>
 #include <vector>
-//using namespace std;
 
 namespace Orders {
     class Order;
@@ -132,6 +131,9 @@ public:
 
 // Represents a sequential list of orders with basic functionalities
 class Orders::OrdersList {
+private:
+    std::vector<Order*> orders;
+
 public:
     OrdersList();
     OrdersList(const OrdersList &ordersList);
@@ -146,10 +148,6 @@ public:
     void add(Order *newOrder);
     [[nodiscard]] size_t length() const;
     [[nodiscard]] Order * element(size_t index) const;
-
-
-private:
-    std::vector<Order*> orders;
 };
 
 #endif //COMP345RISKGAME_ORDERS_H

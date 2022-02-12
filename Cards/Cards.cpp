@@ -1,5 +1,5 @@
-#include "Cards.h"
 #include <experimental/random>
+#include "Cards.h"
 
 using namespace Cards;
 
@@ -32,7 +32,7 @@ Deck &Deck::operator=(const Deck &deck) {
     return *this;
 }
 
-std::ostream& operator<<(std::ostream &out, const Deck &deck) {
+std::ostream& Cards::operator<<(std::ostream &out, const Deck &deck) {
     for (const Card* c : deck.cards) {
         out << *c;
     }
@@ -82,7 +82,7 @@ Hand &Hand::operator=(const Hand &hand) {
     return *this;
 }
 
-std::ostream &operator<<(std::ostream &out, const Hand &hand) {
+std::ostream& Cards::operator<<(std::ostream &out, const Hand &hand) {
     for (const Card* c : hand.cards) {
         out << *c << std::endl;
     }
@@ -129,7 +129,7 @@ Card* Bomb::clone() {
     return new Bomb(*this);
 }
 
-void Bomb::play(Player &player, Deck &deck) {
+void Bomb::play(Players::Player &player, Deck &deck) {
 //    Order* order = new Bomb();
 
 }
@@ -157,7 +157,7 @@ std::string Reinforcement::getType() const {
     return this->type;
 }
 
-void Reinforcement::play(Player &player, Deck &deck) {
+void Reinforcement::play(Players::Player &player, Deck &deck) {
 
 }
 
@@ -187,7 +187,7 @@ std::string Blockade::getType() const {
     return this->type;
 }
 
-void Blockade::play(Player &player, Deck &deck) {
+void Blockade::play(Players::Player &player, Deck &deck) {
 
 }
 
@@ -217,7 +217,7 @@ std::string Airlift::getType() const {
     return this->type;
 }
 
-void Airlift::play(Player &player, Deck &deck) {
+void Airlift::play(Players::Player &player, Deck &deck) {
 
 }
 
@@ -247,7 +247,7 @@ std::string Diplomacy::getType() const {
     return this->type;
 }
 
-void Diplomacy::play(Player &player, Deck &deck) {
+void Diplomacy::play(Players::Player &player, Deck &deck) {
 
 }
 

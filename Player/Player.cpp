@@ -2,8 +2,15 @@
 #include <list>
 #include <map>
 #include "Player.h"
+#include "../Map/Map.h"
+#include "../Cards/Cards.h"
+#include "../Orders/Orders.h"
 
 using namespace std;
+using namespace Players;
+using namespace Graph;
+using namespace Cards;
+using namespace Orders;
 
 // default constructor
 Player::Player(){
@@ -21,11 +28,7 @@ Player::Player(string newName){
 }
 
 
-// copy constructor(not tested)
 Player::Player(const Player &player){
-
-    // initialize and copy the name from the other player
-    // this->name = new string();
     this->name = player.name;
 
     // create a new mapping of territories and copy all territories from other player
@@ -44,6 +47,8 @@ Player::Player(const Player &player){
 // destructor
 Player::~Player(){
     territories.erase(territories.begin(),territories.end()); // remove all territories on player's list of territories but not destroy them
+    delete orders;
+    delete hand;
 }
 
 
@@ -56,35 +61,32 @@ Player &Player::operator=(const Player &player){
     this->name = player.name;
 
     // clear the list of territories and copy all territories from other player
-    territories.erase(territories.begin(), territories.end());
-    for(map<int, Territory*>::const_iterator it = player.territories.begin(); it != player.territories.end(); it++){
-        this->territories.insert(pair<int, Territory*>(it->second->countryNumber, it->second));
+    territories.clear();
+    for(auto territory : player.territories){
+        this->territories.insert(pair<int, Territory*>(territory.second->countryNumber, territory.second));
     }
     
-    // delete the current collection of cards and use 
-    this->hand->cards.erase(hand->cards.begin(), hand->cards.end());
-    this->hand = player.hand;
-    // this->hand = new Cards::Hand(*(player.hand));
+    // delete the current Hand and create a deep copy of the other player's hand object
+    delete this->hand;
+    this->hand = new Cards::Hand(*player.hand);
 
-    // delete the current list of orders, create a new orderslist then issue all orders from the other player
+    // delete the current list of orders, create a new ordersList then issue all orders from the other player
     delete this->orders;
-    this->orders = new Orders::OrdersList(*(player.orders));
-
+    this->orders = new Orders::OrdersList(*player.orders);
     return *this;
 }
 
 
 // ostream operator displays the player's territories, hand, and orders
-ostream& operator<<(ostream &out, const Player &player){
-    out << "Player " << player.name << "'s" << endl;
+ostream& Players::operator<<(ostream &out, const Player &player){
+    out << "Player " << player.name << endl;
     out << "territories: " << endl;
-    for(map<int, Territory*>::const_iterator it = player.territories.begin(); it != player.territories.end(); it++){
-        out << "\t" << it->second->name << endl;
+    for(auto territory : player.territories){
+        out << "\t" << territory.second->name << endl;
     }
     out << "hand: " << endl;
-    for(vector<Cards::Card*>::const_iterator it = player.hand->cards.begin(); it != player.hand->cards.end(); it++){
-        out << "\t" << (*it)->getType() << endl;
-    }
+    out << *player.hand;
+
     out << "orders: " << endl;
     out << "\t" << *player.orders;
     return out;

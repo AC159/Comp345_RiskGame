@@ -5,26 +5,30 @@
 #include <iostream>
 #include <vector>
 #include <string>
-//#include "../Player/Player.h"
 
-class Player;
+// Forward declare that there is a Player class in the Players namespace
+namespace Players {
+    class Player;
+}
 
-//using namespace std;
-//using namespace Players;
-
-//namespace Graph {
-//    class Territory;
-//    class Edge;
-//    class Continent;
-//    class Map;
-//    class MapLoader;
-//}
+namespace Graph {
+    class Territory;
+    class Edge;
+    class Continent;
+    class Map;
+    class MapLoader;
+    std::ostream& operator<<(std::ostream &out, const Territory &territory);
+    std::ostream& operator<<(std::ostream &out, const Edge &edge);
+    std::ostream& operator<<(std::ostream &out, const Continent &continent);
+    std::ostream& operator<<(std::ostream &out, const Map &map);
+    std::ostream& operator<<(std::ostream &out, const MapLoader &loader);
+}
 
 // A territory/country is the smallest unit in the Map connected graph
-class Territory {
+class Graph::Territory {
 
 public:
-    Player* owner;
+    Players::Player* owner;
     int numberOfArmies;
     std::string name;
     int countryNumber;
@@ -41,7 +45,7 @@ public:
 
 };
 
-class Edge {
+class  Graph::Edge {
 public:
     Territory* source;
     Territory* destination;
@@ -57,7 +61,7 @@ public:
 
 };
 
-class Continent {
+class  Graph::Continent {
 public:
     int continentNumber;
     std::string name;
@@ -75,7 +79,7 @@ public:
 };
 
 
-class Map {
+class  Graph::Map {
 
 public:
 
@@ -95,7 +99,7 @@ public:
 };
 
 
-class MapLoader {
+class  Graph::MapLoader {
 public:
     Map* map;
 

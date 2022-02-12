@@ -6,7 +6,10 @@
 #include <vector>
 #include <string>
 
-class Player;
+// Forward declare that there is a Player class in the Players namespace
+namespace Players {
+    class Player;
+}
 
 namespace Cards {
     class Card;
@@ -17,14 +20,17 @@ namespace Cards {
     class Diplomacy;
     class Hand;
     class Deck;
+    std::ostream& operator<<(std::ostream &out, const Card &card);
+    std::ostream& operator<<(std::ostream &out, const Hand &hand);
+    std::ostream& operator<<(std::ostream &out, const Deck &deck);
 }
 
 // Card class is an abstract class that will be implemented by subclasses
 class Cards::Card {
 public:
     friend std::ostream& operator<<(std::ostream &out, const Card &card);
-    [[nodiscard]] virtual std::string getType() const = 0;
-    virtual void play(Player &player, Deck &deck) = 0;
+    virtual std::string getType() const = 0;
+    virtual void play(Players::Player &player, Deck &deck) = 0;
     virtual Card* clone() = 0;
     virtual ~Card();
 };
@@ -42,7 +48,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck) override;
 
     ~Bomb() override;
 
@@ -61,7 +67,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck) override;
 
     ~Reinforcement() override;
 };
@@ -79,7 +85,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck) override;
 
     ~Blockade() override;
 };
@@ -97,7 +103,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck) override;
 
     ~Airlift() override;
 };
@@ -115,7 +121,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck) override;
 
     ~Diplomacy() override;
 };
