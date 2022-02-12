@@ -1,5 +1,6 @@
 #include <experimental/random>
 #include "Cards.h"
+#include "../Player/Player.h"
 
 using namespace Cards;
 
@@ -43,7 +44,7 @@ Card* Deck::draw() {
     // randomly draw a card from the deck, remove it from the deck and return a pointer to that card
     int nbrOfCards = this->cards.size()-1;
     int random = std::experimental::randint(0, nbrOfCards);
-    Card* c =this->cards.at(random);
+    Card* c = this->cards.at(random);
     this->cards.erase(this->cards.begin() + random);
     return c;
 }
@@ -130,8 +131,13 @@ Card* Bomb::clone() {
 }
 
 void Bomb::play(Players::Player &player, Deck &deck) {
-//    Order* order = new Bomb();
-
+    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
+    std::cout << "Playing bomb card..." << std::endl;
+    player.issueOrder(this->getType());
+    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
+    deck.cards.push_back(*it);
+    if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
+    else player.hand->cards.erase(it);
 }
 
 Bomb::~Bomb() = default;
@@ -158,7 +164,14 @@ std::string Reinforcement::getType() const {
 }
 
 void Reinforcement::play(Players::Player &player, Deck &deck) {
-
+    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
+    std::cout << "Playing reinforcement card..." << std::endl;
+    std::string cardType {"advance"};
+    player.issueOrder(cardType);
+    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
+    deck.cards.push_back(*it);
+    if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
+    else player.hand->cards.erase(it);
 }
 
 Card *Reinforcement::clone() {
@@ -188,7 +201,13 @@ std::string Blockade::getType() const {
 }
 
 void Blockade::play(Players::Player &player, Deck &deck) {
-
+    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
+    std::cout << "Playing blockade card..." << std::endl;
+    player.issueOrder(this->getType());
+    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
+    deck.cards.push_back(*it);
+    if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
+    else player.hand->cards.erase(it);
 }
 
 Card *Blockade::clone() {
@@ -218,7 +237,13 @@ std::string Airlift::getType() const {
 }
 
 void Airlift::play(Players::Player &player, Deck &deck) {
-
+    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
+    std::cout << "Playing airlift card..." << std::endl;
+    player.issueOrder(this->getType());
+    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
+    deck.cards.push_back(*it);
+    if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
+    else player.hand->cards.erase(it);
 }
 
 Card *Airlift::clone() {
@@ -248,7 +273,14 @@ std::string Diplomacy::getType() const {
 }
 
 void Diplomacy::play(Players::Player &player, Deck &deck) {
-
+    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
+    std::cout << "Playing diplomacy card..." << std::endl;
+    std::string cardType {"negotiate"};
+    player.issueOrder(cardType);
+    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
+    deck.cards.push_back(*it);
+    if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
+    else player.hand->cards.erase(it);
 }
 
 Card *Diplomacy::clone() {

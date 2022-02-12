@@ -6,9 +6,10 @@
 #include <vector>
 #include <string>
 
-// Forward declare that there is a Player class in the Players namespace
+// Forward declare the Player class
 namespace Players {
     class Player;
+    std::ostream& operator<<(std::ostream& out, const Player& player);
 }
 
 namespace Cards {
