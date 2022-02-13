@@ -215,10 +215,7 @@ bool Map::validate() {
         string tName1 = territoryName->at(i);
         for (int k = i + 1; k < territoryName->size(); k++) {
             string tName2 = territoryName->at(k);
-            //cout<< "name 1: " <<tName1 <<" name2: "<<tName2<<endl;
             if (tName1 == (tName2)) {
-//                cout << "The same name! name 1: " << tName1 << " name2: " << tName2 << endl;
-//                cout << "INVALID MAP" << endl;
                 cout << "ERROR: INVALID MAP! Duplicate territory/country name found!" << endl;
                 delete territoryName;
                 return false;
@@ -247,9 +244,6 @@ bool Map::validate() {
         int dst = edgePairList->at(edgeIndex).second;
         for (int i = 0; i < edgePairList->size(); i++) {
             if (edgePairList->at(i).first == dst && edgePairList->at(i).second == src) {
-//                cout << "original edge: (" << edgePairList->at(edgeIndex).first << ", "
-//                     << edgePairList->at(edgeIndex).second << ")\nreverse edge index: " << i << "\nreverse edge: ("
-//                     << edgePairList->at(i).first << ", " << edgePairList->at(i).second << ")\n\n"; //printing original edge, reverse edge index, reverse edge
                 return i;
             }
         }
@@ -303,7 +297,6 @@ bool Map::validate() {
         for (int k = i + 1; k < edgePairList->size(); k++) {
             pair<int,int> edgePair2 = make_pair(edgePairList->at(k).first,edgePairList->at(k).second);
             if ((edgePair1.first == edgePair2.first) && (edgePair1.second == edgePair2.second)) {
-//                cout << "ERROR: INVALID MAP! Duplicate edges found! edgePair1: (" <<edgePair1.first<<", "<<edgePair1.second << "); edgePair 2: (" << edgePair2.first<<", "<<edgePair2.second << ")" <<endl;
                 cout << "ERROR: INVALID MAP! Duplicate edges found!" << endl;
                 delete continentNumbers;
                 delete disconnected;
@@ -313,15 +306,6 @@ bool Map::validate() {
             }
         }
     }
-
-//    cout<<"No duplicate edges!"<<endl;
-
-//    //printing continentNumbers vector
-//    for (int x: *continentNumbers)
-//        cout << x << endl;
-//
-//    //printing total number of continents that actually exist in the map file
-//    cout << "number of continents = " << Map::continents.size() << endl;
 
     //check to see if one or more continents are disconnected; if so, map is invalid!
     if (continentNumbers->size() != Map::continents.size()) {
