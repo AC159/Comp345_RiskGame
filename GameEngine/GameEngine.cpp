@@ -2,6 +2,8 @@
 #include "GameEngine.h"
 
 Orders::OrdersList *ordersList = new Orders::OrdersList();
+vector<Players::Player*> playersList;
+
 
 void GameEngine::changeState(string state) {
     this->state = state;
@@ -31,11 +33,11 @@ void GameEngine::mapLoadedStateChange() {
     GameEngine::changeState("map loaded");
 }
 
+// validates the file and checks if the map is a connected graph
 void GameEngine::chooseMapToLoad() {
     bool validateFile = false;
     bool mapIsValid = false;
     while (!validateFile || !mapIsValid) {
-        //TODO implement a function that dynamically extracts the names of all maps
         cout << "Choose the map you would like to play.\n"
                 "1. Europe\n" //working map
                 "2. Solar system\n" // invalid map but proper file format
@@ -68,7 +70,7 @@ void GameEngine::chooseMapToLoad() {
             }
         }
     }
-    cout << "The file has been loaded and validates! Moving to the next step" << endl;
+    cout << "The file has been loaded and validated! Moving to the next step" << endl;
 }
 
 void GameEngine::validateMapLoadedCommand() {
@@ -88,7 +90,7 @@ void GameEngine::mapValidatedStateChange() {
     GameEngine::changeState("map validated");
 }
 
-// checks that the map is a connected graph, if it isnt, reload a map file
+
 bool GameEngine::validateMapValidatedCommand() {
     cout << "Command list:\n1. addplayer" << endl;
     cout << "Please enter command number: ";
@@ -102,6 +104,7 @@ bool GameEngine::validateMapValidatedCommand() {
 };
 
 //=============players added state =================
+
 void GameEngine::playersAddedStateChange() {
     GameEngine::changeState("players added");
 }
@@ -112,39 +115,57 @@ void GameEngine::addPlayer() {
     playerAmount += 1;
 }
 
+// creates a list of players that will be assigned a country in the next phase
 bool GameEngine::validatePlayersAddedCommand() {
-    cout << "Currently, " << playerAmount << " players added to the game." << endl;
-    cout << "Command list:\n1. addplayer\n2. confirmplayers\n3. assigncountries" << endl;
-    cout << "Please enter command number: ";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1" && userInput != "2" && userInput != "3") {
-        cout << "Invalid selection. Please enter command number: ";
-        cin >> userInput;
+    if(playerAmount ==1){
+        cout << "Currently, " << playerAmount << " players added to the game. A minimum of 2 players are required to play the game." << endl;
+        cout << "Command list:\n1. addplayer" << endl;
     }
+    else if (playerAmount >1){
+        cout << "Currently, " << playerAmount << " players added to the game." << endl;
+        cout << "Command list:\n1. addplayer\n2. confirm players" << endl;
+    }
+        cout << "Please enter command number: ";
+        string userInput;
+        cin >> userInput;
+        while (userInput != "1" && playerAmount <= 1 || (userInput!="1" && playerAmount>=2)) {
+            if(userInput =="2" && playerAmount>=2)
+                break;
+            cout << "Invalid selection. Please enter command number: ";
+            cin >> userInput;
+        }
     if (userInput == "1") {
         addPlayer();
-    } else if ((userInput == "2" || userInput == "3") && playerAmount <= 1) {
-        if (playerAmount <= 1) {
-            cout << "The minimum amount of players to play the game is 2. Add another player." << endl;
-            return true;
-        }
-    } else if (userInput == "3") {
-        cout << playerAmount << " players will be created." << endl;
-        cout << "assigning territories to the players." << endl;
-        return false;
-    } else if (userInput == "2") {
+    }
+    // creates player objects
+    else if (userInput == "2" && playerAmount>1) {
         cout << "Enter the names of the players: ";
-        for (int i = 0; i < playerAmount; i++) {
-            string name;
-            cin >> name;
+            for (int i = 0; i < playerAmount; i++) {
+                string playerName;
+                cin >> playerName;
+                playersList.emplace_back(new Players::Player(playerName));
+            }
+
+        cout<< playerAmount<<" players have been created"<<endl;
+        for(int i=0;i<playersList.size();i++){
+            cout<<playersList.at(i)->getName()<<endl;
         }
 
-    }
+        // validates moving to the play section of the state machine
+        cout<<"Command list:\n1. assigncountries" << endl;
+        cout << "Please enter command number: ";
+        cin >> userInput;
+        while (userInput != "1") {
+            cout << "Invalid selection. Please enter command number: ";
+            cin >> userInput;
+        }
+        return false;
+}
     return true;
 }
 
 //=============assign reinforcement state =================
+
 void GameEngine::assignReinforcementStateChange() {
     GameEngine::changeState("assign reinforcement");
 }
@@ -161,6 +182,7 @@ void GameEngine::validateAssignReinforcementCommand() {
 }
 
 //=============issue orders state =================
+
 void GameEngine::issueOrdersStateChange() {
     GameEngine::changeState("issue orders");
 }
@@ -217,6 +239,7 @@ void GameEngine::validateIssueOrdersCommand() {
 }
 
 //=============execute orders state =================
+
 void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
@@ -256,6 +279,7 @@ int GameEngine::validateExecuteOrdersCommand() {
 }
 
 //=============win state =================
+
 void GameEngine::winStateChange() {
     GameEngine::changeState("win");
     cout << "Congratulations! You are the winner of this game!" << endl;
@@ -270,11 +294,16 @@ int GameEngine::validateWinCommand() {
         cout << "Invalid selection. Please enter command number:";
         cin >> userInput;
     }
-
+    //deleting objects in heap
     if (userInput == "1") {
         delete mapLoader.map;
         mapLoader.map = new Graph::Map;
-        //---> empty player list here
+
+        for(int i=0;i<playersList.size();i++){
+            delete (playersList.at(i));
+        }
+        playersList.clear();
+
     } else if (userInput == "2") {
         delete ordersList;
         delete mapLoader.map;

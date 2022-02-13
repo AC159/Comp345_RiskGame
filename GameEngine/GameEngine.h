@@ -4,6 +4,7 @@
 
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
+#include "../Player/Player.h"
 #include <istream>
 #include <string>
 

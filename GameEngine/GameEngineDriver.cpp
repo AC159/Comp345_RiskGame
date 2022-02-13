@@ -14,10 +14,7 @@ int main(int argc, char *argv[]) {
         gameEngine->mapValidatedStateChange();
         gameEngine->validateMapValidatedCommand();
         gameEngine->playersAddedStateChange();
-        bool playerAddedValidateCommand = true;
-        while (playerAddedValidateCommand) {
-            playerAddedValidateCommand = gameEngine->validatePlayersAddedCommand();
-        }
+        while (gameEngine->validatePlayersAddedCommand()){}};
         //---> assign countries here: to be implemented next phase
         assignreinforcement:
         gameEngine->assignReinforcementStateChange();
@@ -30,9 +27,9 @@ int main(int argc, char *argv[]) {
         gameEngine->winStateChange();
         if (gameEngine->validateWinCommand() == 1)
             goto start;
-    }
+ //   }
 
-    delete gameEngine;
+   // delete gameEngine;
 
     return 0;
 }
