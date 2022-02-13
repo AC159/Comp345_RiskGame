@@ -20,13 +20,11 @@ GameEngine &GameEngine::operator=(const GameEngine &gameEngine){
     return *this;
 }
 
-ostream& GameEngine::operator<<(ostream &out, const GameEngine &gameEngine){
+ostream& operator<<(ostream &out, const GameEngine &gameEngine){
     out<<"Player amount: "<< gameEngine.playerAmount<<endl;
-    out<<"Player name: "<< endl;
+
     return out;
 }
-
-
 
 void GameEngine::changeState(string state) {
     this->state = state;

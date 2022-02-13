@@ -37,17 +37,12 @@ public:
 
     void validateMapLoadedCommand();
 
-   // Graph::MapLoader mapLoader{};
-
-
 //============= map validated state =================
     void mapValidatedStateChange();
 
     bool validateMapValidatedCommand();
 
 //============= players added state =================
-   // int playerAmount = 1;
-
     void playersAddedStateChange();
 
     void addPlayer();
