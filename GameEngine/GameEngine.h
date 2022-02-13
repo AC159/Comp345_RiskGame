@@ -12,8 +12,17 @@ using namespace std;
 
 class GameEngine {
 
-
 public:
+    Graph::MapLoader* mapLoader;
+    int playerAmount;
+    vector<Players::Player*> playersList;
+    GameEngine();
+    GameEngine(const GameEngine &gameEngine); //copy constructor
+    ~GameEngine();
+
+    GameEngine& operator=(const GameEngine &gameEngine);
+    friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
+
 //============= start state ================
     void welcomeMessage();
 
@@ -28,7 +37,7 @@ public:
 
     void validateMapLoadedCommand();
 
-    Graph::MapLoader mapLoader{};
+   // Graph::MapLoader mapLoader{};
 
 
 //============= map validated state =================
@@ -37,7 +46,7 @@ public:
     bool validateMapValidatedCommand();
 
 //============= players added state =================
-    int playerAmount = 1;
+   // int playerAmount = 1;
 
     void playersAddedStateChange();
 

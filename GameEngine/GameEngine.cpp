@@ -2,7 +2,30 @@
 #include "GameEngine.h"
 
 Orders::OrdersList *ordersList = new Orders::OrdersList();
-vector<Players::Player*> playersList;
+
+GameEngine::GameEngine() {
+  mapLoader= new Graph::MapLoader();
+  playerAmount=1;
+}
+
+GameEngine::GameEngine(const GameEngine &game){
+    this->mapLoader = game.mapLoader;
+    this->playerAmount = game.playerAmount;
+}
+GameEngine &GameEngine::operator=(const GameEngine &gameEngine){
+    if(this ==&gameEngine) return *this;
+    this->playerAmount = gameEngine.playerAmount;
+    this->mapLoader = gameEngine.mapLoader;
+
+    return *this;
+}
+
+ostream& GameEngine::operator<<(ostream &out, const GameEngine &gameEngine){
+    out<<"Player amount: "<< gameEngine.playerAmount<<endl;
+    out<<"Player name: "<< endl;
+    return out;
+}
+
 
 
 void GameEngine::changeState(string state) {
@@ -52,21 +75,21 @@ void GameEngine::chooseMapToLoad() {
             cin >> userNumInput;
         }
         if (userNumInput == 1) {
-            validateFile = mapLoader.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
+            validateFile = mapLoader->loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
         } else if (userNumInput == 2) {
-            validateFile = mapLoader.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
+            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
         } else if (userNumInput == 3) {
-            validateFile = mapLoader.loadMap("../WarzoneMaps/solar/smallsolar.map");
+            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/smallsolar.map");
         } else if (userNumInput == 4) {
-            validateFile = mapLoader.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
+            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
         }
         if (validateFile) {
-            if (mapLoader.map->validate()) {
+            if (mapLoader->map->validate()) {
                 cout << "The map is a connected graph and can be played!" << endl;
                 mapIsValid = true;
             } else {
-                delete mapLoader.map;
-                mapLoader.map = new Graph::Map();
+                delete mapLoader->map;
+                mapLoader->map = new Graph::Map();
             }
         }
     }
@@ -296,19 +319,26 @@ int GameEngine::validateWinCommand() {
     }
     //deleting objects in heap
     if (userInput == "1") {
-        delete mapLoader.map;
-        mapLoader.map = new Graph::Map;
+        delete mapLoader->map;
+        mapLoader->map = new Graph::Map;
 
         for(int i=0;i<playersList.size();i++){
             delete (playersList.at(i));
+
         }
         playersList.clear();
 
     } else if (userInput == "2") {
         delete ordersList;
-        delete mapLoader.map;
+        delete mapLoader->map;
     }
 
     return stoi(userInput);
+}
+GameEngine::~GameEngine() {
+    cout<< "game engine map loader invoked"<<endl;
+    delete mapLoader;
+    mapLoader = nullptr;
+    playersList.erase(playersList.begin(),playersList.end());
 }
 
