@@ -6,9 +6,9 @@ using namespace Graph;
 
 int main(int argc, char *argv[]) {
 
-//    MapLoader ml {};
-//    cout << ml << endl;
-//    bool valid = ml.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
+//    MapLoader map {};
+//    cout << map << endl;
+//    bool valid = map.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
 //
 //    if (!valid) {
 //        cout << "Invalid .map file...exiting." << endl;
