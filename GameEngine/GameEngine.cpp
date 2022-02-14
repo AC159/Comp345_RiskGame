@@ -355,6 +355,9 @@ GameEngine::~GameEngine() {
     delete ordersList;
     delete mapLoader;
     mapLoader = nullptr;
-    playersList.erase(playersList.begin(), playersList.end());
+    for (Players::Player* p : playersList) {
+        delete p;
+    }
+    playersList.clear();
 }
 
