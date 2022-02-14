@@ -5,17 +5,18 @@ using namespace std;
 using namespace Players;
 using namespace Graph;
 
-int main(){
+//int main(){
 
+void Player::playerDriver() {
     // test territories
-    string portugal {"Portugal"};
-    string spain {"Spain"};
-    string france {"France"};
-    string germany {"Germany"};
-    string switzerland {"Switzerland"};
-    string italy {"Italy"};
-    string belgium {"Belgium"};
-    string netherlands {"Netherlands"};
+    string portugal{"Portugal"};
+    string spain{"Spain"};
+    string france{"France"};
+    string germany{"Germany"};
+    string switzerland{"Switzerland"};
+    string italy{"Italy"};
+    string belgium{"Belgium"};
+    string netherlands{"Netherlands"};
     Territory *Portugal = new Territory(1, 1, portugal);
     Territory *Spain = new Territory(2, 1, spain);
     Territory *France = new Territory(3, 1, france);
@@ -38,27 +39,27 @@ int main(){
     Edge *GN = new Edge(*Germany, *Netherlands);
 
     // create a list of the edges
-    list<Edge*> *edges = new list<Edge*>;
-    list<Edge*>::iterator it = edges->begin();
+    list<Edge *> *edges = new list<Edge *>;
+    list<Edge *>::iterator it = edges->begin();
     edges->insert(it, PS);
     it++;
-    edges->insert(it,SF);
+    edges->insert(it, SF);
     it++;
-    edges->insert(it,FG);
+    edges->insert(it, FG);
     it++;
-    edges->insert(it,FSw);
+    edges->insert(it, FSw);
     it++;
-    edges->insert(it,GSw);
+    edges->insert(it, GSw);
     it++;
-    edges->insert(it,SwI);
+    edges->insert(it, SwI);
     it++;
-    edges->insert(it,FB);
+    edges->insert(it, FB);
     it++;
-    edges->insert(it,BN);
+    edges->insert(it, BN);
     it++;
-    edges->insert(it,GB);
+    edges->insert(it, GB);
     it++;
-    edges->insert(it,GN);
+    edges->insert(it, GN);
 
     // test cards
     Cards::Card *bombCard = new Cards::Bomb();
@@ -71,7 +72,7 @@ int main(){
     cout << "===========================" << endl;
     cout << endl;
     cout << "Created Player playerOne" << endl;
-    
+
 
     // insert France, Germany and Switzerland to player one's territories
     playerOne->addTerritory(*France);
@@ -106,28 +107,28 @@ int main(){
     cout << endl;
 
     // test method Player::toDefend()
-    map<int, Territory*> territoriesToDefend = playerOne->toDefend();
+    map<int, Territory *> territoriesToDefend = playerOne->toDefend();
     cout << "playerOne's returned list from method Player::toDefend(): " << endl;
-    for(map<int,Territory*>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++){
+    for (map<int, Territory *>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++) {
         cout << it->second->name << endl;
     }
     cout << endl;
- 
- 
+
+
     // test method Player::toAttack()
-    map<int, Territory*> temp = playerOne->toAttack(*edges);
+    map<int, Territory *> temp = playerOne->toAttack(*edges);
     cout << "playerOne's returned list from method Player::toAttack(): " << endl;
-    for(map<int, Territory*>::iterator it = temp.begin(); it != temp.end(); it++){
+    for (map<int, Territory *>::iterator it = temp.begin(); it != temp.end(); it++) {
         cout << (it->second->name) << endl;
     }
 
     cout << endl;
     cout << "===========================" << endl;
-    cout << "Test assignment operator"<< endl;
+    cout << "Test assignment operator" << endl;
 
     // test assignment operator
     Player *playerTwo = new Player("Two");
-    cout << "Created Player playerTwo"<< endl;
+    cout << "Created Player playerTwo" << endl;
     *playerTwo = *playerOne;
     cout << "Assigned playerOne to playerTwo" << endl;
     cout << endl;
@@ -140,7 +141,7 @@ int main(){
     // territories to defend for player two
     territoriesToDefend = playerTwo->toDefend();
     cout << "playerTwo's returned list from method Player::toDefend(): " << endl;
-    for(map<int,Territory*>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++){
+    for (map<int, Territory *>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++) {
         cout << (it->second->name) << endl;
     }
     cout << endl;
@@ -148,13 +149,13 @@ int main(){
     // territories to attack for player two
     cout << "playerTwo's returned list from method Player::toAttack(): " << endl;
     temp = playerTwo->toAttack(*edges);
-    for(map<int, Territory*>::iterator it = temp.begin(); it != temp.end(); it++){
+    for (map<int, Territory *>::iterator it = temp.begin(); it != temp.end(); it++) {
         cout << (it->second->name) << endl;
     }
 
     cout << endl;
     cout << "===========================" << endl;
-    cout << "Test copy constructor"<< endl;
+    cout << "Test copy constructor" << endl;
 
     Player *playerThree = new Player(*playerTwo);
     cout << "Copied playerTwo to playerThree" << endl;
@@ -169,7 +170,7 @@ int main(){
     // territories to defend for player three
     territoriesToDefend = playerThree->toDefend();
     cout << "playerThree's returned list from method Player::toDefend(): " << endl;
-    for(map<int,Territory*>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++){
+    for (map<int, Territory *>::iterator it = territoriesToDefend.begin(); it != territoriesToDefend.end(); it++) {
         cout << (it->second->name) << endl;
     }
     cout << endl;
@@ -177,13 +178,13 @@ int main(){
     // territories to attack for player three
     cout << "playerThree's returned list from method Player::toAttack(): " << endl;
     temp = playerThree->toAttack(*edges);
-    for(map<int, Territory*>::iterator it = temp.begin(); it != temp.end(); it++){
+    for (map<int, Territory *>::iterator it = temp.begin(); it != temp.end(); it++) {
         cout << (it->second->name) << endl;
     }
 
     // =======================================
 
-    for (Edge* edge : *edges) {
+    for (Edge *edge: *edges) {
         delete edge;
     }
     delete edges;
@@ -200,6 +201,6 @@ int main(){
     delete Italy;
     delete Belgium;
     delete Netherlands;
-
-    return 0;
 }
+ //   return 0;
+//}

@@ -22,6 +22,7 @@ public:
     Order();
     Order(const Order&);
     virtual ~Order() = default;
+    static void ordersDriver();
 
     Order & operator=(const Order &order);
     friend std::ostream & operator<<(std::ostream &out, const Order &order);

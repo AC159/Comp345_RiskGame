@@ -29,6 +29,7 @@ class Players::Player {
         Player(std::string newName);
         Player(const Player &player);   // copy constructor
         ~Player(); // destructor
+        static void playerDriver();
 
         // assignment operator
         Player& operator=(const Player &player); 

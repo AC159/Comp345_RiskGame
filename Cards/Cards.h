@@ -34,6 +34,7 @@ public:
     virtual void play(Players::Player &player, Deck &deck) = 0;
     virtual Card* clone() = 0;
     virtual ~Card();
+    static void cardsDriver();
 };
 
 
