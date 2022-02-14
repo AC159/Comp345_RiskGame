@@ -3,15 +3,19 @@
 
 Orders::OrdersList *ordersList = new Orders::OrdersList();
 
+//GameEngine class constructor
 GameEngine::GameEngine() {
   mapLoader= new Graph::MapLoader();
   playerAmount=1;
 }
 
+//GameEngine class copy constructor
 GameEngine::GameEngine(const GameEngine &game){
     this->mapLoader = game.mapLoader;
     this->playerAmount = game.playerAmount;
 }
+
+//GameEngine assignment operator
 GameEngine &GameEngine::operator=(const GameEngine &gameEngine){
     if(this ==&gameEngine) return *this;
     this->playerAmount = gameEngine.playerAmount;
@@ -20,23 +24,27 @@ GameEngine &GameEngine::operator=(const GameEngine &gameEngine){
     return *this;
 }
 
+//GameEngine stream operator
 ostream& operator<<(ostream &out, const GameEngine &gameEngine){
     out<<"Player amount: "<< gameEngine.playerAmount<<endl;
 
     return out;
 }
 
+//method to set and output current game state
 void GameEngine::changeState(string state) {
     this->state = state;
     cout << "========== state = " << state << " ==========" << endl;
 }
 
 //=============Start state ================
+//method to show game start welcome message
 void GameEngine::welcomeMessage() {
     changeState("start");
     cout << "Welcome to c++ Risk game!" << endl;
 }
 
+//method to check user input in the start state and perform related logic
 bool GameEngine::validateStartStateCommand() {
     cout << "Command list:\n1. loadmap" << endl;
     cout << "Please enter command number: ";
@@ -50,6 +58,7 @@ bool GameEngine::validateStartStateCommand() {
 }
 
 //=============Map Loaded state =================
+//method to modify current game state to 'map loaded'
 void GameEngine::mapLoadedStateChange() {
     GameEngine::changeState("map loaded");
 }
@@ -94,6 +103,7 @@ void GameEngine::chooseMapToLoad() {
     cout << "The file has been loaded and validated! Moving to the next step" << endl;
 }
 
+//method to check user input in the map loaded state and perform related logic
 void GameEngine::validateMapLoadedCommand() {
     cout << "Command list:\n1. validatemap" << endl;
     cout << "Please enter command number: ";
@@ -107,11 +117,12 @@ void GameEngine::validateMapLoadedCommand() {
 
 
 //=============Map validated state =================
+//method to modify current game state to 'map validated'
 void GameEngine::mapValidatedStateChange() {
     GameEngine::changeState("map validated");
 }
 
-
+//method to check user input in the map validated state and perform related logic
 bool GameEngine::validateMapValidatedCommand() {
     cout << "Command list:\n1. addplayer" << endl;
     cout << "Please enter command number: ";
@@ -125,11 +136,12 @@ bool GameEngine::validateMapValidatedCommand() {
 };
 
 //=============players added state =================
-
+//method to modify current game state to 'players added'
 void GameEngine::playersAddedStateChange() {
     GameEngine::changeState("players added");
 }
 
+//method to handle player addition
 void GameEngine::addPlayer() {
     cout << "Current amount of players: " << playerAmount << endl;
     cout << "Adding 1 more player" << endl;
@@ -160,8 +172,8 @@ bool GameEngine::validatePlayersAddedCommand() {
     }
     // creates player objects
     else if (userInput == "2" && playerAmount>1) {
-        cout << "Enter the names of the players: ";
             for (int i = 0; i < playerAmount; i++) {
+                cout << "Enter the names of the player " << i+1 <<": ";
                 string playerName;
                 cin >> playerName;
                 playersList.emplace_back(new Players::Player(playerName));
@@ -186,11 +198,12 @@ bool GameEngine::validatePlayersAddedCommand() {
 }
 
 //=============assign reinforcement state =================
-
+//method to modify current game state to 'assign reinforcement'
 void GameEngine::assignReinforcementStateChange() {
     GameEngine::changeState("assign reinforcement");
 }
 
+//method to check user input in the assign reinforcement state and perform related logic
 void GameEngine::validateAssignReinforcementCommand() {
     cout << "Command list:\n1. issueorder" << endl;
     cout << "Please enter command number:";
@@ -203,11 +216,12 @@ void GameEngine::validateAssignReinforcementCommand() {
 }
 
 //=============issue orders state =================
-
+//method to modify current game state to 'issue orders'
 void GameEngine::issueOrdersStateChange() {
     GameEngine::changeState("issue orders");
 }
 
+//method to create orders and add them to an order list
 void GameEngine::createAndAddOrder(int commandNumber) {
     switch (commandNumber) {
         case 1:
@@ -237,6 +251,7 @@ void GameEngine::createAndAddOrder(int commandNumber) {
     }
 }
 
+//method to check user input in the issue orders state and perform related logic
 void GameEngine::validateIssueOrdersCommand() {
     cout << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
          << endl;
@@ -260,11 +275,12 @@ void GameEngine::validateIssueOrdersCommand() {
 }
 
 //=============execute orders state =================
-
+//method to modify current game state to 'execute orders'
 void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
 
+//method to execute orders in the order list
 void GameEngine::executeOrders() {
     for (size_t i = 0; i < ordersList->length(); i++) {
         ordersList->element(i)->execute();
@@ -273,6 +289,7 @@ void GameEngine::executeOrders() {
     }
 }
 
+//method to check user input in the execute orders state and perform related logic
 int GameEngine::validateExecuteOrdersCommand() {
     cout << "Command list:\n1. execorder\n2. win" << endl;
     cout << "Please enter command number:";
@@ -300,12 +317,13 @@ int GameEngine::validateExecuteOrdersCommand() {
 }
 
 //=============win state =================
-
+//method to modify current game state to 'win'
 void GameEngine::winStateChange() {
     GameEngine::changeState("win");
     cout << "Congratulations! You are the winner of this game!" << endl;
 }
 
+//method to check user input in the win state and perform related logic
 int GameEngine::validateWinCommand() {
     cout << "Command list:\n1. play\n2. end" << endl;
     cout << "Please enter command number:";
@@ -325,6 +343,7 @@ int GameEngine::validateWinCommand() {
 
         }
         playersList.clear();
+        playerAmount = 1;
 
     } else if (userInput == "2") {
         delete ordersList;
@@ -333,6 +352,8 @@ int GameEngine::validateWinCommand() {
 
     return stoi(userInput);
 }
+
+//GameEngine class destructor
 GameEngine::~GameEngine() {
     cout<< "game engine map loader invoked"<<endl;
     delete mapLoader;
