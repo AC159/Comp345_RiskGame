@@ -5,19 +5,19 @@ Orders::OrdersList *ordersList = new Orders::OrdersList();
 
 //GameEngine class constructor
 GameEngine::GameEngine() {
-  mapLoader= new Graph::MapLoader();
-  playerAmount=1;
+    mapLoader = new Graph::MapLoader();
+    playerAmount = 1;
 }
 
 //GameEngine class copy constructor
-GameEngine::GameEngine(const GameEngine &game){
+GameEngine::GameEngine(const GameEngine &game) {
     this->mapLoader = game.mapLoader;
     this->playerAmount = game.playerAmount;
 }
 
 //GameEngine assignment operator
-GameEngine &GameEngine::operator=(const GameEngine &gameEngine){
-    if(this ==&gameEngine) return *this;
+GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
+    if (this == &gameEngine) return *this;
     this->playerAmount = gameEngine.playerAmount;
     this->mapLoader = gameEngine.mapLoader;
 
@@ -25,8 +25,8 @@ GameEngine &GameEngine::operator=(const GameEngine &gameEngine){
 }
 
 //GameEngine stream operator
-ostream& operator<<(ostream &out, const GameEngine &gameEngine){
-    out<<"Player amount: "<< gameEngine.playerAmount<<endl;
+ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
+    out << "Player amount: " << gameEngine.playerAmount << endl;
 
     return out;
 }
@@ -150,42 +150,42 @@ void GameEngine::addPlayer() {
 
 // creates a list of players that will be assigned a country in the next phase
 bool GameEngine::validatePlayersAddedCommand() {
-    if(playerAmount ==1){
-        cout << "Currently, " << playerAmount << " players added to the game. A minimum of 2 players are required to play the game." << endl;
+    if (playerAmount == 1) {
+        cout << "Currently, " << playerAmount
+             << " players added to the game. A minimum of 2 players are required to play the game." << endl;
         cout << "Command list:\n1. addplayer" << endl;
-    }
-    else if (playerAmount >1){
+    } else if (playerAmount > 1) {
         cout << "Currently, " << playerAmount << " players added to the game." << endl;
         cout << "Command list:\n1. addplayer\n2. confirm players" << endl;
     }
-        cout << "Please enter command number: ";
-        string userInput;
+    cout << "Please enter command number: ";
+    string userInput;
+    cin >> userInput;
+    while (userInput != "1" && playerAmount <= 1 || (userInput != "1" && playerAmount >= 2)) {
+        if (userInput == "2" && playerAmount >= 2)
+            break;
+        cout << "Invalid selection. Please enter command number: ";
         cin >> userInput;
-        while (userInput != "1" && playerAmount <= 1 || (userInput!="1" && playerAmount>=2)) {
-            if(userInput =="2" && playerAmount>=2)
-                break;
-            cout << "Invalid selection. Please enter command number: ";
-            cin >> userInput;
-        }
+    }
     if (userInput == "1") {
         addPlayer();
     }
-    // creates player objects
-    else if (userInput == "2" && playerAmount>1) {
-            for (int i = 0; i < playerAmount; i++) {
-                cout << "Enter the names of the player " << i+1 <<": ";
-                string playerName;
-                cin >> playerName;
-                playersList.emplace_back(new Players::Player(playerName));
-            }
+        // creates player objects
+    else if (userInput == "2" && playerAmount > 1) {
+        for (int i = 0; i < playerAmount; i++) {
+            cout << "Enter the name of the player " << i + 1 << ": ";
+            string playerName;
+            cin >> playerName;
+            playersList.emplace_back(new Players::Player(playerName));
+        }
 
-        cout<< playerAmount<<" players have been created"<<endl;
-        for(int i=0;i<playersList.size();i++){
-            cout<<playersList.at(i)->getName()<<endl;
+        cout << playerAmount << " players have been created" << endl;
+        for (int i = 0; i < playersList.size(); i++) {
+            cout << playersList.at(i)->getName() << endl;
         }
 
         // validates moving to the play section of the state machine
-        cout<<"Command list:\n1. assigncountries" << endl;
+        cout << "Command list:\n1. assigncountries" << endl;
         cout << "Please enter command number: ";
         cin >> userInput;
         while (userInput != "1") {
@@ -193,7 +193,7 @@ bool GameEngine::validatePlayersAddedCommand() {
             cin >> userInput;
         }
         return false;
-}
+    }
     return true;
 }
 
@@ -338,7 +338,7 @@ int GameEngine::validateWinCommand() {
         delete mapLoader->map;
         mapLoader->map = new Graph::Map;
 
-        for(int i=0;i<playersList.size();i++){
+        for (int i = 0; i < playersList.size(); i++) {
             delete (playersList.at(i));
 
         }
@@ -355,9 +355,9 @@ int GameEngine::validateWinCommand() {
 
 //GameEngine class destructor
 GameEngine::~GameEngine() {
-    cout<< "game engine map loader invoked"<<endl;
+    cout << "game engine destructor invoked" << endl;
     delete mapLoader;
     mapLoader = nullptr;
-    playersList.erase(playersList.begin(),playersList.end());
+    playersList.erase(playersList.begin(), playersList.end());
 }
 
