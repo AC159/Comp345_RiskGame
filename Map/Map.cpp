@@ -41,8 +41,6 @@ Territory& Territory::operator=(const Territory &territory) {
     this->continent = territory.continent;
     this->countryNumber = territory.countryNumber;
     this->numberOfArmies = territory.numberOfArmies;
-//    this->borders.clear();
-//    this->borders = territory.borders;
     delete this->owner;
     this->owner = territory.owner; // shallow copy will be made as overload assignment operator will be called for the Player class
     return *this;
