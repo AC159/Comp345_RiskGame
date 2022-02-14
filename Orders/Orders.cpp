@@ -292,9 +292,7 @@ Negotiate * Negotiate::clone() const {
 }
 
 // ====================== OrdersList class ======================
-OrdersList::OrdersList() {
-    cout << "Created an OrdersList object." << endl;
-}
+OrdersList::OrdersList() = default;
 
 //creates a deep copy of the given OrdersList and of all the Order objects it contains
 OrdersList::OrdersList(const OrdersList &ordersList) {

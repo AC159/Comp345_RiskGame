@@ -4,7 +4,7 @@ project(Comp345RiskGame)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(
-        GameEngine
+        Comp345RiskGame
         GameEngine/GameEngine.cpp GameEngine/GameEngine.h GameEngine/GameEngineDriver.cpp
         Map/Map.cpp Map/Map.h Map/MapDriver.cpp
         Player/Player.cpp Player/Player.h Player/PlayerDriver.cpp
