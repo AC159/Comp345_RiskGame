@@ -22,6 +22,7 @@ public:
 
     GameEngine& operator=(const GameEngine &gameEngine);
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
+    static void gameEngineDriver();
 
 //============= start state ================
     void welcomeMessage();

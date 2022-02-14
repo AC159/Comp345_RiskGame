@@ -28,7 +28,8 @@ void testRemove(OrdersList &list, int index) {
 }
 
 // test all functionalities pertaining to orders
-int main() {
+void Orders::Order::ordersDriver() {
+//int main() {
     cout << "\n -Creating orders of every kind and adding them to OrdersList object...\n" << endl;
     OrdersList list;
     list.add(new Deploy);
@@ -47,9 +48,9 @@ int main() {
 
     cout << "\n\n -Printing list contents before and after removing or moving element...\n" << endl;
     testRemove(list, 2);
-    testMove(list, 2,4);
-    testMove(list,3,1);
-
-    return 0;
+    testMove(list, 2, 4);
+    testMove(list, 3, 1);
 }
+//    return 0;
+//}
 
