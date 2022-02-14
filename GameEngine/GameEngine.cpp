@@ -344,10 +344,6 @@ int GameEngine::validateWinCommand() {
         }
         playersList.clear();
         playerAmount = 1;
-
-    } else if (userInput == "2") {
-        delete ordersList;
-        delete mapLoader->map;
     }
 
     return stoi(userInput);
@@ -355,7 +351,8 @@ int GameEngine::validateWinCommand() {
 
 //GameEngine class destructor
 GameEngine::~GameEngine() {
-    cout << "game engine destructor invoked" << endl;
+    cout << "GameEngine destructor invoked..." << endl;
+    delete ordersList;
     delete mapLoader;
     mapLoader = nullptr;
     playersList.erase(playersList.begin(), playersList.end());
