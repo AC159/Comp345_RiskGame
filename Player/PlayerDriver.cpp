@@ -5,7 +5,6 @@ using namespace std;
 using namespace Players;
 using namespace Graph;
 
-//int main(){
 
 void Player::playerDriver() {
     // test territories
@@ -182,7 +181,6 @@ void Player::playerDriver() {
         cout << (it->second->name) << endl;
     }
 
-    // =======================================
 
     for (Edge *edge: *edges) {
         delete edge;
@@ -202,5 +200,3 @@ void Player::playerDriver() {
     delete Belgium;
     delete Netherlands;
 }
- //   return 0;
-//}

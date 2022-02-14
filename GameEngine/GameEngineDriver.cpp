@@ -2,7 +2,6 @@
 
 using namespace std;
 
-//int main(int argc, char *argv[]) {
     void GameEngine::gameEngineDriver()
     {
 
@@ -32,5 +31,4 @@ using namespace std;
         }
         delete gameEngine;
     }
-//   return 0;
-//}
+

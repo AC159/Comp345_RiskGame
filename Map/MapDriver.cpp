@@ -4,44 +4,24 @@
 using namespace std;
 using namespace Graph;
 
-//int main(int argc, char *argv[]) {
-void Graph::Map::mapDriver()
-    {
-//    MapLoader map {};
-//    cout << map << endl;
-//    bool valid = map.loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
-//
-//    if (!valid) {
-//        cout << "Invalid .map file...exiting." << endl;
-//        exit(1);
-//    }
+void Graph::Map::mapDriver() {
 
-        MapLoader ml2{};
-        // bool result = ml2.loadMap("../WarzoneMaps/canada/canada.map");
-//    bool result = ml2.loadMap("../WarzoneMaps/solar/smallsolar.map");
-//    cout << ml2 << endl;
-        // invalid: not connected graph
-        bool invalidResult = ml2.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
-        //invalid: duplicate country
-//    bool invalidResult = ml2.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
+    MapLoader ml2{};
+    //valid
+    bool result = ml2.loadMap("../WarzoneMaps/canada/canada.map");
+    bool mapIsValid = ml2.map->validate();
+    cout << boolalpha << "map is valid = " << mapIsValid << endl;
 
-        bool mapIsValid = ml2.map->validate();
-        cout << boolalpha << "map is valid = " << mapIsValid << endl;
+    MapLoader ml3{};
+    // invalid: not connected graph
+    bool invalidResult = ml3.loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
+    bool mapIsValid3 = ml3.map->validate();
+    cout << boolalpha << "map is valid = " << mapIsValid3 << endl;
 
-        string s1 = "quebec";
-        string s2 = "ontario";
-        Territory *t1 = new Territory(1, 1, s1);
-        Territory *t2 = new Territory(2, 2, s2);
+    MapLoader ml4{};
+    //invalid: duplicate country
+    bool invalidResult2 = ml4.loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
+    bool mapIsValid4 = ml4.map->validate();
+    cout << boolalpha << "map is valid = " << mapIsValid4 << endl;
 
-        Edge e{*t1, *t2};
-        Edge e2;
-        e2 = e;
-        e2.source->name = "alberta";
-        cout << "Edge 1: " << e << endl;
-        cout << "Edge 2: " << e2 << endl;
-
-        delete t1;
-        delete t2;
-    }
-  //  return 0;
-//}
+}

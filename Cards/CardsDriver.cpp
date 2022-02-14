@@ -5,7 +5,7 @@
 using namespace std;
 using namespace Cards;
 
-//int main(int argc, char *argv[]) {
+
 void Cards::Card::cardsDriver() {
 
     // Create a set of different cards (these cards will be deleted by the Deck class)
@@ -75,5 +75,3 @@ void Cards::Card::cardsDriver() {
     delete p;
     delete hand;
 }
-//    return 0;
-//}

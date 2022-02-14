@@ -33,7 +33,8 @@ int main() {
         } else if (userInput == "5") {
             cout << "Part 5: GameEngine Driver" << endl;
             GameEngine::gameEngineDriver();
-        }
+        } else if (userInput != "6")
+            cout << "ERROR: Invalid input!" << endl;
     } while (userInput != "6");
 
     return 0;
