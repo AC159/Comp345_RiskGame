@@ -1,19 +1,36 @@
 #include <iostream>
 #include "Orders.h"
+#include "../Player/Player.h"
 
 using namespace std;
 using namespace Orders;
 
 // ====================== Order class ======================
-Order::Order() {
+Order::Order() : issuer(nullptr) {
     cout << "Created an Order base class. ";
 }
 
-//copy constructor is currently empty because class has no attributes yet
-Order::Order(const Order &order) = default;
+//creates an order with all members initialized through parameters
+Order::Order(Players::Player *issuer) : issuer(issuer) {}
 
-//creates deep copy via the assignment operator (currently no attributes to copy)
-Order & Order::operator=(const Order &) = default;
+//copy constructor creates deep copy of given object
+Order::Order(const Order &order) {
+    this->issuer = new Players::Player(*(order.issuer));
+}
+
+//destructor prevents memory leaks
+Order::~Order() {
+    delete issuer;
+}
+
+//creates deep copy via the assignment operator
+Order & Order::operator=(const Order &order) {
+    if (this != &order) {
+        delete issuer;
+        this->issuer = new Players::Player(*(order.issuer));
+    }
+    return *this;
+}
 
 //overloads the insertion operator with a basic string representation of the object
 ostream & operator<<(ostream &out, const Order &order) {
@@ -22,16 +39,34 @@ ostream & operator<<(ostream &out, const Order &order) {
 }
 
 // ====================== Deploy class ======================
-Deploy::Deploy() {
+Deploy::Deploy() : target(nullptr), armies(0) {
     cout << "Created a Deploy order." << endl;
 }
 
-Deploy::Deploy(const Deploy &deploy) {
-    //copy constructor is currently empty because class has no attributes yet
+//creates an order with all members initialized through parameters
+Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies)
+    : Order(issuer), target(target), armies(armies) {}
+
+//copy constructor creates deep copy of given object
+Deploy::Deploy(const Deploy &deploy)  : Order(deploy) {
+    this->target = new Graph::Territory(*(deploy.target));
+    this->armies = deploy.armies;
 }
 
-//creates deep copy via the assignment operator (currently no attributes to copy)
+//destructor prevents memory leaks
+Deploy::~Deploy() {
+    delete target;
+}
+
+//creates deep copy via the assignment operator
 Deploy & Deploy::operator=(const Deploy &deploy) {
+    if (this != &deploy) {
+        delete issuer;
+        delete target;
+        this->issuer = new Players::Player(*(deploy.issuer));
+        this->target = new Graph::Territory(*(deploy.target));
+        this->armies = deploy.armies;
+    }
     return *this;
 }
 
@@ -61,22 +96,44 @@ string Deploy::className() const {
     return "Deploy";
 }
 
-//polymorphycally returns a clone of the calling class
+//polymorphically returns a clone of the calling class
 Deploy * Deploy::clone() const {
     return new Deploy(*this);
 }
 
 // ====================== Advance class ======================
-Advance::Advance() {
+Advance::Advance() : source(nullptr), target(nullptr), armies(0) {
     cout << "Created an Advance order." << endl;
 }
 
-Advance::Advance(const Advance &advance) {
-    //copy constructor is currently empty because class has no attributes yet
+//creates an order with all members initialized through parameters
+Advance::Advance(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
+    : Order(issuer), source(source), target(target), armies(armies) {}
+
+//copy constructor creates deep copy of given object
+Advance::Advance(const Advance &advance) : Order(advance) {
+    this->source = new Graph::Territory(*(advance.source));
+    this->target = new Graph::Territory(*(advance.target));
+    this->armies = advance.armies;
 }
 
-//creates deep copy via the assignment operator (currently no attributes to copy)
+//destructor prevents memory leaks
+Advance::~Advance() {
+    delete source;
+    delete target;
+}
+
+//creates deep copy via the assignment operator
 Advance &Advance::operator=(const Advance &advance) {
+    if (this != &advance) {
+        delete issuer;
+        delete source;
+        delete target;
+        this->issuer = new Players::Player(*(advance.issuer));
+        this->source = new Graph::Territory(*(advance.source));
+        this->target = new Graph::Territory(*(advance.target));
+        this->armies = advance.armies;
+    }
     return *this;
 }
 
@@ -106,22 +163,37 @@ string Advance::className() const {
     return "Advance";
 }
 
-//polymorphycally returns a clone of the calling class
+//polymorphically returns a clone of the calling class
 Advance * Advance::clone() const {
     return new Advance(*this);
 }
 
 // ====================== Bomb class ======================
-Bomb::Bomb() {
+Bomb::Bomb() : target(nullptr) {
     cout << "Created a Bomb order." << endl;
 }
 
-Bomb::Bomb(const Bomb &bomb) {
-    //copy constructor is currently empty because class has no attributes yet
+//creates an order with all members initialized through parameters
+Bomb::Bomb(Players::Player *issuer, Graph::Territory *target) : Order(issuer), target(target) {}
+
+//copy constructor creates deep copy of given object
+Bomb::Bomb(const Bomb &bomb) : Order(bomb) {
+    this->target = new Graph::Territory(*(bomb.target));
 }
 
-//creates deep copy via the assignment operator (currently no attributes to copy)
+//destructor prevents memory leaks
+Bomb::~Bomb() {
+    delete target;
+}
+
+//creates deep copy via the assignment operator
 Bomb &Bomb::operator=(const Bomb &bomb) {
+    if (this != &bomb) {
+        delete issuer;
+        delete target;
+        this->issuer = new Players::Player(*(bomb.issuer));
+        this->target = new Graph::Territory(*(bomb.target));
+    }
     return *this;
 }
 
@@ -151,22 +223,37 @@ string Bomb::className() const {
     return "Bomb";
 }
 
-//polymorphycally returns a clone of the calling class
+//polymorphically returns a clone of the calling class
 Bomb * Bomb::clone() const {
     return new Bomb(*this);
 }
 
 // ====================== Blockade class ======================
-Blockade::Blockade() {
+Blockade::Blockade() : target(nullptr) {
     cout << "Created a Blockade order." << endl;
 }
 
-Blockade::Blockade(const Blockade &blockade) {
-    //copy constructor is currently empty because class has no attributes yet
+//creates an order with all members initialized through parameters
+Blockade::Blockade(Players::Player *issuer, Graph::Territory *target) : Order(issuer), target(target) {}
+
+//copy constructor creates deep copy of given object
+Blockade::Blockade(const Blockade &blockade) : Order(blockade) {
+    this->target = new Graph::Territory(*(blockade.target));
 }
 
-//creates deep copy via the assignment operator (currently no attributes to copy)
+//destructor prevents memory leaks
+Blockade::~Blockade() {
+    delete target;
+}
+
+//creates deep copy via the assignment operator
 Blockade &Blockade::operator=(const Blockade &blockade) {
+    if (this != &blockade) {
+        delete issuer;
+        delete target;
+        this->issuer = new Players::Player(*(blockade.issuer));
+        this->target = new Graph::Territory(*(blockade.target));
+    }
     return *this;
 }
 
@@ -196,22 +283,43 @@ string Blockade::className() const {
     return "Blockade";
 }
 
-//polymorphycally returns a clone of the calling class
+//polymorphically returns a clone of the calling class
 Blockade * Blockade::clone() const {
     return new Blockade(*this);
 }
 
 // ====================== Airlift class ======================
-Airlift::Airlift() {
+Airlift::Airlift() : source(nullptr), target(nullptr), armies(0){
     cout << "Created an Airlift order." << endl;
 }
 
-Airlift::Airlift(const Airlift &airlift) {
-    //copy constructor is currently empty because class has no attributes yet
+//creates an order with all members initialized through parameters
+Airlift::Airlift(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
+    : Order(issuer), source(source), target(target), armies(armies) {}
+
+//copy constructor creates deep copy of given object
+Airlift::Airlift(const Airlift &airlift) : Order(airlift) {
+    this->source = new Graph::Territory(*(airlift.source));
+    this->target = new Graph::Territory(*(airlift.target));
+    this->armies = airlift.armies;
 }
 
-//creates deep copy via the assignment operator (currently no attributes to copy)
-Airlift &Airlift::operator=(const Airlift *airlift) {
+//destructor prevents memory leaks
+Airlift::~Airlift() {
+    delete source;
+    delete target;
+}
+
+//creates deep copy via the assignment operator
+Airlift &Airlift::operator=(const Airlift &airlift) {
+    if (this != &airlift) {
+        delete issuer;
+        delete source;
+        delete target;
+        this->issuer = new Players::Player(*(airlift.issuer));
+        this->source = new Graph::Territory(*(airlift.source));
+        this->target = new Graph::Territory(*(airlift.target));
+    }
     return *this;
 }
 
@@ -247,16 +355,31 @@ Airlift * Airlift::clone() const {
 }
 
 // ====================== Negotiate class ======================
-Negotiate::Negotiate() {
+Negotiate::Negotiate() : target(nullptr) {
     cout << "Created a Negotiate order." << endl;
 }
 
-Negotiate::Negotiate(const Negotiate &negotiate) {
-    //copy constructor is currently empty because class has no attributes yet
+//creates an order with all members initialized through parameters
+Negotiate::Negotiate(Players::Player *issuer, Players::Player *target) : Order(issuer), target(target) {}
+
+//copy constructor creates deep copy of given object
+Negotiate::Negotiate(const Negotiate &negotiate) : Order(negotiate) {
+    this->target = new Players::Player(*(negotiate.target));
 }
 
-//creates deep copy via the assignment operator (currently no attributes to copy)
-Negotiate & Negotiate::operator=(const Negotiate *negotiate) {
+//destructor prevents memory leaks
+Negotiate::~Negotiate() {
+    delete target;
+}
+
+//creates deep copy via the assignment operator
+Negotiate & Negotiate::operator=(const Negotiate &negotiate) {
+    if (this != &negotiate) {
+        delete issuer;
+        delete target;
+        this->issuer = new Players::Player(*(negotiate.issuer));
+        this->target = new Players::Player(*(negotiate.target));
+    }
     return *this;
 }
 
