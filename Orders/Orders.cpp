@@ -103,7 +103,12 @@ Advance::Advance() : source(nullptr), target(nullptr), armies(0) {
     cout << "Created an Advance order." << endl;
 }
 
-//creates an order with all members initialized through parameters
+/** creates an order with all members initialized through parameters
+ * @param issuer the player whose turn it is
+ * @param source the territory where the armies will be taken from (must belong to issuer for validity)
+ * @param target the where armies will transfer to or attack (must be adjacent to source for validity)
+ * @param armies the number of armies to attack with or to transfer (must be <= armies in source for validity)
+ */
 Advance::Advance(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
     : Order(issuer), source(source), target(target), armies(armies) {}
 
@@ -318,7 +323,12 @@ Airlift::Airlift() : source(nullptr), target(nullptr), armies(0){
     cout << "Created an Airlift order." << endl;
 }
 
-//creates an order with all members initialized through parameters
+/** creates an order with all members initialized through parameters
+ * @param issuer the player whose turn it is
+ * @param source the territory where the armies will be taken from (must belong to issuer for validity)
+ * @param target the territory where the armies will be transferred to (must belong to issuer for validity)
+ * @param armies the number of armies to transfer (must be <= armies in source for validity)
+ */
 Airlift::Airlift(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
     : Order(issuer), source(source), target(target), armies(armies) {}
 
@@ -352,18 +362,22 @@ ostream & operator<<(ostream &out, const Airlift &airlift) {
     return out;
 }
 
-//returns whether the order is valid - behaviour is arbitrary for now
+//is valid if both the source and target territories belong to the issuer and the source has sufficient armies
 bool Airlift::validate() {
-    cout << "Validated an Airlift order.";
-    return true;
+    if (source != nullptr && target != nullptr &&
+        source->owner == issuer && target->owner == issuer && source->numberOfArmies >= armies) {
+        return true;
+    }
+    return false;
 }
 
-//performs the order action if it's valid - action is arbitrary for now
+//if the order is valid, the selected number of armies are moved from the source to the target territories
 void Airlift::execute() {
     if (this->validate()) {
-        cout << " Executed an Airlift Order." << endl;
+        source->numberOfArmies -= armies;
+        target->numberOfArmies += armies;
     } else {
-        cout << "Invalid order could not be executed." << endl;
+        cout << "An invalid airlift order could not be executed." << endl;
     }
 }
 
