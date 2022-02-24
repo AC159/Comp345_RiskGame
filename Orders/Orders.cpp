@@ -138,18 +138,50 @@ ostream & operator<<(ostream &out, const Advance &advance) {
     return out;
 }
 
-//returns whether the order is valid - behaviour is arbitrary for now
+/* is valid if the source territory belongs to the player that issued the order and has sufficient armies,
+ * and if the target territory is adjacent to the source territory*/
 bool Advance::validate() {
-    cout << "Validated an Advance order.";
-    return true;
+    //TODO: make sense of adjacent territories - determined in map or player or new function?
+    if (source != nullptr && source->owner == issuer && source->numberOfArmies >= armies && armies > 0 /*& adjacent*/) {
+        return true;
+    }
+    return false;
 }
 
-//performs the order action if it's valid - action is arbitrary for now
+/* only performs action if the order is valid: if the target territory belongs to the issuer, the armies are
+ * transferred there; otherwise the armies attack the target territory*/
 void Advance::execute() {
-    if (this->validate()) {
-        cout << " Executed an Advance Order." << endl;
+    //TODO: test the execution of multiple advance orders for verification
+    if (validate()) {
+        if (source->owner == target->owner) { //perform simple army transfer
+            source->numberOfArmies -= armies;
+            target->numberOfArmies += armies;
+        } else { //initiate an attack
+            //TODO: skip attack if source & target owners are negotiating due to diplomacy card
+            int defendersKilled = armies * 60 / 100;
+            int attackersKilled = target->numberOfArmies * 70 / 100;
+
+            if (target->numberOfArmies >= defendersKilled) { //attacking armies failed to conquer the territory
+                //update territories' armies
+                target->numberOfArmies -= defendersKilled;
+                armies < attackersKilled ? source->numberOfArmies -= armies : source->numberOfArmies -= attackersKilled;
+            } else { //territory successfully conquered
+                //transfer ownership
+                target->owner->removeTerritory(*target);
+                target->owner = issuer;
+                issuer->addTerritory(*target);
+
+                //update territories' armies
+                source->numberOfArmies -= armies;
+                target->numberOfArmies = armies - attackersKilled;
+
+                //the conquering player receives a card as a reward
+                //TODO: check if should add deck attribute to advance order or if deck's attribute should be static
+                /*issuer->hand->cards.push_back(Cards::Deck::draw());*/ //should I convert to static or??
+            }
+        }
     } else {
-        cout << "Invalid order could not be executed." << endl;
+        cout << "An invalid advance order could not be executed." << endl;
     }
 }
 

@@ -60,7 +60,8 @@ public:
     [[nodiscard]] Deploy * clone() const override;
 };
 
-/* An advance order tells a number of army units to move from a source territory to a target adjacent territory.*/
+/* An advance order tells a number of army units from a source territory to transfer to or to attack a target adjacent
+ * territory.*/
 class Orders::Advance : public Order {
 private:
     Graph::Territory *source;
