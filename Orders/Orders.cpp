@@ -6,16 +6,14 @@ using namespace std;
 using namespace Orders;
 
 // ====================== Order class ======================
-Order::Order() : issuer(nullptr) {
-    cout << "Created an Order base class. ";
-}
+Order::Order() : issuer(nullptr) {}
 
 //creates an order with all members initialized through parameters
 Order::Order(Players::Player *issuer) : issuer(issuer) {}
 
-//copy constructor creates deep copy of given object
+//copy constructor creates shallow copy due to circular dependency
 Order::Order(const Order &order) {
-    this->issuer = new Players::Player(*(order.issuer));
+    this->issuer = order.issuer;
 }
 
 //destructor prevents memory leaks
@@ -23,11 +21,11 @@ Order::~Order() {
     delete issuer;
 }
 
-//creates deep copy via the assignment operator
+//creates shallow copy via the assignment operator
 Order & Order::operator=(const Order &order) {
     if (this != &order) {
-        delete issuer;
-        this->issuer = new Players::Player(*(order.issuer));
+        //delete or no?... circular dependencies
+        this->issuer = order.issuer;
     }
     return *this;
 }
@@ -47,9 +45,9 @@ Deploy::Deploy() : target(nullptr), armies(0) {
 Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies)
     : Order(issuer), target(target), armies(armies) {}
 
-//copy constructor creates deep copy of given object
+//copy constructor creates shallow copy due to circular dependency
 Deploy::Deploy(const Deploy &deploy)  : Order(deploy) {
-    this->target = new Graph::Territory(*(deploy.target));
+    this->target = deploy.target;
     this->armies = deploy.armies;
 }
 
@@ -58,13 +56,12 @@ Deploy::~Deploy() {
     delete target;
 }
 
-//creates deep copy via the assignment operator
+//creates shallow copy via the assignment operator
 Deploy & Deploy::operator=(const Deploy &deploy) {
     if (this != &deploy) {
-        delete issuer;
-        delete target;
-        this->issuer = new Players::Player(*(deploy.issuer));
-        this->target = new Graph::Territory(*(deploy.target));
+        //delete or no?... circular dependencies
+        this->issuer = deploy.issuer;
+        this->target = deploy.target;
         this->armies = deploy.armies;
     }
     return *this;
@@ -110,10 +107,10 @@ Advance::Advance() : source(nullptr), target(nullptr), armies(0) {
 Advance::Advance(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
     : Order(issuer), source(source), target(target), armies(armies) {}
 
-//copy constructor creates deep copy of given object
+//copy constructor creates shallow copy due to circular dependency
 Advance::Advance(const Advance &advance) : Order(advance) {
-    this->source = new Graph::Territory(*(advance.source));
-    this->target = new Graph::Territory(*(advance.target));
+    this->source = advance.source;
+    this->target = advance.target;
     this->armies = advance.armies;
 }
 
@@ -123,15 +120,13 @@ Advance::~Advance() {
     delete target;
 }
 
-//creates deep copy via the assignment operator
+//creates shallow copy via the assignment operator
 Advance &Advance::operator=(const Advance &advance) {
     if (this != &advance) {
-        delete issuer;
-        delete source;
-        delete target;
-        this->issuer = new Players::Player(*(advance.issuer));
-        this->source = new Graph::Territory(*(advance.source));
-        this->target = new Graph::Territory(*(advance.target));
+        //delete or no?... circular dependencies
+        this->issuer = advance.issuer;
+        this->source = advance.source;
+        this->target = advance.target;
         this->armies = advance.armies;
     }
     return *this;
@@ -176,9 +171,9 @@ Bomb::Bomb() : target(nullptr) {
 //creates an order with all members initialized through parameters
 Bomb::Bomb(Players::Player *issuer, Graph::Territory *target) : Order(issuer), target(target) {}
 
-//copy constructor creates deep copy of given object
+//copy constructor creates shallow copy due to circular dependency
 Bomb::Bomb(const Bomb &bomb) : Order(bomb) {
-    this->target = new Graph::Territory(*(bomb.target));
+    this->target = bomb.target;
 }
 
 //destructor prevents memory leaks
@@ -186,13 +181,12 @@ Bomb::~Bomb() {
     delete target;
 }
 
-//creates deep copy via the assignment operator
+//creates shallow via the assignment operator
 Bomb &Bomb::operator=(const Bomb &bomb) {
     if (this != &bomb) {
-        delete issuer;
-        delete target;
-        this->issuer = new Players::Player(*(bomb.issuer));
-        this->target = new Graph::Territory(*(bomb.target));
+        //delete or no?... circular dependencies
+        this->issuer = bomb.issuer;
+        this->target = bomb.target;
     }
     return *this;
 }
@@ -236,9 +230,9 @@ Blockade::Blockade() : target(nullptr) {
 //creates an order with all members initialized through parameters
 Blockade::Blockade(Players::Player *issuer, Graph::Territory *target) : Order(issuer), target(target) {}
 
-//copy constructor creates deep copy of given object
+//copy constructor creates shallow copy due to circular dependency
 Blockade::Blockade(const Blockade &blockade) : Order(blockade) {
-    this->target = new Graph::Territory(*(blockade.target));
+    this->target = blockade.target;
 }
 
 //destructor prevents memory leaks
@@ -246,13 +240,12 @@ Blockade::~Blockade() {
     delete target;
 }
 
-//creates deep copy via the assignment operator
+//creates shallow copy via the assignment operator
 Blockade &Blockade::operator=(const Blockade &blockade) {
     if (this != &blockade) {
-        delete issuer;
-        delete target;
-        this->issuer = new Players::Player(*(blockade.issuer));
-        this->target = new Graph::Territory(*(blockade.target));
+        //delete or no?... circular dependencies
+        this->issuer = blockade.issuer;
+        this->target = blockade.target;
     }
     return *this;
 }
@@ -297,10 +290,10 @@ Airlift::Airlift() : source(nullptr), target(nullptr), armies(0){
 Airlift::Airlift(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
     : Order(issuer), source(source), target(target), armies(armies) {}
 
-//copy constructor creates deep copy of given object
+//copy constructor creates shallow copy due to circular dependency
 Airlift::Airlift(const Airlift &airlift) : Order(airlift) {
-    this->source = new Graph::Territory(*(airlift.source));
-    this->target = new Graph::Territory(*(airlift.target));
+    this->source = airlift.source;
+    this->target = airlift.target;
     this->armies = airlift.armies;
 }
 
@@ -310,15 +303,13 @@ Airlift::~Airlift() {
     delete target;
 }
 
-//creates deep copy via the assignment operator
+//creates shallow copy via the assignment operator
 Airlift &Airlift::operator=(const Airlift &airlift) {
     if (this != &airlift) {
-        delete issuer;
-        delete source;
-        delete target;
-        this->issuer = new Players::Player(*(airlift.issuer));
-        this->source = new Graph::Territory(*(airlift.source));
-        this->target = new Graph::Territory(*(airlift.target));
+        //delete or no?... circular dependencies
+        this->issuer = airlift.issuer;
+        this->source = airlift.source;
+        this->target = airlift.target;
     }
     return *this;
 }
@@ -349,7 +340,7 @@ string Airlift::className() const {
     return "Airlift";
 }
 
-//polymorphycally returns a clone of the calling class
+//polymorphically returns a clone of the calling class
 Airlift * Airlift::clone() const {
     return new Airlift(*this);
 }
@@ -362,9 +353,9 @@ Negotiate::Negotiate() : target(nullptr) {
 //creates an order with all members initialized through parameters
 Negotiate::Negotiate(Players::Player *issuer, Players::Player *target) : Order(issuer), target(target) {}
 
-//copy constructor creates deep copy of given object
+//copy constructor creates shallow copy due to circular dependency
 Negotiate::Negotiate(const Negotiate &negotiate) : Order(negotiate) {
-    this->target = new Players::Player(*(negotiate.target));
+    this->target = negotiate.target;
 }
 
 //destructor prevents memory leaks
@@ -372,13 +363,12 @@ Negotiate::~Negotiate() {
     delete target;
 }
 
-//creates deep copy via the assignment operator
+//creates shallow copy via the assignment operator
 Negotiate & Negotiate::operator=(const Negotiate &negotiate) {
     if (this != &negotiate) {
-        delete issuer;
-        delete target;
-        this->issuer = new Players::Player(*(negotiate.issuer));
-        this->target = new Players::Player(*(negotiate.target));
+        //delete or no?... circular dependencies
+        this->issuer = negotiate.issuer;
+        this->target = negotiate.target;
     }
     return *this;
 }
@@ -466,7 +456,7 @@ ostream& Orders::operator<<(ostream &out, const OrdersList &ordersList) {
 //removes the element in the list located at the given index
 void OrdersList::remove(int index) {
     //validate index
-    if (index >= orders.size()) {
+    if (index < 0 || index >= orders.size()) {
         return;
     }
 
