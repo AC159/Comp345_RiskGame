@@ -8,6 +8,7 @@ using namespace std;
         GameEngine *gameEngine = new GameEngine();
         start:
         gameEngine->welcomeMessage();
+        gameEngine->startupPhase();
         if (gameEngine->validateStartStateCommand()) {
             gameEngine->mapLoadedStateChange();
             gameEngine->chooseMapToLoad();

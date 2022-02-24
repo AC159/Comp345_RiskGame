@@ -27,6 +27,8 @@ public:
 //============= start state ================
     void welcomeMessage();
 
+    void startupPhase();
+
     //user command loadMap
     bool validateStartStateCommand();
 

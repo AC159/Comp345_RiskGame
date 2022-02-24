@@ -1,5 +1,5 @@
-
 #include "GameEngine.h"
+#include <filesystem>
 
 Orders::OrdersList *ordersList = new Orders::OrdersList();
 
@@ -44,6 +44,47 @@ void GameEngine::welcomeMessage() {
     cout << "Welcome to c++ Risk game!" << endl;
 }
 
+void GameEngine::startupPhase() {
+
+    string welcomeBanner =
+        "WWWWWWWW                           WWWWWWWW                                                                                                          \n"
+        "W::::::W                           W::::::W                                                                                                          \n"
+        "W::::::W                           W::::::W                                                                                                          \n"
+        "W::::::W                           W::::::W                                                                                                          \n"
+        " W:::::W           WWWWW           W:::::Waaaaaaaaaaaaa  rrrrr   rrrrrrrrr   zzzzzzzzzzzzzzzzz   ooooooooooo   nnnn  nnnnnnnn        eeeeeeeeeeee    \n"
+        "  W:::::W         W:::::W         W:::::W a::::::::::::a r::::rrr:::::::::r  z:::::::::::::::z oo:::::::::::oo n:::nn::::::::nn    ee::::::::::::ee  \n"
+        "   W:::::W       W:::::::W       W:::::W  aaaaaaaaa:::::ar:::::::::::::::::r z::::::::::::::z o:::::::::::::::on::::::::::::::nn  e::::::eeeee:::::ee\n"
+        "    W:::::W     W:::::::::W     W:::::W            a::::arr::::::rrrrr::::::rzzzzzzzz::::::z  o:::::ooooo:::::onn:::::::::::::::ne::::::e     e:::::e\n"
+        "     W:::::W   W:::::W:::::W   W:::::W      aaaaaaa:::::a r:::::r     r:::::r      z::::::z   o::::o     o::::o  n:::::nnnn:::::ne:::::::eeeee::::::e\n"
+        "      W:::::W W:::::W W:::::W W:::::W     aa::::::::::::a r:::::r     rrrrrrr     z::::::z    o::::o     o::::o  n::::n    n::::ne:::::::::::::::::e \n"
+        "       W:::::W:::::W   W:::::W:::::W     a::::aaaa::::::a r:::::r                z::::::z     o::::o     o::::o  n::::n    n::::ne::::::eeeeeeeeeee  \n"
+        "        W:::::::::W     W:::::::::W     a::::a    a:::::a r:::::r               z::::::z      o::::o     o::::o  n::::n    n::::ne:::::::e           \n"
+        "         W:::::::W       W:::::::W      a::::a    a:::::a r:::::r              z::::::zzzzzzzzo:::::ooooo:::::o  n::::n    n::::ne::::::::e          \n"
+        "          W:::::W         W:::::W       a:::::aaaa::::::a r:::::r             z::::::::::::::zo:::::::::::::::o  n::::n    n::::n e::::::::eeeeeeee  \n"
+        "           W:::W           W:::W         a::::::::::aa:::ar:::::r            z:::::::::::::::z oo:::::::::::oo   n::::n    n::::n  ee:::::::::::::e  \n"
+        "            WWW             WWW           aaaaaaaaaa  aaaarrrrrrr            zzzzzzzzzzzzzzzzz   ooooooooooo     nnnnnn    nnnnnn    eeeeeeeeeeeeee  ";
+
+    cout << welcomeBanner << endl << endl;
+    cout << "Let's begin!" << endl;
+    cout << "Use the 'loadmap <filename> command to choose among the available maps: " << endl;
+    string mapPaths {"../WarzoneMaps"};
+    int count {1};
+    for (const auto &dir : filesystem::directory_iterator(mapPaths)) {
+        string token = dir.path();
+        string mapName = token.substr(token.find_last_of('/')+1, token.length());
+        cout << count << ". " << mapName << endl;
+        count++;
+    }
+    // todo: use a CommandProcessor object to read command from the command line
+    this->mapLoader->loadMap("path to map file");
+
+    cout << "Use the 'validatemap' command to validate that the chosen map is a connected graph" << endl;
+    bool validMap = this->mapLoader->map->validate();
+
+    cout << "Use the 'addplayer <player name> command to enter players in the game" << endl;
+
+}
+
 //method to check user input in the start state and perform related logic
 bool GameEngine::validateStartStateCommand() {
     cout << "Command list:\n1. loadmap" << endl;
@@ -86,7 +127,7 @@ void GameEngine::chooseMapToLoad() {
         } else if (userNumInput == 2) {
             validateFile = mapLoader->loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
         } else if (userNumInput == 3) {
-            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/smallsolar.map");
+            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/solar.map");
         } else if (userNumInput == 4) {
             validateFile = mapLoader->loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
         }
@@ -351,7 +392,6 @@ int GameEngine::validateWinCommand() {
 
 //GameEngine class destructor
 GameEngine::~GameEngine() {
-    cout << "GameEngine destructor invoked..." << endl;
     delete ordersList;
     delete mapLoader;
     mapLoader = nullptr;
