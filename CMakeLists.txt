@@ -11,4 +11,4 @@ add_executable(
         Orders/Orders.cpp Orders/Orders.h Orders/OrdersDriver.cpp
         Cards/Cards.cpp Cards/Cards.h Cards/CardsDriver.cpp
         main.cpp
-)
+        Logging/LoggingObserver.cpp Logging/LoggingObserver.h)
