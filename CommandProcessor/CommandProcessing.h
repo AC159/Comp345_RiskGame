@@ -11,20 +11,39 @@ using namespace std;
 
 class CommandProcessor{
 public:
-    CommandProcessor();
+    string currentState;
+    CommandProcessor()=default;
     CommandProcessor(const CommandProcessor &commandProcessor);
     ~CommandProcessor();
 
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);
     friend ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor);
 
+
+    static void availableCommandList();
     void getCommand();
-    void saveEffect();
-    bool validate();
+    bool validate(string userInput);
     void saveCommand();
 
 private:
     void readCommand();
+
+};
+class Command{
+public:
+    string command;
+    string effect;
+    Command()=default;
+    Command(string command,string effect);
+    Command(const Command &command);
+    ~Command();
+
+    Command& operator=(const Command &command);
+    friend ostream& operator<<(ostream &out, const Command &command);
+    void saveEffect();
+private:
+    //collection of commands
+    vector<pair<Command,string>>commands;
 
 };
 
