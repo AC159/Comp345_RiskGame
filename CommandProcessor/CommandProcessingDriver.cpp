@@ -9,16 +9,16 @@
 int main() {
 
 
-//    vector<string> words;
+//    vector<string> inputWords;
 //    string str;
 //
 //    cout<<"Enter command:";
 //    getline(cin,str);
 //    istringstream parse(str);
 //    while (parse>>str){
-//        words.push_back(str);
+//        inputWords.push_back(str);
 //    }
-//    cout<< words[0];
+//    cout<< inputWords[0];
 
 string str,str1,str2;
 bool validate,validate1;

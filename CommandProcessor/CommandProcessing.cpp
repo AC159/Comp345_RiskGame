@@ -5,36 +5,44 @@
 #include "CommandProcessing.h"
 
 
-string mapName[] ={"smallsolar","canada"};
+string mapName[] ={"smallsolar","canada"}; //list of maps
 
 
-void CommandProcessor::availableCommandList() {
-    cout<<"List of available commands:\nloadmap <filename>\nvalidatemap\naddplayer <playername>\ngamestart\nreplay\nwin"<<endl;
+string CommandProcessor::getCommand() {
+    string read= readCommand();
+    saveCommand(read);
+    return read;
 }
+string CommandProcessor::readCommand(){
+    string readCommandInput;
+    getline(cin,readCommandInput);
+    return readCommandInput;
+}
+void CommandProcessor::saveCommand(string readCommandInput){
+    //TODO create a command objects to put in a list
+    //create Command object
+commandList.emplace_back(new Command(readCommandInput));
 
-void CommandProcessor::getCommand() {
 }
 
 //validate (1) user command (2) command is used in the correct state
-//TODO: If the command is not valid, a corresponding error message should be saved in the effect of the command.
-bool CommandProcessor::validate(string userInput) {
+bool CommandProcessor::validate(string readCommandInput) {
     currentState = GameEngine::getState();
 
     //to parse the getline input
-    vector<string>words;
     string userInputCommand,userInputSecondWord;
-    istringstream parse(userInput);
-    while (parse>>userInput){
-        words.push_back(userInput);
+    istringstream parse(readCommandInput);
+    while (parse>>readCommandInput){
+        inputWords.push_back(readCommandInput);
     }
-    int vectorSize= words.size();
+    int vectorSize= inputWords.size();
 
     //size =2 for user command input
     if(vectorSize==2) {
-        cout<<" I typed 2 words"<<" array size: "<<vectorSize<<" current state: "<<currentState<<endl;
-        userInputCommand=words.at(0);
-        userInputSecondWord =words.at(1);
-        int sizeOfMapNameArray = size(mapName);
+        cout<<" I typed 2 inputWords"<<" array size: "<<vectorSize<<" current state: "<<currentState<<endl;
+        userInputCommand=inputWords.at(0);
+        userInputSecondWord =inputWords.at(1); //can either be a map file name or a player name
+        int sizeOfMapNameArray = size(mapName); //using map list on line 8
         bool validMapName=false;
 
         //checks if the second input matches a map name in the mapName array
@@ -42,21 +50,20 @@ bool CommandProcessor::validate(string userInput) {
             if(userInputSecondWord == mapName[i])
                 validMapName =true;
         }
-        if (userInputCommand == "loadmap" && validMapName && currentState == "start" || currentState == "maploaded") {
+        if (userInputCommand == "loadmap" &&validMapName && currentState == "start" || currentState == "maploaded") {
             cout << "user command:" << userInputCommand <<" map name: "<<userInputSecondWord<< " current state:" << currentState << endl;
             cout<<"the command "<<userInputCommand<< " is valid in the current game state "<< currentState<<endl;
             return true;
         } else if (userInputCommand == "addplayer" && currentState == "mapvalidated" ||
                    currentState == "playersadded") {
-            string playerName =userInputSecondWord;
-            cout << "user command:" << userInputCommand <<" player name: "<<playerName<< " current state:" << currentState << endl;
+            cout << "user command:" << userInputCommand <<" player name: "<<userInputSecondWord<< " current state:" << currentState << endl;
             return true;
         }
     }
     //for user command input
     else if (vectorSize ==1) {
-        userInputCommand=words.at(0);
-        cout<<"I typed 1 words. User input word: "<<userInputCommand<<" "<<currentState<<endl;
+        userInputCommand=inputWords.at(0);
+        cout<<"I typed 1 inputWords. User input word: "<<userInputCommand<<" "<<currentState<<endl;
         //size =1
         if (userInputCommand == "validatemap" && currentState == "maploaded") {
             cout << "user command:" << userInputCommand << " current state:" << currentState << endl;
@@ -77,7 +84,7 @@ bool CommandProcessor::validate(string userInput) {
     }
     //size >2 or else for user command input
     else{
-        cout<<"I typed anything else words"<<endl;
+        cout<<"I typed anything else inputWords"<<endl;
         cout<<"the command"<<userInputCommand<< " is not valid in the current game state: "<< currentState<<endl;
     }
 
@@ -86,6 +93,25 @@ bool CommandProcessor::validate(string userInput) {
 
 CommandProcessor::~CommandProcessor() {
     cout<<"Invoking delete constructor or CommandProcessor"<<endl;
+
+}
+Command::Command(string commands) {
+command=commands;
+effect =" ";
+}
+
+void Command::setCommand(string commands) {
+command =commands;
+}
+
+void Command::setEffect(string effects) {
+effect = effects;
+
+}
+
+void Command::saveEffect(string commandEffect) {
+    //TODO add save effect to previous created object
+    Command::setEffect(commandEffect);
 
 }
 
