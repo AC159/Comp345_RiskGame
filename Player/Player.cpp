@@ -12,6 +12,8 @@ Player::Player(){
     name = "No name";
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
+    reinforcementPool = 0;
+    receivesCard = false;
 }
 
 
@@ -20,11 +22,15 @@ Player::Player(string newName){
     name = newName;
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
+    reinforcementPool = 0;
+    receivesCard = false;
 }
 
 
 Player::Player(const Player &player){
     this->name = player.name;
+    this->reinforcementPool = player.reinforcementPool;
+    this->receivesCard = player.receivesCard;
 
     // create a new mapping of territories and copy all territories from other player
     for(map<int, Territory*>::const_iterator it = player.territories.begin(); it != player.territories.end(); it++){
@@ -54,6 +60,8 @@ Player &Player::operator=(const Player &player){
     
     // delete the previous and copy the name from the other player
     this->name = player.name;
+    this->reinforcementPool = player.reinforcementPool;
+    this->receivesCard = player.receivesCard;
 
     // clear the list of territories and copy all territories from other player
     territories.clear();

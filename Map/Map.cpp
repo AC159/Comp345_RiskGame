@@ -434,6 +434,12 @@ Map::~Map() {
     this->edges.clear();
 }
 
+//returns whether given territories are neighbors
+bool Map::edgeExists(Territory *t1, Territory *t2) {
+    return std::find_if(edges.begin(), edges.end(),
+                        [t1, t2](Edge *e){return e->source == t1 && e->destination == t2;}) != edges.end();
+}
+
 
 // ================= MapLoader Class =====================
 

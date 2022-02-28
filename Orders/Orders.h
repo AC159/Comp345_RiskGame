@@ -64,13 +64,14 @@ public:
  * territory.*/
 class Orders::Advance : public Order {
 private:
+    Graph::Map *map;
     Graph::Territory *source;
     Graph::Territory *target;
     int armies;
 
 public:
     Advance();
-    Advance(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies);
+    Advance(Players::Player *issuer, Graph::Map *map, Graph::Territory *source, Graph::Territory *target, int armies);
     Advance(const Advance &advance);
     ~Advance() override;
 

@@ -94,6 +94,7 @@ public:
     friend std::ostream& operator<<(std::ostream &out, const Map &map); // overloaded stream insertion operator
 
     bool validate();
+    bool edgeExists(Territory *t1, Territory *t2); //returns whether given territories are adjacent
 
     ~Map();
 

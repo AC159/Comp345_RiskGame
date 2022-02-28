@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "Orders.h"
 #include "../Player/Player.h"
 
@@ -24,7 +25,6 @@ Order::~Order() {
 //creates shallow copy via the assignment operator
 Order & Order::operator=(const Order &order) {
     if (this != &order) {
-        //delete or no?... circular dependencies
         this->issuer = order.issuer;
     }
     return *this;
@@ -41,7 +41,11 @@ Deploy::Deploy() : target(nullptr), armies(0) {
     cout << "Created a Deploy order." << endl;
 }
 
-//creates an order with all members initialized through parameters
+/** creates an order with all members initialized through parameters
+ * @param issuer the player whose turn it is
+ * @param target the territory where armies will be deployed (must belong to issuer for validity)
+ * @param armies the number of armies to deploy (must be <= issuer's reinforcementPool for validity)
+ */
 Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies)
     : Order(issuer), target(target), armies(armies) {}
 
@@ -59,7 +63,6 @@ Deploy::~Deploy() {
 //creates shallow copy via the assignment operator
 Deploy & Deploy::operator=(const Deploy &deploy) {
     if (this != &deploy) {
-        //delete or no?... circular dependencies
         this->issuer = deploy.issuer;
         this->target = deploy.target;
         this->armies = deploy.armies;
@@ -73,18 +76,22 @@ ostream & operator<<(ostream &out, const Deploy &deploy) {
     return out;
 }
 
-//returns whether the order is valid - behaviour is arbitrary for now
+/* is valid if the target territory belongs to the player that issued the order
+ * and if this player has sufficient armies in his reinforcement pool*/
 bool Deploy::validate() {
-    cout << "Validated a Deploy order.";
-    return true;
+    if (issuer != nullptr && target != nullptr && target->owner == issuer && armies <= issuer->reinforcementPool) {
+        return true;
+    }
+    return false;
 }
 
-//performs the order action if it's valid - action is arbitrary for now
+//if valid, the number of armies are taken from the player's reinforcement pool and added to their target territory
 void Deploy::execute() {
     if (this->validate()) {
-        cout << " Executed a Deploy Order." << endl;
+        issuer->reinforcementPool -= armies;
+        target->numberOfArmies += armies;
     } else {
-        cout << "Invalid order could not be executed." << endl;
+        cout << "An invalid Deploy order could not be executed." << endl;
     }
 }
 
@@ -99,21 +106,23 @@ Deploy * Deploy::clone() const {
 }
 
 // ====================== Advance class ======================
-Advance::Advance() : source(nullptr), target(nullptr), armies(0) {
+Advance::Advance() : map(nullptr), source(nullptr), target(nullptr), armies(0) {
     cout << "Created an Advance order." << endl;
 }
 
 /** creates an order with all members initialized through parameters
  * @param issuer the player whose turn it is
+ * @param map the map in which the source and target are located in
  * @param source the territory where the armies will be taken from (must belong to issuer for validity)
- * @param target the where armies will transfer to or attack (must be adjacent to source for validity)
+ * @param target the territory where armies will transfer to or attack (must be adjacent to source for validity)
  * @param armies the number of armies to attack with or to transfer (must be <= armies in source for validity)
  */
-Advance::Advance(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
-    : Order(issuer), source(source), target(target), armies(armies) {}
+Advance::Advance(Players::Player *issuer, Graph::Map *map, Graph::Territory *source, Graph::Territory *target, int armies)
+    : Order(issuer), map(map), source(source), target(target), armies(armies) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Advance::Advance(const Advance &advance) : Order(advance) {
+    this->map = advance.map;
     this->source = advance.source;
     this->target = advance.target;
     this->armies = advance.armies;
@@ -121,6 +130,7 @@ Advance::Advance(const Advance &advance) : Order(advance) {
 
 //destructor prevents memory leaks
 Advance::~Advance() {
+    delete map;
     delete source;
     delete target;
 }
@@ -128,7 +138,7 @@ Advance::~Advance() {
 //creates shallow copy via the assignment operator
 Advance &Advance::operator=(const Advance &advance) {
     if (this != &advance) {
-        //delete or no?... circular dependencies
+        this->map = advance.map;
         this->issuer = advance.issuer;
         this->source = advance.source;
         this->target = advance.target;
@@ -146,8 +156,8 @@ ostream & operator<<(ostream &out, const Advance &advance) {
 /* is valid if the source territory belongs to the player that issued the order and has sufficient armies,
  * and if the target territory is adjacent to the source territory*/
 bool Advance::validate() {
-    //TODO: make sense of adjacent territories - determined in map or player or new function?
-    if (source != nullptr && source->owner == issuer && source->numberOfArmies >= armies && armies > 0 /*& adjacent*/) {
+    if (source != nullptr && source->owner == issuer && source->numberOfArmies >= armies && armies > 0 &&
+        map->edgeExists(source, target)) {
         return true;
     }
     return false;
@@ -156,17 +166,16 @@ bool Advance::validate() {
 /* only performs action if the order is valid: if the target territory belongs to the issuer, the armies are
  * transferred there; otherwise the armies attack the target territory*/
 void Advance::execute() {
-    //TODO: test the execution of multiple advance orders for verification
     if (validate()) {
         if (source->owner == target->owner) { //perform simple army transfer
             source->numberOfArmies -= armies;
             target->numberOfArmies += armies;
         } else { //initiate an attack
             //TODO: skip attack if source & target owners are negotiating due to diplomacy card
-            int defendersKilled = armies * 60 / 100;
-            int attackersKilled = target->numberOfArmies * 70 / 100;
+            int defendersKilled = static_cast<int>(round(armies * 0.6));
+            int attackersKilled = static_cast<int>(round(target->numberOfArmies * 0.7));
 
-            if (target->numberOfArmies >= defendersKilled) { //attacking armies failed to conquer the territory
+            if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { //failed to conquer
                 //update territories' armies
                 target->numberOfArmies -= defendersKilled;
                 armies < attackersKilled ? source->numberOfArmies -= armies : source->numberOfArmies -= attackersKilled;
@@ -181,12 +190,11 @@ void Advance::execute() {
                 target->numberOfArmies = armies - attackersKilled;
 
                 //the conquering player receives a card as a reward
-                //TODO: check if should add deck attribute to advance order or if deck's attribute should be static
-                /*issuer->hand->cards.push_back(Cards::Deck::draw());*/ //should I convert to static or??
+                issuer->receivesCard = true;
             }
         }
     } else {
-        cout << "An invalid advance order could not be executed." << endl;
+        cout << "An invalid Advance order could not be executed." << endl;
     }
 }
 
@@ -205,7 +213,10 @@ Bomb::Bomb() : target(nullptr) {
     cout << "Created a Bomb order." << endl;
 }
 
-//creates an order with all members initialized through parameters
+/** creates an order with all members initialized through parameters
+ * @param issuer the player whose turn it is
+ * @param target the territory to bomb (must be adjacent to one of issuer's territories & have diff owner for validity)
+ */
 Bomb::Bomb(Players::Player *issuer, Graph::Territory *target) : Order(issuer), target(target) {}
 
 //copy constructor creates shallow copy due to circular dependency
@@ -221,7 +232,6 @@ Bomb::~Bomb() {
 //creates shallow via the assignment operator
 Bomb &Bomb::operator=(const Bomb &bomb) {
     if (this != &bomb) {
-        //delete or no?... circular dependencies
         this->issuer = bomb.issuer;
         this->target = bomb.target;
     }
@@ -245,7 +255,7 @@ void Bomb::execute() {
     if (this->validate()) {
         cout << " Executed a Bomb order." << endl;
     } else {
-        cout << "Invalid order could not be executed." << endl;
+        cout << "An invalid Bomb order could not be executed." << endl;
     }
 }
 
@@ -280,7 +290,6 @@ Blockade::~Blockade() {
 //creates shallow copy via the assignment operator
 Blockade &Blockade::operator=(const Blockade &blockade) {
     if (this != &blockade) {
-        //delete or no?... circular dependencies
         this->issuer = blockade.issuer;
         this->target = blockade.target;
     }
@@ -304,7 +313,7 @@ void Blockade::execute() {
     if (this->validate()) {
         cout << " Executed a Blockade order." << endl;
     } else {
-        cout << "Invalid order could not be executed." << endl;
+        cout << "An invalid Blockade order could not be executed." << endl;
     }
 }
 
@@ -348,7 +357,6 @@ Airlift::~Airlift() {
 //creates shallow copy via the assignment operator
 Airlift &Airlift::operator=(const Airlift &airlift) {
     if (this != &airlift) {
-        //delete or no?... circular dependencies
         this->issuer = airlift.issuer;
         this->source = airlift.source;
         this->target = airlift.target;
@@ -377,7 +385,7 @@ void Airlift::execute() {
         source->numberOfArmies -= armies;
         target->numberOfArmies += armies;
     } else {
-        cout << "An invalid airlift order could not be executed." << endl;
+        cout << "An invalid Airlift order could not be executed." << endl;
     }
 }
 
@@ -412,7 +420,6 @@ Negotiate::~Negotiate() {
 //creates shallow copy via the assignment operator
 Negotiate & Negotiate::operator=(const Negotiate &negotiate) {
     if (this != &negotiate) {
-        //delete or no?... circular dependencies
         this->issuer = negotiate.issuer;
         this->target = negotiate.target;
     }
@@ -436,7 +443,7 @@ void Negotiate::execute() {
     if (this->validate()) {
         cout << " Executed a Negotiate Order." << endl;
     } else {
-        cout << "Invalid order could not be executed." << endl;
+        cout << "An invalid Negotiate order could not be executed." << endl;
     }
 }
 
