@@ -7,80 +7,95 @@
 #include "../GameEngine/GameEngine.h"
 #include <string>
 #include <ostream>
+#include <vector>
+#include <fstream>
+
 using namespace std;
 
-// =================Command=================
-// class for command objects
 class Command{
 public:
-    Command(); // default constructor
-    Command(string commandName); // constructor to create a command object with a name
-    Command(const Command &command); // copy constructor
-    ~Command(); // destructor
-
-    Command& operator=(const Command &command); // equal operator
-    friend ostream& operator<<(ostream &out, const Command &command); // ostream operator
-
-    void saveEffect(string);
-    string getCommand();
-    string getEffect();
-private:
     string command;
     string effect;
+    Command();
+    Command(string command);
+    Command(const Command &command);
+    ~Command();
+
+    Command& operator=(const Command &command);
+    friend ostream& operator<<(ostream &out, const Command &command);
+
+    void setCommand(string command);
+    void setEffect(string effect);
+    void saveEffect(string commandEffect);
+
 };
-
-// =================FileLineReader=================
-// class for reading a file
-class FileLineReader{
-public:
-    FileLineReader() = default; // default constructor
-    FileLineReader(const FileLineReader &flr) = default; // copy constructor
-    ~FileLineReader() = default; // destructor
-
-    string readFromFile(string fileLocation);
-};
-
-// =================CommandProcessor=================
 class CommandProcessor{
 public:
-    CommandProcessor();
+    string currentState;
+    vector<string>inputWords;
+    //collection of commands
+    vector<Command *> commandList;
+    CommandProcessor()=default;
     CommandProcessor(const CommandProcessor &commandProcessor);
     ~CommandProcessor();
 
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);
     friend ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor);
 
-    void getCommand();
-    void saveEffect();
-    bool validate();
-    void saveCommand();
+
+    string getCommand();
+    bool validate(string userInput);
+
+
+
 
 private:
-    void readCommand();
+    string readCommand();
+    void saveCommand(string readCommandInput);
 
 };
 
-// =================FileCommandProcessorAdapter=================
+class FileLineReader{
+    public:
+
+        FileLineReader() = default;
+        FileLineReader(string otherFileName);
+        FileLineReader(const FileLineReader &flr);
+        ~FileLineReader();
+
+        FileLineReader& operator=(const FileLineReader &flr);
+        friend ostream& operator<<(ostream &out, const CommandProcessor &flr);
+
+        string readLineFromFile();
+
+        bool checkEOF();
+        string getFileName() const;
+
+    private:
+        ifstream inputFileStream;
+        bool fileEOF;
+        string fileName;
+};
+
 //must abide to Adpater design pattern
 class FileCommandProcessorAdapter: CommandProcessor{
-public:
-    FileCommandProcessorAdapter(); // default constructor
-    FileCommandProcessorAdapter(const FileCommandProcessorAdapter &fcpa); // copy constructor
-    ~FileCommandProcessorAdapter(); // destructor
+    public:
+        FileCommandProcessorAdapter() = default;
+        // FileCommandProcessorAdapter(string fileName);
+        FileCommandProcessorAdapter(const FileCommandProcessorAdapter &fcpa);
+        ~FileCommandProcessorAdapter();
 
-    FileCommandProcessorAdapter& operator=(const FileCommandProcessorAdapter &fcpa); // equal operator
-    friend ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa); // ostream operator
+        FileCommandProcessorAdapter& operator=(const FileCommandProcessorAdapter &fcpa);
+        friend ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa);
 
-    void getCommand();
-    bool validate(Command &command);
-    void saveCommand(Command &command);
+        void openFile(string fileName);
+        bool moreCommands();
+        string getFileName() const;
 
-private:
-    list<Command*> listOfCommands;
-    FileLineReader *flr;
-
-    void readCommand(string fileLocation);
+    private:
+        void closeFile();
+        string readCommand();
+        FileLineReader *flr;
 };
-
 
 #endif //COMP345RISKGAME_COMMANDPROCESSING_H
