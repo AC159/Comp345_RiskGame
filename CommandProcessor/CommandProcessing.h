@@ -1,17 +1,15 @@
-//
-// Created by Judy Lombardo on 2022-02-20.
-//
-
 #ifndef COMP345RISKGAME_COMMANDPROCESSING_H
 #define COMP345RISKGAME_COMMANDPROCESSING_H
-#include "../GameEngine/GameEngine.h"
+
 #include <string>
 #include <ostream>
 #include <vector>
 
 using namespace std;
 
-class Command{
+class GameEngine;
+
+class Command {
 public:
     string command;
     string effect;
@@ -28,11 +26,10 @@ public:
     void saveEffect(string commandEffect);
 
 };
-class CommandProcessor{
+
+class CommandProcessor {
 public:
     string currentState;
-    vector<string>inputWords;
-    //collection of commands
     vector<Command *> commandList;
     CommandProcessor()=default;
     CommandProcessor(const CommandProcessor &commandProcessor);
@@ -41,12 +38,8 @@ public:
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);
     friend ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor);
 
-
     string getCommand();
-    bool validate(string userInput);
-
-
-
+    bool validate(string userInput, const GameEngine &gameEngine);
 
 private:
     string readCommand();
@@ -55,7 +48,7 @@ private:
 };
 
 
-//must abide to Adpater design pattern
+//must abide to Adapter design pattern
 class FileCommandProcessorAdapter: CommandProcessor{
 
 };

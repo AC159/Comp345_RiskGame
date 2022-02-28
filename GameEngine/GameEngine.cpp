@@ -1,56 +1,49 @@
 #include "GameEngine.h"
 #include <filesystem>
+#include <utility>
 
+// todo: list of orders should be specific to a single player
 Orders::OrdersList *ordersList = new Orders::OrdersList();
-string GameEngine:: state="";
 
-string GameEngine::getState(){
-    return state;
+string GameEngine::getState() const {
+    return this->state;
 }
 
-//GameEngine class constructor
+// GameEngine class constructor
 GameEngine::GameEngine() {
     mapLoader = new Graph::MapLoader();
-    playerAmount = 1;
+    processor = new CommandProcessor();
 }
 
-//GameEngine class copy constructor
+// GameEngine class copy constructor
 GameEngine::GameEngine(const GameEngine &game) {
     this->mapLoader = game.mapLoader;
-    this->playerAmount = game.playerAmount;
 }
 
-//GameEngine assignment operator
+// GameEngine assignment operator
 GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     if (this == &gameEngine) return *this;
-    this->playerAmount = gameEngine.playerAmount;
     this->mapLoader = gameEngine.mapLoader;
-
     return *this;
 }
 
-//GameEngine stream operator
+// GameEngine stream operator
 ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
-    out << "Player amount: " << gameEngine.playerAmount << endl;
-
+    out << "Nbr of players: " << gameEngine.playersList.size() << endl;
     return out;
 }
 
-//method to set and output current game state
-void GameEngine::changeState(string state) {
-    this->state = state;
-    cout << "========== state = " << state << " ==========" << endl;
+// method to set and output current game state
+void GameEngine::changeState(string changedState) {
+    this->state = std::move(changedState);
+    cout << "========== state = " << this->state << " ==========" << endl;
 }
 
 //=============Start state ================
-//method to show game start welcome message
-void GameEngine::welcomeMessage() {
-    changeState("start");
-    cout << "Welcome to c++ Risk game!" << endl;
-}
+// method to show game start welcome message
 
 void GameEngine::startupPhase() {
-
+    changeState("start");
     string welcomeBanner =
         "WWWWWWWW                           WWWWWWWW                                                                                                          \n"
         "W::::::W                           W::::::W                                                                                                          \n"
@@ -71,72 +64,53 @@ void GameEngine::startupPhase() {
 
     cout << welcomeBanner << endl << endl;
     cout << "Let's begin!" << endl;
-    cout << "Use the 'loadmap <filename> command to choose among the available maps: " << endl;
-    string mapPaths {"../WarzoneMaps"};
-    int count {1};
-    for (const auto &dir : filesystem::directory_iterator(mapPaths)) {
-        string token = dir.path();
-        string mapName = token.substr(token.find_last_of('/')+1, token.length());
-        cout << count << ". " << mapName << endl;
-        count++;
-    }
-    // todo: use a CommandProcessor object to read command from the command line
-    this->mapLoader->loadMap("path to map file");
+    mapLoadedStateChange();
+    chooseMapToLoad();
+    mapValidatedStateChange();
+    addPlayer();
+    playersAddedStateChange();
 
-    cout << "Use the 'validatemap' command to validate that the chosen map is a connected graph" << endl;
-    bool validMap = this->mapLoader->map->validate();
-
-    cout << "Use the 'addplayer <player name> command to enter players in the game" << endl;
-
-}
-
-//method to check user input in the start state and perform related logic
-bool GameEngine::validateStartStateCommand() {
-    cout << "Command list:\n1. loadmap" << endl;
-    cout << "Please enter command number: ";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1") {
-        cout << "Invalid selection. Please enter command number: ";
-        cin >> userInput;
-    }
-    return true;
 }
 
 //=============Map Loaded state =================
-//method to modify current game state to 'map loaded'
+// method to modify current game state to 'map loaded'
 void GameEngine::mapLoadedStateChange() {
     GameEngine::changeState("maploaded");
 }
 
 // validates the file and checks if the map is a connected graph
-void GameEngine::chooseMapToLoad() {
+void GameEngine::chooseMapToLoad() const {
     bool validateFile = false;
     bool mapIsValid = false;
     while (!validateFile || !mapIsValid) {
-        cout << "Choose the map you would like to play.\n"
-                "1. Europe\n" //working map
-                "2. Solar system\n" // invalid map but proper file format
-                "3. Small solar GOOD\n" //working map
-                "4. Small Solar system\n" //invalid file map, improper file format
-             << endl;
-        cout << "Select a number: " << endl;
-        int userNumInput;
-        cin >> userNumInput;
-        while (userNumInput >= 5 || userNumInput <= 0) {
-            cout << "Please enter a valid number:";
-            cin >> userNumInput;
+        cout << "Use the 'loadmap <filename>' command to choose among the available maps: " << endl;
+        string mapPaths {"../WarzoneMaps"};
+        int count {1};
+        for (const auto &dir : filesystem::directory_iterator(mapPaths)) {
+            string token = dir.path();
+            string mapName = token.substr(token.find_last_of('/') + 1, token.length());
+            cout << count << ". " << mapName << endl;
+            count++;
         }
-        if (userNumInput == 1) {
-            validateFile = mapLoader->loadMap("../WarzoneMaps/bigeurope/bigeurope.map");
-        } else if (userNumInput == 2) {
-            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/invalidsmallsolar.map");
-        } else if (userNumInput == 3) {
-            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/solar.map");
-        } else if (userNumInput == 4) {
-            validateFile = mapLoader->loadMap("../WarzoneMaps/solar/smallsolarduplicates.map");
+        string input;
+        string command = processor->getCommand();
+        if (!processor->validate(command, *this)) {
+            cout << "Invalid command! Please try again." << endl;
+            continue;
         }
+        // extract name of the chosen map
+        string mapName = command.substr(command.find_last_of(' ')+1, command.length());
+        validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + mapName + "/" + mapName + ".map");
+
         if (validateFile) {
+            do {
+                cout << "Use the 'validatemap' command to validate that the chosen map is a connected graph" << endl;
+                string validateMapCommand = processor->getCommand();
+                bool validCommand = processor->validate(validateMapCommand, *this);
+                if (!validCommand) {
+                    cout << "Invalid command! Please try again." << endl;
+                } else break;
+            } while (true);
             if (mapLoader->map->validate()) {
                 cout << "The map is a connected graph and can be played!" << endl;
                 mapIsValid = true;
@@ -149,98 +123,54 @@ void GameEngine::chooseMapToLoad() {
     cout << "The file has been loaded and validated! Moving to the next step" << endl;
 }
 
-//method to check user input in the map loaded state and perform related logic
-void GameEngine::validateMapLoadedCommand() {
-    cout << "Command list:\n1. validatemap" << endl;
-    cout << "Please enter command number: ";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1") {
-        cout << "Invalid selection. Please enter command number: ";
-        cin >> userInput;
-    }
-}
-
-
-//=============Map validated state =================
-//method to modify current game state to 'map validated'
+//============= Map validated state =================
+// method to modify current game state to 'map validated'
 void GameEngine::mapValidatedStateChange() {
     GameEngine::changeState("mapvalidated");
 }
 
-//method to check user input in the map validated state and perform related logic
-bool GameEngine::validateMapValidatedCommand() {
-    cout << "Command list:\n1. addplayer" << endl;
-    cout << "Please enter command number: ";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1") {
-        cout << "Invalid selection. Please enter command number: ";
-        cin >> userInput;
-    }
-    return true;
-};
-
 //=============players added state =================
-//method to modify current game state to 'players added'
+// method to modify current game state to 'players added'
 void GameEngine::playersAddedStateChange() {
     GameEngine::changeState("playersadded");
 }
 
-//method to handle player addition
+// method to handle player addition
 void GameEngine::addPlayer() {
-    cout << "Current amount of players: " << playerAmount << endl;
-    cout << "Adding 1 more player" << endl;
-    playerAmount += 1;
-}
+    int playerCount;
+    while (true) {
+        cout << "2-6 players are allowed to play." << endl;
+        cout << "How many players would you like to add? ";
+        // todo: make sure there is an error thrown when a user tries to input a string instead of a number
+        cin >> playerCount;
+        if (cin.fail()) {
+            cout << "Please enter an integer" << endl;
+            cin.clear();
+            // discard 'bad' character(s)
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
 
-// creates a list of players that will be assigned a country in the next phase
-bool GameEngine::validatePlayersAddedCommand() {
-    if (playerAmount == 1) {
-        cout << "Currently, " << playerAmount
-             << " players added to the game. A minimum of 2 players are required to play the game." << endl;
-        cout << "Command list:\n1. addplayer" << endl;
-    } else if (playerAmount > 1) {
-        cout << "Currently, " << playerAmount << " players added to the game." << endl;
-        cout << "Command list:\n1. addplayer\n2. confirm players" << endl;
-    }
-    cout << "Please enter command number: ";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1" && playerAmount <= 1 || (userInput != "1" && playerAmount >= 2)) {
-        if (userInput == "2" && playerAmount >= 2)
+        if (playerCount < 2 || playerCount > 6) {
+            cout << "Invalid number of players. Please try again." << endl;
+        } else {
+            cin.ignore();
             break;
-        cout << "Invalid selection. Please enter command number: ";
-        cin >> userInput;
-    }
-    if (userInput == "1") {
-        addPlayer();
-    }
-        // creates player objects
-    else if (userInput == "2" && playerAmount > 1) {
-        for (int i = 0; i < playerAmount; i++) {
-            cout << "Enter the name of the player " << i + 1 << ": ";
-            string playerName;
-            cin >> playerName;
-            playersList.emplace_back(new Players::Player(playerName));
         }
+    }
 
-        cout << playerAmount << " players have been created" << endl;
-        for (int i = 0; i < playersList.size(); i++) {
-            cout << playersList.at(i)->getName() << endl;
+    int count {0};
+    while (count < playerCount) {
+        cout << "Use the 'addplayer <player name>' command to enter players in the game" << endl;
+        string command = processor->getCommand();
+        if (!processor->validate(command, *this)) {
+            cout << "Invalid command! Please try again." << endl;
+            continue;
+        } else {
+            Players::Player* p = new Players::Player(command.substr(command.find_last_of(' ')+1, command.length()));
+            this->playersList.push_back((p));
+            count++;
         }
-
-        // validates moving to the play section of the state machine
-        cout << "Command list:\n1. assigncountries" << endl;
-        cout << "Please enter command number: ";
-        cin >> userInput;
-        while (userInput != "1") {
-            cout << "Invalid selection. Please enter command number: ";
-            cin >> userInput;
-        }
-        return false;
     }
-    return true;
 }
 
 //=============assign reinforcement state =================
@@ -384,12 +314,10 @@ int GameEngine::validateWinCommand() {
         delete mapLoader->map;
         mapLoader->map = new Graph::Map;
 
-        for (int i = 0; i < playersList.size(); i++) {
-            delete (playersList.at(i));
-
+        for (auto & i : playersList) {
+            delete i;
         }
         playersList.clear();
-        playerAmount = 1;
     }
 
     return stoi(userInput);

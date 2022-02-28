@@ -5,6 +5,7 @@
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
 #include "../Player/Player.h"
+#include "../CommandProcessor/CommandProcessing.h"
 #include <istream>
 #include <string>
 
@@ -13,8 +14,8 @@ using namespace std;
 class GameEngine {
 
 public:
+    CommandProcessor* processor;
     Graph::MapLoader* mapLoader;
-    int playerAmount;
     vector<Players::Player*> playersList;
     GameEngine();
     GameEngine(const GameEngine &gameEngine); //copy constructor
@@ -25,59 +26,40 @@ public:
     static void gameEngineDriver();
 
     //added for implementation of As2 part1
-    static string getState();
-
+    string getState() const;
 
 //============= start state ================
-    void welcomeMessage();
-
     void startupPhase();
-
-    //user command loadMap
-    bool validateStartStateCommand();
-
 
 //============= map loaded state =================
     void mapLoadedStateChange();
-
-    void chooseMapToLoad();
-
-    void validateMapLoadedCommand();
+    void chooseMapToLoad() const;
 
 //============= map validated state =================
     void mapValidatedStateChange();
 
-    bool validateMapValidatedCommand();
-
 //============= players added state =================
     void playersAddedStateChange();
-
     void addPlayer();
-
-    bool validatePlayersAddedCommand();
 
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();
-
     void validateAssignReinforcementCommand();
 
 //============= issue orders state =================
     void issueOrdersStateChange();
-
     void validateIssueOrdersCommand();
 
 //============= execute orders state =================
     void executeOrdersStateChange();
-
     int validateExecuteOrdersCommand();
 
 //============= win state =================
     void winStateChange();
-
     int validateWinCommand();
 
 private:
-    static string state; //state variable
+    string state;
 
     void changeState(string state); //state to change current stated and output current state
     void createAndAddOrder(int commandNumber); //issue orders state

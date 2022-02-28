@@ -13,10 +13,17 @@ int main() {
     string userInput;
 
     do {
-        cout
-                << "Command list:\n1. Part 1: Map Driver\n2. Part 2: Player Driver\n3. Part 3: Orders Driver\n4. Part 4: Cards Driver\n5. Part 5: GameEngine Driver\n6. Exit\nSelect the part you would like to run:"
-                << endl;
+        cout << "Command list:\n"
+                "1. Part 1: Map Driver\n"
+                "2. Part 2: Player Driver\n"
+                "3. Part 3: Orders Driver\n"
+                "4. Part 4: Cards Driver\n"
+                "5. Part 5: GameEngine Driver\n"
+                "6. Exit\n"
+                "Select the part you would like to run: ";
         cin >> userInput;
+        cin.ignore();
+        cout << endl;
 
         if (userInput == "1") {
             cout << "Part 1: Map Driver" << endl;

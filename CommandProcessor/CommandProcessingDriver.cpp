@@ -1,12 +1,9 @@
-//
-// Created by Judy Lombardo on 2022-02-21.
-//
-#include <sstream>
 #include <iterator>
 #include <iostream>
 #include "CommandProcessing.h"
+#include "../GameEngine/GameEngine.h"
 
-int main() {
+int commandProcessingDriver() {
 
 
 //    vector<string> inputWords;
@@ -29,7 +26,7 @@ CommandProcessor *cp = new CommandProcessor();
 //    validate = cp->validate(str);
     gameEngine->mapValidatedStateChange();
     str="addplayer bob";
-    validate = cp->validate(str);
+    validate = cp->validate(str, *gameEngine);
 
 //    str1="start canada";
 //    validate1 = cp->validate(str1);
@@ -41,17 +38,6 @@ CommandProcessor *cp = new CommandProcessor();
 cout<<validate;
 delete gameEngine;
 delete cp;
-
-
-
-
-
-
-
-
-
-
-
 
     return 0;
 }
