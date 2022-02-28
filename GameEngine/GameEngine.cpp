@@ -2,6 +2,11 @@
 #include <filesystem>
 
 Orders::OrdersList *ordersList = new Orders::OrdersList();
+string GameEngine:: state="";
+
+string GameEngine::getState(){
+    return state;
+}
 
 //GameEngine class constructor
 GameEngine::GameEngine() {
@@ -101,7 +106,7 @@ bool GameEngine::validateStartStateCommand() {
 //=============Map Loaded state =================
 //method to modify current game state to 'map loaded'
 void GameEngine::mapLoadedStateChange() {
-    GameEngine::changeState("map loaded");
+    GameEngine::changeState("maploaded");
 }
 
 // validates the file and checks if the map is a connected graph
@@ -160,7 +165,7 @@ void GameEngine::validateMapLoadedCommand() {
 //=============Map validated state =================
 //method to modify current game state to 'map validated'
 void GameEngine::mapValidatedStateChange() {
-    GameEngine::changeState("map validated");
+    GameEngine::changeState("mapvalidated");
 }
 
 //method to check user input in the map validated state and perform related logic
@@ -179,7 +184,7 @@ bool GameEngine::validateMapValidatedCommand() {
 //=============players added state =================
 //method to modify current game state to 'players added'
 void GameEngine::playersAddedStateChange() {
-    GameEngine::changeState("players added");
+    GameEngine::changeState("playersadded");
 }
 
 //method to handle player addition

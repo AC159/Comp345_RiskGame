@@ -24,6 +24,10 @@ public:
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
     static void gameEngineDriver();
 
+    //added for implementation of As2 part1
+    static string getState();
+
+
 //============= start state ================
     void welcomeMessage();
 
@@ -73,7 +77,7 @@ public:
     int validateWinCommand();
 
 private:
-    string state; //state variable
+    static string state; //state variable
 
     void changeState(string state); //state to change current stated and output current state
     void createAndAddOrder(int commandNumber); //issue orders state
