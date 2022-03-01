@@ -1,18 +1,16 @@
-//
-// Created by Judy Lombardo on 2022-02-20.
-//
-
 #ifndef COMP345RISKGAME_COMMANDPROCESSING_H
 #define COMP345RISKGAME_COMMANDPROCESSING_H
-#include "../GameEngine/GameEngine.h"
+
 #include <string>
+#include <fstream>
 #include <ostream>
 #include <vector>
-#include <fstream>
 
 using namespace std;
 
-class Command{
+class GameEngine;
+
+class Command {
 public:
     string command;
     string effect;
@@ -29,28 +27,23 @@ public:
     void saveEffect(string commandEffect);
 
 };
-class CommandProcessor{
+
+class CommandProcessor {
 public:
     string currentState;
-    vector<string>inputWords;
-    //collection of commands
     vector<Command *> commandList;
     CommandProcessor()=default;
     CommandProcessor(const CommandProcessor &commandProcessor);
-    ~CommandProcessor();
+    virtual ~CommandProcessor();
 
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);
     friend ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor);
 
-
     string getCommand();
-    bool validate(string userInput);
-
-
-
+    bool validate(string userInput, const GameEngine &gameEngine);
 
 private:
-    string readCommand();
+    virtual string readCommand();
     void saveCommand(string readCommandInput);
 
 };
@@ -58,7 +51,7 @@ private:
 class FileLineReader{
     public:
 
-        FileLineReader() = default;
+        FileLineReader();
         FileLineReader(string otherFileName);
         FileLineReader(const FileLineReader &flr);
         ~FileLineReader();
@@ -68,33 +61,38 @@ class FileLineReader{
 
         string readLineFromFile();
 
+        void openFile();
+        void closeFile();
         bool checkEOF();
+        bool isFileOpen();
         string getFileName() const;
 
     private:
         ifstream inputFileStream;
-        bool fileEOF;
         string fileName;
 };
 
 //must abide to Adpater design pattern
-class FileCommandProcessorAdapter: CommandProcessor{
+class FileCommandProcessorAdapter: public CommandProcessor{
     public:
-        FileCommandProcessorAdapter() = default;
-        // FileCommandProcessorAdapter(string fileName);
+        FileCommandProcessorAdapter();
+        FileCommandProcessorAdapter(string fileName);
         FileCommandProcessorAdapter(const FileCommandProcessorAdapter &fcpa);
         ~FileCommandProcessorAdapter();
 
         FileCommandProcessorAdapter& operator=(const FileCommandProcessorAdapter &fcpa);
         friend ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa);
 
-        void openFile(string fileName);
+        void openSpecificFLRFile(string fileName);
+        bool isFLRFileOpen();
         bool moreCommands();
-        string getFileName() const;
+        string getFLRFileName() const;
 
     private:
-        void closeFile();
+        void closeFLRFile();
         string readCommand();
+
+        string mapFile;
         FileLineReader *flr;
 };
 

@@ -1,140 +1,101 @@
-//
-// Created by Judy Lombardo on 2022-02-20.
-//
 #include <sstream>
+#include <utility>
 #include "CommandProcessing.h"
+#include "../GameEngine/GameEngine.h"
 
-
-string mapName[] ={"smallsolar","canada"}; //list of maps
-
-
+CommandProcessor::CommandProcessor(const CommandProcessor &cp){
+    
+}
 string CommandProcessor::getCommand() {
-    string read= readCommand();
+    cout << "Command: ";
+    string read = readCommand();
     saveCommand(read);
     return read;
 }
-string CommandProcessor::readCommand(){
+
+string CommandProcessor::readCommand() {
     string readCommandInput;
-    getline(cin,readCommandInput);
+    getline(cin, readCommandInput);
     return readCommandInput;
 }
+
 void CommandProcessor::saveCommand(string readCommandInput){
     //TODO create a command objects to put in a list
-    //create Command object
-commandList.emplace_back(new Command(readCommandInput));
-
+    commandList.emplace_back(new Command(std::move(readCommandInput)));
 }
 
-//validate (1) user command (2) command is used in the correct state
-bool CommandProcessor::validate(string readCommandInput) {
-    currentState = GameEngine::getState();
-
-    //to parse the getline input
-    string userInputCommand,userInputSecondWord;
+// validate (1) user command (2) command is used in the correct state
+bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameEngine) {
+    vector<string>inputWords;
+    currentState = gameEngine.getState();
+    string userInputCommand, userInputSecondWord;
     istringstream parse(readCommandInput);
     while (parse>>readCommandInput){
         inputWords.push_back(readCommandInput);
     }
     int vectorSize= inputWords.size();
+    userInputCommand = inputWords.at(0);
 
-    //size =2 for user command input
-    if(vectorSize==2) {
-        cout<<" I typed 2 inputWords"<<" array size: "<<vectorSize<<" current state: "<<currentState<<endl;
-        userInputCommand=inputWords.at(0);
-        userInputSecondWord =inputWords.at(1); //can either be a map file name or a player name
-        int sizeOfMapNameArray = size(mapName); //using map list on line 8
-        bool validMapName=false;
-
-        //checks if the second input matches a map name in the mapName array
-        for(int i=0;i<sizeOfMapNameArray;i++){
-            if(userInputSecondWord == mapName[i])
-                validMapName =true;
-        }
-        if (userInputCommand == "loadmap" &&validMapName && currentState == "start" || currentState == "maploaded") {
-            cout << "user command:" << userInputCommand <<" map name: "<<userInputSecondWord<< " current state:" << currentState << endl;
-            cout<<"the command "<<userInputCommand<< " is valid in the current game state "<< currentState<<endl;
-            return true;
-        } else if (userInputCommand == "addplayer" && currentState == "mapvalidated" ||
-                   currentState == "playersadded") {
-            cout << "user command:" << userInputCommand <<" player name: "<<userInputSecondWord<< " current state:" << currentState << endl;
+    if (vectorSize == 2) {
+        if ((userInputCommand == "loadmap" && (currentState == "start" || currentState == "maploaded")) ||
+            (userInputCommand == "addplayer" && (currentState == "mapvalidated" || currentState == "playersadded"))) {
             return true;
         }
     }
-    //for user command input
-    else if (vectorSize ==1) {
-        userInputCommand=inputWords.at(0);
-        cout<<"I typed 1 inputWords. User input word: "<<userInputCommand<<" "<<currentState<<endl;
-        //size =1
-        if (userInputCommand == "validatemap" && currentState == "maploaded") {
-            cout << "user command:" << userInputCommand << " current state:" << currentState << endl;
+    else if (vectorSize == 1) {
+        if ((userInputCommand == "validatemap" && currentState == "maploaded") || (userInputCommand == "gamestart" && currentState == "playersadded")
+            || (userInputCommand == "replay" && currentState == "win") || (userInputCommand == "quit" && currentState == "win")) {
             return true;
-        } else if (userInputCommand == "gamestart" && currentState == "playersadded") {
-            cout << "user command:" << userInputCommand << " current state:" << currentState << endl;
-            return true;
-        } else if (userInputCommand == "replay" && currentState == "win") {
-            cout << "user command:" << userInputCommand << " current state:" << currentState << endl;
-            return true;
-        } else if (userInputCommand == "quit" && currentState == "win") {
-            cout << "user command:" << userInputCommand << " current state:" << currentState << endl;
-            return true;
-        }else{
-            cout<<"none of the above"<<endl;
-            return false;
         }
     }
-    //size >2 or else for user command input
-    else{
-        cout<<"I typed anything else inputWords"<<endl;
-        cout<<"the command"<<userInputCommand<< " is not valid in the current game state: "<< currentState<<endl;
-    }
-
     return false;
 }
 
 CommandProcessor::~CommandProcessor() {
-    cout<<"Invoking delete constructor or CommandProcessor"<<endl;
-
+    cout << "Invoking delete constructor or CommandProcessor" << endl;
 }
 Command::Command(string commands) {
-command=commands;
-effect =" ";
+    command=commands;
+    effect =" ";
 }
 
 void Command::setCommand(string commands) {
-command =commands;
+    command =commands;
 }
 
 void Command::setEffect(string effects) {
-effect = effects;
-
+    effect = effects;
 }
 
 void Command::saveEffect(string commandEffect) {
     //TODO add save effect to previous created object
     Command::setEffect(commandEffect);
+
 }
 
-//=========FileLineReader=========
+//============================FileLineReader============================
+// default constructor sets the file name to NoFileName
+FileLineReader::FileLineReader(){
+    fileName = "NoFileName";
+}
+
 // constructor to open a file with the passed file name
 FileLineReader::FileLineReader(string otherFileName){
-    fileEOF = false;
     fileName = otherFileName;
-    inputFileStream.open(fileName);
 }
 
 // copy constructor
 FileLineReader::FileLineReader(const FileLineReader &flr){
     if(flr.inputFileStream.is_open()){
         this->fileName = flr.fileName;
-        this->fileEOF = flr.fileEOF;
         inputFileStream.open(flr.fileName);
     }
 }
 
 // destructor
 FileLineReader::~FileLineReader(){
-    if(inputFileStream.is_open()){
-        inputFileStream.close();
+    if(isFileOpen()){
+        closeFile();
     }
 }
 
@@ -143,13 +104,15 @@ FileLineReader& FileLineReader::operator=(const FileLineReader &flr){
 
     if(this == &flr){return *this;}
 
-    if(inputFileStream.is_open()){
+    if(isFileOpen()){
         inputFileStream.close();
     }
     if(flr.inputFileStream.is_open()){
-        this->fileEOF = flr.fileEOF;
         this->fileName = flr.fileName;
         inputFileStream.open(flr.fileName);
+    }
+    else{
+        this->fileName = "NoFileName";
     }
 
     return *this;
@@ -164,27 +127,48 @@ ostream& operator<<(ostream &out, const FileLineReader &flr){
 // reads a line from the inputFileStream
 string FileLineReader::readLineFromFile(){
     // checks if no files are open
-    if(!inputFileStream.is_open()){
+    if(!isFileOpen()){
         cout << "No open files." << endl;
         cout << "Exiting." << endl;
-        exit(1);
+        exit(0);
     }
 
-    string line;
+    char line[50];
     // get a line from a file, puts it in line variable and then check if it is end of file or not depending on the return value of getline()
-    if(getline(inputFileStream, line)){
-        fileEOF = false;
-    }
-    else{
-        fileEOF = true;
+    inputFileStream.getline(line, 50);
+    if(checkEOF()){
+        inputFileStream.close();
     }
 
     return line;
 }
 
-// returns a boolean value depending if the line reader is on the end of the file
+// opens a file with the file name the member variable fileName
+void FileLineReader::openFile(){
+    inputFileStream.open(fileName);
+    if(!inputFileStream.is_open()){
+        cout << "Error opening file " << fileName << "." << endl;
+    }
+}
+
+// closes a file with the file name the member variable fileName
+void FileLineReader::closeFile(){
+    if(!inputFileStream.is_open()){
+        cout << "Error trying to close an unopened file with file name " << fileName << "." << endl;
+    }
+    else {
+        inputFileStream.close();
+    }
+}
+
+// returns a boolean value depending if the next line is the end of file or not
 bool FileLineReader::checkEOF(){
-    return fileEOF;
+    return inputFileStream.peek() == EOF;
+}
+
+// check if a file is open
+bool FileLineReader::isFileOpen(){
+    return inputFileStream.is_open();
 }
 
 // returns the name of the file
@@ -192,15 +176,22 @@ string FileLineReader::getFileName() const{
     return fileName;
 }
 
-//=========FileCommandProcessor=========
+//============================FileCommandProcessor============================
+// default constructor
+FileCommandProcessorAdapter::FileCommandProcessorAdapter(){
+    flr = new FileLineReader();
+}
 
-// FileCommandProcessorAdapter::FileCommandProcessorAdapter(string fileName){
-//     flr = new FileLineReader(fileName);
-// }
+// constructor to open a file with the fileName parameter
+FileCommandProcessorAdapter::FileCommandProcessorAdapter(string fileName){
+    flr = new FileLineReader(fileName);
+    flr->openFile();
+}
 
 // copy constructor
 FileCommandProcessorAdapter::FileCommandProcessorAdapter(const FileCommandProcessorAdapter& fcpa): CommandProcessor(fcpa){
     flr = new FileLineReader(*fcpa.flr);
+    flr->openFile();
 }
 
 // destructor
@@ -220,35 +211,41 @@ FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCo
 
 // ostream operator ouputs the opened file name
 ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa){
-    out << "FileCommandProcessorAdapter's file: " << fcpa.getFileName();
+    out << "FileCommandProcessorAdapter's file: " << fcpa.getFLRFileName();
     return out;
 }
 
-// method to open a file with the parameter fileName
-void FileCommandProcessorAdapter::openFile(string fileName){
-    flr = new FileLineReader(fileName);
-}
-
-// method to close a file
-void FileCommandProcessorAdapter::closeFile(){
+// method to open a specific file with the parameter fileName
+void FileCommandProcessorAdapter::openSpecificFLRFile(string fileName){
+    // deletes the flr made in initialization and makes a new one with the fileName parameter
     delete flr;
+    flr = new FileLineReader(fileName);
+    flr->openFile();
 }
 
-// checks if there are more commands
+// method to close FileLineReader file
+void FileCommandProcessorAdapter::closeFLRFile(){
+    flr->closeFile();
+}
+
+// checks if the FileLineReader file is open
+bool FileCommandProcessorAdapter::isFLRFileOpen(){
+    return flr->isFileOpen();
+}
+
+// checks if there are more commands in the FineLineReader file
 bool FileCommandProcessorAdapter::moreCommands(){
-    if(flr->checkEOF()){
-        closeFile();
-    }
     return !flr->checkEOF();
 }
 
 // method get the opened file name
-string FileCommandProcessorAdapter::getFileName() const{
+string FileCommandProcessorAdapter::getFLRFileName() const{
     return flr->getFileName();
 }
 
-// overridden readCommand() method from CommandProcessor that returns a command string
+// overridden readCommand() method from CommandProcessor that gets a line from the file and returns it as a string
 string FileCommandProcessorAdapter::readCommand(){
     string command = flr->readLineFromFile();
     return command;
 }
+

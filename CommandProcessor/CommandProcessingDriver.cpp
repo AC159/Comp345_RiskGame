@@ -1,57 +1,85 @@
-//
-// Created by Judy Lombardo on 2022-02-21.
-//
-#include <sstream>
 #include <iterator>
 #include <iostream>
 #include "CommandProcessing.h"
+#include "../GameEngine/GameEngine.h"
 
-int main() {
+string askUser()
+{
+    string input;
 
+    cout << "Choose way of command inpu(-console, -file <filename>): ";
+    getline(cin, input);
 
-//    vector<string> inputWords;
-//    string str;
-//
-//    cout<<"Enter command:";
-//    getline(cin,str);
-//    istringstream parse(str);
-//    while (parse>>str){
-//        inputWords.push_back(str);
-//    }
-//    cout<< inputWords[0];
+    return input;
+}
+string checkFileName(string userInput)
+{
+    vector<string> wordsFromInput;
+    string temp = userInput;
+    string delimiter1 = " ";
+    string delimiter2 = "\n";
+    int pos = 0;
 
-string str,str1,str2;
-bool validate,validate1;
-GameEngine *gameEngine = new GameEngine();
-CommandProcessor *cp = new CommandProcessor();
-//gameEngine->welcomeMessage();
-//    str="loadmap canada";
-//    validate = cp->validate(str);
-    gameEngine->mapValidatedStateChange();
-    str="addplayer bob";
-    validate = cp->validate(str);
+    while ((pos = temp.find(delimiter1)) != std::string::npos)
+    {
+        string wordFromInput = temp.substr(0, pos);
+        wordsFromInput.emplace_back(wordFromInput);
+        temp.erase(0, pos + delimiter1.length());
+    }
+    wordsFromInput.emplace_back(temp);
 
-//    str1="start canada";
-//    validate1 = cp->validate(str1);
-//gameEngine->mapLoadedStateChange();
-////    cout<<"Enter command:";
-////    getline(cin,str);
-//str2="validatedmap";
-//    validate = cp->validate(str2);
-cout<<validate;
-delete gameEngine;
-delete cp;
+    if (wordsFromInput.size() > 2)
+    {
+        return "";
+    }
+    else if (wordsFromInput.size() == 1)
+    {
+        return "";
+    }
+    else if (wordsFromInput[1].find("<") == std::string::npos || wordsFromInput[1].find(">") == std::string::npos)
+    {
+        return "";
+    }
+    else
+    {
+        return wordsFromInput[1].substr(wordsFromInput[1].find("<") + 1, wordsFromInput[1].find(">") - wordsFromInput[1].find("<") - 1);
+    }
+}
 
+int main()
+{
 
+    string userInput, fileName;
+    GameEngine *gameEngine = new GameEngine();
+    CommandProcessor *cp[2];
+    cp[0] = new CommandProcessor();
+    cp[1] = new FileCommandProcessorAdapter();
 
+    userInput = askUser();
+    if (userInput == "-console")
+    {
+        cout << "console" << endl;
+    }
+    else if (userInput.substr(0, userInput.find(" ")) == "-file")
+    {
+        fileName = checkFileName(userInput);
+        if (fileName.empty()){
+            cout << "Invalid file name." << endl;
+        }
+        else if (!fileName.empty()){
+            dynamic_cast<FileCommandProcessorAdapter*>(cp[1])->openSpecificFLRFile(fileName);
+            while(dynamic_cast<FileCommandProcessorAdapter*>(cp[1])->moreCommands()){
+                cout << cp[1]->getCommand() << endl;
+            }
+        }
+    }
+    else {
+        cout << "Invalid input." << endl;
+    }
 
-
-
-
-
-
-
-
+    delete gameEngine;
+    delete cp[0];
+    delete cp[1];
 
     return 0;
 }
