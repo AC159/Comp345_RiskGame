@@ -18,10 +18,9 @@ namespace Orders {
 
 // Abstract base class for Deploy, Advance, Bomb, Blockade, Airlift and Negotiate orders
 class Orders::Order {
-protected:
+public:
     Players::Player *issuer;
 
-public:
     Order();
     explicit Order(Players::Player *issuer);
     Order(const Order &order);
@@ -41,11 +40,10 @@ public:
 /* A deployment order tells a number of armies taken from the reinforcement pool to deploy to a target territory owned
  * by the player issuing this order.*/
 class Orders::Deploy : public Order {
-private:
+public:
     Graph::Territory *target;
     int armies;
 
-public:
     Deploy();
     Deploy(Players::Player *issuer, Graph::Territory *target, int armies);
     Deploy(const Deploy &deploy);
@@ -63,13 +61,12 @@ public:
 /* An advance order tells a number of army units from a source territory to transfer to or to attack a target adjacent
  * territory.*/
 class Orders::Advance : public Order {
-private:
+public:
     Graph::Map *map;
     Graph::Territory *source;
     Graph::Territory *target;
     int armies;
 
-public:
     Advance();
     Advance(Players::Player *issuer, Graph::Map *map, Graph::Territory *source, Graph::Territory *target, int armies);
     Advance(const Advance &advance);
@@ -87,10 +84,9 @@ public:
 /* A bomb order removes half of the armies from a territory belonging to an enemy.
  * This order can only be created by playing the bomb card.*/
 class Orders::Bomb : public Order {
-private:
+public:
     Graph::Territory *target;
 
-public:
     Bomb();
     Bomb(Players::Player *issuer, Graph::Territory *target);
     Bomb(const Bomb &bomb);
@@ -108,10 +104,9 @@ public:
 /* A blockade order doubles the number of armies on a territory belonging to the issuer and transfers the ownership of
  * the territory to the Neutral player. This order can only be created by playing the blockade card.*/
 class Orders::Blockade : public Order {
-private:
+public:
     Graph::Territory *target;
 
-public:
     Blockade();
     Blockade(Players::Player *issuer, Graph::Territory *target);
     Blockade(const Blockade&);
@@ -129,12 +124,11 @@ public:
 /* An airlift order tells a number of armies taken from a source territory to be moved to a target territory.
  * This order can only be created by playing the airlift card.*/
 class Orders::Airlift : public Order {
-private:
+public:
     Graph::Territory *source;
     Graph::Territory *target;
     int armies;
 
-public:
     Airlift();
     Airlift(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies);
     Airlift(const Airlift &airlift);
@@ -152,10 +146,9 @@ public:
 /* A negotiating order results in an enemy player and the player issuing the order to be unable to attack each other's
  * territories for the remainder of the turn. This order can only be created by playing the diplomacy card.*/
 class Orders::Negotiate : public Order {
-private:
+public:
     Players::Player *target;
 
-public:
     Negotiate();
     Negotiate(Players::Player *issuer, Players::Player *target);
     Negotiate(const Negotiate &negotiate);

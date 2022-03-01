@@ -17,10 +17,8 @@ Order::Order(const Order &order) {
     this->issuer = order.issuer;
 }
 
-//destructor prevents memory leaks
-Order::~Order() {
-    delete issuer;
-}
+//memory de-allocation should be handled externally
+Order::~Order() = default;
 
 //creates shallow copy via the assignment operator
 Order & Order::operator=(const Order &order) {
@@ -55,10 +53,8 @@ Deploy::Deploy(const Deploy &deploy)  : Order(deploy) {
     this->armies = deploy.armies;
 }
 
-//destructor prevents memory leaks
-Deploy::~Deploy() {
-    delete target;
-}
+//memory de-allocation should be handled externally
+Deploy::~Deploy() = default;
 
 //creates shallow copy via the assignment operator
 Deploy & Deploy::operator=(const Deploy &deploy) {
@@ -128,12 +124,8 @@ Advance::Advance(const Advance &advance) : Order(advance) {
     this->armies = advance.armies;
 }
 
-//destructor prevents memory leaks
-Advance::~Advance() {
-    delete map;
-    delete source;
-    delete target;
-}
+//memory de-allocation should be handled externally
+Advance::~Advance() = default;
 
 //creates shallow copy via the assignment operator
 Advance &Advance::operator=(const Advance &advance) {
@@ -224,10 +216,8 @@ Bomb::Bomb(const Bomb &bomb) : Order(bomb) {
     this->target = bomb.target;
 }
 
-//destructor prevents memory leaks
-Bomb::~Bomb() {
-    delete target;
-}
+//memory de-allocation should be handled externally
+Bomb::~Bomb() = default;
 
 //creates shallow via the assignment operator
 Bomb &Bomb::operator=(const Bomb &bomb) {
@@ -282,10 +272,8 @@ Blockade::Blockade(const Blockade &blockade) : Order(blockade) {
     this->target = blockade.target;
 }
 
-//destructor prevents memory leaks
-Blockade::~Blockade() {
-    delete target;
-}
+//memory de-allocation should be handled externally
+Blockade::~Blockade() = default;
 
 //creates shallow copy via the assignment operator
 Blockade &Blockade::operator=(const Blockade &blockade) {
@@ -348,11 +336,8 @@ Airlift::Airlift(const Airlift &airlift) : Order(airlift) {
     this->armies = airlift.armies;
 }
 
-//destructor prevents memory leaks
-Airlift::~Airlift() {
-    delete source;
-    delete target;
-}
+//memory de-allocation should be handled externally
+Airlift::~Airlift() = default;
 
 //creates shallow copy via the assignment operator
 Airlift &Airlift::operator=(const Airlift &airlift) {
@@ -412,10 +397,8 @@ Negotiate::Negotiate(const Negotiate &negotiate) : Order(negotiate) {
     this->target = negotiate.target;
 }
 
-//destructor prevents memory leaks
-Negotiate::~Negotiate() {
-    delete target;
-}
+//memory de-allocation should be handled externally
+Negotiate::~Negotiate() = default;
 
 //creates shallow copy via the assignment operator
 Negotiate & Negotiate::operator=(const Negotiate &negotiate) {

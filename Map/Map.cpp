@@ -41,7 +41,6 @@ Territory& Territory::operator=(const Territory &territory) {
     this->continent = territory.continent;
     this->countryNumber = territory.countryNumber;
     this->numberOfArmies = territory.numberOfArmies;
-    delete this->owner;
     this->owner = territory.owner; // shallow copy will be made as overload assignment operator will be called for the Player class
     return *this;
 }
@@ -51,10 +50,8 @@ ostream& Graph::operator<<(ostream &out, const Territory &territory) {
     return out;
 }
 
-Territory::~Territory() {
-    cout << "Territory destructor invoked..." << endl;
-    delete this->owner;
-}
+//memory de-allocation of territory's owner should be handled externally
+Territory::~Territory() = default;
 
 // ================= Edge Class =====================
 
