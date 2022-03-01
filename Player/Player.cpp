@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <utility>
 #include "Player.h"
 
 using namespace std;
@@ -12,12 +13,13 @@ Player::Player(){
     name = "No name";
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
+    armyReinforcementPool = 0;
 }
 
 
 // constructor for Player class to initialize the name and the collection of territories, cards, and orders
 Player::Player(string newName){
-    name = newName;
+    name = std::move(newName);
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
 }

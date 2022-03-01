@@ -16,6 +16,7 @@ class GameEngine {
 public:
     CommandProcessor* processor;
     Graph::MapLoader* mapLoader;
+    Cards::Deck* deck;
     vector<Players::Player*> playersList;
     GameEngine();
     GameEngine(const GameEngine &gameEngine); //copy constructor
@@ -30,6 +31,7 @@ public:
 
 //============= start state ================
     void startupPhase();
+    void gameStart();
 
 //============= map loaded state =================
     void mapLoadedStateChange();

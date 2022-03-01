@@ -14,7 +14,7 @@ void Graph::Map::mapDriver() {
 
     MapLoader ml3{};
     // invalid: not connected graph
-    bool invalidResult = ml3.loadMap("../WarzoneMaps/solar/solarInvalid.map");
+    bool invalidResult = ml3.loadMap("../WarzoneMaps/solarInvalid/solarInvalid.map");
     bool mapIsValid3 = ml3.map->validate();
     cout << boolalpha << "map is valid = " << mapIsValid3 << endl;
 

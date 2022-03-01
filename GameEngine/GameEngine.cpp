@@ -1,6 +1,7 @@
 #include "GameEngine.h"
 #include <filesystem>
 #include <utility>
+#include <experimental/random>
 
 // todo: list of orders should be specific to a single player
 Orders::OrdersList *ordersList = new Orders::OrdersList();
@@ -13,17 +14,31 @@ string GameEngine::getState() const {
 GameEngine::GameEngine() {
     mapLoader = new Graph::MapLoader();
     processor = new CommandProcessor();
+    deck = new Cards::Deck();
+    deck->fillDeckWithCards();
 }
 
 // GameEngine class copy constructor
 GameEngine::GameEngine(const GameEngine &game) {
     this->mapLoader = game.mapLoader;
+    this->processor = new CommandProcessor(); // generate a new command processor
+    this->playersList = game.playersList;
+    this->deck = new Cards::Deck(*game.deck);
 }
 
 // GameEngine assignment operator
 GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     if (this == &gameEngine) return *this;
+    delete this->mapLoader;
+    delete this->deck;
+    for (auto *player : this->playersList) {
+        delete player;
+    }
+    delete this->processor;
     this->mapLoader = gameEngine.mapLoader;
+    this->processor = new CommandProcessor();
+    this->playersList = gameEngine.playersList;
+    this->deck = new Cards::Deck(*gameEngine.deck);
     return *this;
 }
 
@@ -69,6 +84,50 @@ void GameEngine::startupPhase() {
     mapValidatedStateChange();
     addPlayer();
     playersAddedStateChange();
+    gameStart();
+    assignReinforcementStateChange();
+}
+
+void GameEngine::gameStart() {
+    while (true) {
+        cout << "Use the 'gamestart' command to distribute territories, determine play order, assign initial armies and draw cards from the deck" << endl;
+        string command = processor->getCommand();
+        if (!processor->validate(command, *this)) {
+            cout << "Invalid command! Please try again." << endl;
+            continue;
+        } else break;
+    }
+
+    cout << "Assigning territories to players..." << endl;
+    // copy all territory pointers into another vector in order to randomly distribute territories to players
+    vector<Graph::Territory*> territories = this->mapLoader->map->territories;
+    int nbrOfTerritories = territories.size();
+    while (territories.size() > 0) {
+        for (auto *player : this->playersList) {
+            if (nbrOfTerritories == 0) break;
+            int random;
+            if (nbrOfTerritories == 1) random = 0;
+            else random = std::experimental::randint(0, nbrOfTerritories-1);
+            player->addTerritory(*territories.at(random));
+            if (random != nbrOfTerritories) territories.erase(territories.begin() + random);
+            else territories.erase(territories.end() - 1);
+            nbrOfTerritories = territories.size();
+        }
+    }
+
+    // Randomize the order of play of players
+    cout << "Assigning play order..." << endl;
+    auto rd = std::random_device {};
+    auto rng = std::default_random_engine {rd()};
+    std::shuffle(this->playersList.begin(), this->playersList.end(), rng);
+
+    cout << "Assigning 50 initial armies & 2 cards to each player..." << endl;
+    for (auto *player : this->playersList) {
+        player->armyReinforcementPool = 50;
+        player->hand->cards.push_back(this->deck->draw());
+        player->hand->cards.push_back(this->deck->draw());
+    }
+
 
 }
 
@@ -141,7 +200,6 @@ void GameEngine::addPlayer() {
     while (true) {
         cout << "2-6 players are allowed to play." << endl;
         cout << "How many players would you like to add? ";
-        // todo: make sure there is an error thrown when a user tries to input a string instead of a number
         cin >> playerCount;
         if (cin.fail()) {
             cout << "Please enter an integer" << endl;
@@ -328,6 +386,8 @@ GameEngine::~GameEngine() {
     delete ordersList;
     delete mapLoader;
     mapLoader = nullptr;
+    delete processor;
+    delete deck;
     for (Players::Player* p : playersList) {
         delete p;
     }

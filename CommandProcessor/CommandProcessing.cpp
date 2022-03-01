@@ -49,21 +49,19 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
 }
 
 CommandProcessor::~CommandProcessor() {
-    cout<<"Invoking delete constructor or CommandProcessor"<<endl;
-
+    cout << "Invoking delete constructor or CommandProcessor" << endl;
 }
 Command::Command(string commands) {
-command=commands;
-effect =" ";
+    command=commands;
+    effect =" ";
 }
 
 void Command::setCommand(string commands) {
-command =commands;
+    command =commands;
 }
 
 void Command::setEffect(string effects) {
-effect = effects;
-
+    effect = effects;
 }
 
 void Command::saveEffect(string commandEffect) {

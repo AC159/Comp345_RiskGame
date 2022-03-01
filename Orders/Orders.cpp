@@ -286,7 +286,7 @@ string Negotiate::className() const {
     return "Negotiate";
 }
 
-//polymorphycally returns a clone of the calling class
+// polymorphically returns a clone of the calling class
 Negotiate * Negotiate::clone() const {
     return new Negotiate(*this);
 }
