@@ -15,6 +15,7 @@ class GameEngine {
 
 public:
     CommandProcessor* processor;
+    Command* commands;
     Graph::MapLoader* mapLoader;
     Cards::Deck* deck;
     vector<Players::Player*> playersList;

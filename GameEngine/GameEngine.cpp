@@ -83,7 +83,6 @@ void GameEngine::startupPhase() {
     chooseMapToLoad();
     mapValidatedStateChange();
     addPlayer();
-    playersAddedStateChange();
     gameStart();
     assignReinforcementStateChange();
 }
@@ -94,10 +93,16 @@ void GameEngine::gameStart() {
         string command = processor->getCommand();
         if (!processor->validate(command, *this)) {
             cout << "Invalid command! Please try again." << endl;
+            //save Effect
+            string effect="Invalid command! Please try again.";
+            commands->saveEffect(effect,*processor);
             continue;
         } else break;
     }
 
+    //save Effect
+    string effect="Assign Reinforcement";
+    commands->saveEffect(effect,*processor);
     cout << "Assigning territories to players..." << endl;
     // copy all territory pointers into another vector in order to randomly distribute territories to players
     vector<Graph::Territory*> territories = this->mapLoader->map->territories;
@@ -155,11 +160,18 @@ void GameEngine::chooseMapToLoad() const {
         string command = processor->getCommand();
         if (!processor->validate(command, *this)) {
             cout << "Invalid command! Please try again." << endl;
+            //save Effect
+            string effect="Invalid command! Please try again.";
+            commands->saveEffect(effect,*processor);
             continue;
         }
         // extract name of the chosen map
         string mapName = command.substr(command.find_last_of(' ')+1, command.length());
         validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + mapName + "/" + mapName + ".map");
+
+        //save Effect
+        string effect="Maploaded";
+        commands->saveEffect(effect,*processor);
 
         if (validateFile) {
             do {
@@ -168,17 +180,26 @@ void GameEngine::chooseMapToLoad() const {
                 bool validCommand = processor->validate(validateMapCommand, *this);
                 if (!validCommand) {
                     cout << "Invalid command! Please try again." << endl;
+                    //save Effect
+                    string effect="Invalid command! Please try again.";
+                    commands->saveEffect(effect,*processor);
+                    continue;
                 } else break;
             } while (true);
             if (mapLoader->map->validate()) {
                 cout << "The map is a connected graph and can be played!" << endl;
                 mapIsValid = true;
+                //save Effect
+                string effect="mapValidated";
+                commands->saveEffect(effect,*processor);
+                continue;
             } else {
                 delete mapLoader->map;
                 mapLoader->map = new Graph::Map();
             }
         }
     }
+
     cout << "The file has been loaded and validated! Moving to the next step" << endl;
 }
 
@@ -215,6 +236,7 @@ void GameEngine::addPlayer() {
             break;
         }
     }
+    playersAddedStateChange();
 
     int count {0};
     while (count < playerCount) {
@@ -222,11 +244,17 @@ void GameEngine::addPlayer() {
         string command = processor->getCommand();
         if (!processor->validate(command, *this)) {
             cout << "Invalid command! Please try again." << endl;
+            //save Effect
+            string effect="Invalid command! Please try again.";
+            commands->saveEffect(effect,*processor);
             continue;
         } else {
             Players::Player* p = new Players::Player(command.substr(command.find_last_of(' ')+1, command.length()));
             this->playersList.push_back((p));
             count++;
+            //save Effect
+            string effect="playersadded";
+            commands->saveEffect(effect,*processor);
         }
     }
 }

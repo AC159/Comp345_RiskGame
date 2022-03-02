@@ -8,12 +8,15 @@
 using namespace std;
 
 class GameEngine;
+class CommandProcessor;
 
 class Command {
 public:
+    //should this be private?
     string command;
     string effect;
-    Command();
+    //
+    Command()=default;
     Command(string command);
     Command(const Command &command);
     ~Command();
@@ -21,9 +24,7 @@ public:
     Command& operator=(const Command &command);
     friend ostream& operator<<(ostream &out, const Command &command);
 
-    void setCommand(string command);
-    void setEffect(string effect);
-    void saveEffect(string commandEffect);
+    void saveEffect(string commandEffect, const CommandProcessor &processor);
 
 };
 
@@ -40,10 +41,11 @@ public:
 
     string getCommand();
     bool validate(string userInput, const GameEngine &gameEngine);
+    void saveCommand(string readCommandInput);
 
 private:
     string readCommand();
-    void saveCommand(string readCommandInput);
+    //void saveCommand(string readCommandInput);
 
 };
 

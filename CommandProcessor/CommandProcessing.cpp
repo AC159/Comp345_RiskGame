@@ -17,8 +17,7 @@ string CommandProcessor::readCommand() {
 }
 
 void CommandProcessor::saveCommand(string readCommandInput){
-    //TODO create a command objects to put in a list
-    commandList.emplace_back(new Command(std::move(readCommandInput)));
+    commandList.push_back(new Command(std::move(readCommandInput)));
 }
 
 // validate (1) user command (2) command is used in the correct state
@@ -49,24 +48,18 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
 }
 
 CommandProcessor::~CommandProcessor() {
-    cout << "Invoking delete constructor or CommandProcessor" << endl;
+   cout << "Invoking delete constructor or CommandProcessor" << endl;
+    commandList.clear();
 }
 Command::Command(string commands) {
-    command=commands;
+    command=std::move(commands);
     effect =" ";
 }
 
-void Command::setCommand(string commands) {
-    command =commands;
-}
-
-void Command::setEffect(string effects) {
-    effect = effects;
-}
-
-void Command::saveEffect(string commandEffect) {
-    //TODO add save effect to previous created object
-    Command::setEffect(commandEffect);
-
+void Command::saveEffect(string commandEffect, const CommandProcessor &processor) {
+    effect = commandEffect;
+    static int i=0;
+    processor.commandList.at(i)->effect.assign(effect);
+    i++;
 }
 
