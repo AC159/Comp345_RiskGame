@@ -173,9 +173,7 @@ void Advance::execute() {
                 armies < attackersKilled ? source->numberOfArmies -= armies : source->numberOfArmies -= attackersKilled;
             } else { //territory successfully conquered
                 //transfer ownership
-                target->owner->removeTerritory(*target);
-                target->owner = issuer;
-                issuer->addTerritory(*target);
+                target->transferOwnership(issuer);
 
                 //update territories' armies
                 source->numberOfArmies -= armies;

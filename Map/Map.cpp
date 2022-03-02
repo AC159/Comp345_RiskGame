@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include "Map.h"
+#include "../Player/Player.h"
 
 using namespace std;
 using namespace Graph;
@@ -48,6 +49,21 @@ Territory& Territory::operator=(const Territory &territory) {
 ostream& Graph::operator<<(ostream &out, const Territory &territory) {
     out << "Name: " << territory.name << "\tContinent: " << territory.continent << "\tCountry: " << territory.countryNumber << "\tNbrOfArmies: " << territory.numberOfArmies << endl;
     return out;
+}
+
+//updates this territory's owner and the owner's list of territories accordingly
+void Territory::transferOwnership(Players::Player *newOwner) {
+    if (owner != nullptr && newOwner != nullptr) {
+        owner->removeTerritory(*this);
+        owner = newOwner;
+        newOwner->addTerritory(*this);
+    } else if (owner == nullptr && newOwner != nullptr) {
+        owner = newOwner;
+        newOwner->addTerritory(*this);
+    } else if (owner != nullptr && newOwner == nullptr) {
+        owner->removeTerritory(*this);
+        owner = newOwner;
+    }
 }
 
 //memory de-allocation of territory's owner should be handled externally
