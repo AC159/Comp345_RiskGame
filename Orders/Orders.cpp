@@ -29,9 +29,8 @@ Order & Order::operator=(const Order &order) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & operator<<(ostream &out, const Order &order) {
-    out << "Order object";
-    return out;
+ostream & Orders::operator<<(ostream &out, const Order &order) {
+    return order.write(out);
 }
 
 // ====================== Deploy class ======================
@@ -67,9 +66,8 @@ Deploy & Deploy::operator=(const Deploy &deploy) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & operator<<(ostream &out, const Deploy &deploy) {
-    out << "Deploy order object";
-    return out;
+ostream & Orders::operator<<(ostream &out, const Deploy &deploy) {
+    return deploy.write(out);
 }
 
 /* is valid if the target territory belongs to the player that issued the order
@@ -84,21 +82,22 @@ bool Deploy::validate() {
 //if valid, the number of armies are taken from the player's reinforcement pool and added to their target territory
 void Deploy::execute() {
     if (this->validate()) {
+        cout << "Deploy " << armies << " to " << target->name << endl;
         issuer->reinforcementPool -= armies;
         target->numberOfArmies += armies;
     } else {
-        cout << "An invalid Deploy order could not be executed." << endl;
+        cout << "An invalid Deploy order could not be executed" << endl;
     }
-}
-
-//polymorphically returns the name of the calling class
-string Deploy::className() const {
-    return "Deploy";
 }
 
 //polymorphically returns a clone of the calling class
 Deploy * Deploy::clone() const {
     return new Deploy(*this);
+}
+
+//helper for the stream insertion operator to function as a virtual
+std::ostream & Deploy::write(ostream &out) const {
+    return target == nullptr ? out << "Deploy" : out << "Deploy " << armies << " to " << target->name;
 }
 
 // ====================== Advance class ======================
@@ -140,9 +139,8 @@ Advance &Advance::operator=(const Advance &advance) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & operator<<(ostream &out, const Advance &advance) {
-    out << "Advance order object";
-    return out;
+ostream & Orders::operator<<(ostream &out, const Advance &advance) {
+    return advance.write(out);
 }
 
 /* is valid if the source territory belongs to the player that issued the order and has sufficient armies,
@@ -160,6 +158,7 @@ bool Advance::validate() {
 void Advance::execute() {
     if (validate()) {
         if (source->owner == target->owner) { //perform simple army transfer
+            cout << armies << " transferred to " << target->name << " from " << source->name << endl;
             source->numberOfArmies -= armies;
             target->numberOfArmies += armies;
         } else { //initiate an attack
@@ -168,34 +167,37 @@ void Advance::execute() {
             int attackersKilled = static_cast<int>(round(target->numberOfArmies * 0.7));
 
             if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { //failed to conquer
+                cout << armies << " failed to take " << target->name << " from " << source->name << endl;
+
                 //update territories' armies
                 target->numberOfArmies -= defendersKilled;
-                armies < attackersKilled ? source->numberOfArmies -= armies : source->numberOfArmies -= attackersKilled;
+                source->numberOfArmies -= armies < attackersKilled ? armies : attackersKilled;
             } else { //territory successfully conquered
-                //transfer ownership
-                target->transferOwnership(issuer);
+                cout << armies << " captured " << target->name << " from " << source->name << endl;
+                target->transferOwnership(issuer); //issuer now owns the territory
 
                 //update territories' armies
                 source->numberOfArmies -= armies;
                 target->numberOfArmies = armies - attackersKilled;
 
-                //the conquering player receives a card as a reward
+                //the conquering player receives a card as a reward at the end of the turn
                 issuer->receivesCard = true;
             }
         }
     } else {
-        cout << "An invalid Advance order could not be executed." << endl;
+        cout << "An invalid Advance order could not be executed" << endl;
     }
-}
-
-//polymorphically returns the name of the calling class
-string Advance::className() const {
-    return "Advance";
 }
 
 //polymorphically returns a clone of the calling class
 Advance * Advance::clone() const {
     return new Advance(*this);
+}
+
+//helper for the stream insertion operator to function as a virtual
+std::ostream & Advance::write(ostream &out) const {
+    return target == nullptr ?
+        out << "Advance" : out << armies << " from " << source->name << " will attack/transfer " << target->name;
 }
 
 // ====================== Bomb class ======================
@@ -227,9 +229,8 @@ Bomb &Bomb::operator=(const Bomb &bomb) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & operator<<(ostream &out, const Bomb &bomb) {
-    out << "Bomb order object";
-    return out;
+ostream & Orders::operator<<(ostream &out, const Bomb &bomb) {
+    return bomb.write(out);
 }
 
 //returns whether the order is valid - behaviour is arbitrary for now
@@ -241,15 +242,10 @@ bool Bomb::validate() {
 //performs the order action if it's valid - action is arbitrary for now
 void Bomb::execute() {
     if (this->validate()) {
-        cout << " Executed a Bomb order." << endl;
+        cout << issuer->getName() << " bombs " << target->name << endl;
     } else {
-        cout << "An invalid Bomb order could not be executed." << endl;
+        cout << "An invalid Bomb order could not be executed" << endl;
     }
-}
-
-//polymorphically returns the name of the calling class
-string Bomb::className() const {
-    return "Bomb";
 }
 
 //polymorphically returns a clone of the calling class
@@ -257,12 +253,20 @@ Bomb * Bomb::clone() const {
     return new Bomb(*this);
 }
 
+//helper for the stream insertion operator to function as a virtual
+std::ostream & Bomb::write(ostream &out) const {
+    return target == nullptr ? out << "Bomb" : out << "Bomb " << target->name;
+}
+
 // ====================== Blockade class ======================
 Blockade::Blockade() : target(nullptr) {
     cout << "Created a Blockade order." << endl;
 }
 
-//creates an order with all members initialized through parameters
+/** creates an order with all members initialized through parameters
+ * @param issuer the player whose turn it is
+ * @param target the territory to turn into a neutral blockade (must belong to issuer for validate)
+ */
 Blockade::Blockade(Players::Player *issuer, Graph::Territory *target) : Order(issuer), target(target) {}
 
 //copy constructor creates shallow copy due to circular dependency
@@ -283,9 +287,8 @@ Blockade &Blockade::operator=(const Blockade &blockade) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & operator<<(ostream &out, const Blockade &blockade) {
-    out << "Blockade order object";
-    return out;
+ostream & Orders::operator<<(ostream &out, const Blockade &blockade) {
+    return blockade.write(out);
 }
 
 //returns whether the order is valid - behaviour is arbitrary for now
@@ -297,20 +300,20 @@ bool Blockade::validate() {
 //performs the order action if it's valid - action is arbitrary for now
 void Blockade::execute() {
     if (this->validate()) {
-        cout << " Executed a Blockade order." << endl;
+        cout << issuer->getName() << " blockades " << target->name << endl;
     } else {
-        cout << "An invalid Blockade order could not be executed." << endl;
+        cout << "An invalid Blockade order could not be executed" << endl;
     }
-}
-
-//polymorphically returns the name of the calling class
-string Blockade::className() const {
-    return "Blockade";
 }
 
 //polymorphically returns a clone of the calling class
 Blockade * Blockade::clone() const {
     return new Blockade(*this);
+}
+
+//helper for the stream insertion operator to function as a virtual
+std::ostream & Blockade::write(ostream &out) const {
+    return target == nullptr ? out << "Blockade" : out << "Blockade " << target->name;
 }
 
 // ====================== Airlift class ======================
@@ -348,9 +351,8 @@ Airlift &Airlift::operator=(const Airlift &airlift) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & operator<<(ostream &out, const Airlift &airlift) {
-    out << "Airlift order object";
-    return out;
+ostream & Orders::operator<<(ostream &out, const Airlift &airlift) {
+    return airlift.write(out);
 }
 
 //is valid if both the source and target territories belong to the issuer and the source has sufficient armies
@@ -365,16 +367,13 @@ bool Airlift::validate() {
 //if the order is valid, the selected number of armies are moved from the source to the target territories
 void Airlift::execute() {
     if (this->validate()) {
+        cout << issuer->getName() << " airlifts " << armies << " armies from " << source->name << " to " << target->name
+             << endl;
         source->numberOfArmies -= armies;
         target->numberOfArmies += armies;
     } else {
-        cout << "An invalid Airlift order could not be executed." << endl;
+        cout << "An invalid Airlift order could not be executed" << endl;
     }
-}
-
-//polymorphically returns the name of the calling class
-string Airlift::className() const {
-    return "Airlift";
 }
 
 //polymorphically returns a clone of the calling class
@@ -382,12 +381,21 @@ Airlift * Airlift::clone() const {
     return new Airlift(*this);
 }
 
+//helper for the stream insertion operator to function as a virtual
+std::ostream & Airlift::write(ostream &out) const {
+    return target == nullptr ?
+        out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name << " to " << target->name;
+}
+
 // ====================== Negotiate class ======================
 Negotiate::Negotiate() : target(nullptr) {
     cout << "Created a Negotiate order." << endl;
 }
 
-//creates an order with all members initialized through parameters
+/** creates an order with all members initialized through parameters
+ * @param issuer the player whose turn it is
+ * @param target the player to negotiate with (must be different from the issuer for validity)
+ */
 Negotiate::Negotiate(Players::Player *issuer, Players::Player *target) : Order(issuer), target(target) {}
 
 //copy constructor creates shallow copy due to circular dependency
@@ -408,9 +416,8 @@ Negotiate & Negotiate::operator=(const Negotiate &negotiate) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream &operator<<(ostream &out, const Negotiate &negotiate) {
-    out << "Negotiate order object";
-    return out;
+ostream & Orders::operator<<(ostream &out, const Negotiate &negotiate) {
+    return negotiate.write(out);
 }
 
 //returns whether the order is valid - behaviour is arbitrary for now
@@ -424,18 +431,18 @@ void Negotiate::execute() {
     if (this->validate()) {
         cout << " Executed a Negotiate Order." << endl;
     } else {
-        cout << "An invalid Negotiate order could not be executed." << endl;
+        cout << "An invalid Negotiate order could not be executed" << endl;
     }
-}
-
-//polymorphically returns the name of the calling class
-string Negotiate::className() const {
-    return "Negotiate";
 }
 
 //polymorphycally returns a clone of the calling class
 Negotiate * Negotiate::clone() const {
     return new Negotiate(*this);
+}
+
+//helper for the stream insertion operator to function as a virtual
+std::ostream & Negotiate::write(ostream &out) const {
+    return target == nullptr ? out << "Negotiate" : out << "Negotiate with " << target->getName();
 }
 
 // ====================== OrdersList class ======================
@@ -475,13 +482,12 @@ OrdersList & OrdersList::operator=(const OrdersList &ordersList) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream& Orders::operator<<(ostream &out, const OrdersList &ordersList) {
-    out << "{";
-    if (!ordersList.orders.empty()) {
-        out << "[0]=" << ordersList.orders[0]->className();
-        for (int i = 1; i < ordersList.orders.size(); i++) {
-            out << ", [" << i << "]=" << ordersList.orders[i]->className();
-        }
+ostream & Orders::operator<<(ostream &out, const OrdersList &ordersList) {
+    out << "{" << endl;
+    int i = 0;
+    for (auto order : ordersList.orders) {
+        out << "\t[" << i << "] = " << *order << endl;
+        i++;
     }
     out << "}" << endl;
     return out;

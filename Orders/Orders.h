@@ -14,12 +14,21 @@ namespace Orders {
     class Airlift;
     class Negotiate;
     class OrdersList;
+    void ordersDriver();
+    std::ostream & operator<<(std::ostream &out, const Order &order);
+    std::ostream & operator<<(std::ostream &out, const Deploy &deploy);
+    std::ostream & operator<<(std::ostream &out, const Advance &advance);
+    std::ostream & operator<<(std::ostream &out, const Bomb &bomb);
+    std::ostream & operator<<(std::ostream &out, const Blockade &blockade);
+    std::ostream & operator<<(std::ostream &out, const Airlift &airlift);
+    std::ostream & operator<<(std::ostream &out, const Negotiate &negotiate);
+    std::ostream & operator<<(std::ostream &out, const OrdersList &ordersList);
 }
 
 // Abstract base class for Deploy, Advance, Bomb, Blockade, Airlift and Negotiate orders
 class Orders::Order {
 public:
-    Players::Player *issuer;
+    Players::Player *issuer;    //the player whose turn it is to issue orders
 
     Order();
     explicit Order(Players::Player *issuer);
@@ -32,17 +41,16 @@ public:
     virtual bool validate() = 0;
     virtual void execute() = 0;
 
-    [[nodiscard]] virtual std::string className() const = 0;
     [[nodiscard]] virtual Order* clone() const = 0;
-    static void ordersDriver();
+    virtual std::ostream & write(std::ostream &out) const = 0;
 };
 
 /* A deployment order tells a number of armies taken from the reinforcement pool to deploy to a target territory owned
  * by the player issuing this order.*/
 class Orders::Deploy : public Order {
 public:
-    Graph::Territory *target;
-    int armies;
+    Graph::Territory *target;   //the territory where armies will be deployed
+    int armies;                 //the number of armies to deploy
 
     Deploy();
     Deploy(Players::Player *issuer, Graph::Territory *target, int armies);
@@ -54,18 +62,19 @@ public:
 
     bool validate() override;
     void execute() override;
-    [[nodiscard]] std::string className() const override;
+
     [[nodiscard]] Deploy * clone() const override;
+    std::ostream & write(std::ostream &out) const override;
 };
 
 /* An advance order tells a number of army units from a source territory to transfer to or to attack a target adjacent
  * territory.*/
 class Orders::Advance : public Order {
 public:
-    Graph::Map *map;
-    Graph::Territory *source;
-    Graph::Territory *target;
-    int armies;
+    Graph::Map *map;            //the map in which the source and target are located in
+    Graph::Territory *source;   //the territory where the armies will be taken from
+    Graph::Territory *target;   //the territory where armies will transfer to or attack
+    int armies;                 //the number of armies to attack with or to transfer
 
     Advance();
     Advance(Players::Player *issuer, Graph::Map *map, Graph::Territory *source, Graph::Territory *target, int armies);
@@ -77,15 +86,16 @@ public:
 
     bool validate() override;
     void execute() override;
-    [[nodiscard]] std::string className() const override;
+
     [[nodiscard]] Advance * clone() const override;
+    std::ostream & write(std::ostream &out) const override;
 };
 
 /* A bomb order removes half of the armies from a territory belonging to an enemy.
  * This order can only be created by playing the bomb card.*/
 class Orders::Bomb : public Order {
 public:
-    Graph::Territory *target;
+    Graph::Territory *target;   //the territory to bomb
 
     Bomb();
     Bomb(Players::Player *issuer, Graph::Territory *target);
@@ -97,15 +107,16 @@ public:
 
     bool validate() override;
     void execute() override;
-    [[nodiscard]] std::string className() const override;
+
     [[nodiscard]] Bomb * clone() const override;
+    std::ostream & write(std::ostream &out) const override;
 };
 
 /* A blockade order doubles the number of armies on a territory belonging to the issuer and transfers the ownership of
  * the territory to the Neutral player. This order can only be created by playing the blockade card.*/
 class Orders::Blockade : public Order {
 public:
-    Graph::Territory *target;
+    Graph::Territory *target;   //the territory to turn into a neutral blockade
 
     Blockade();
     Blockade(Players::Player *issuer, Graph::Territory *target);
@@ -117,17 +128,18 @@ public:
 
     bool validate() override;
     void execute() override;
-    [[nodiscard]] std::string className() const override;
+
     [[nodiscard]] Blockade * clone() const override;
+    std::ostream & write(std::ostream &out) const override;
 };
 
 /* An airlift order tells a number of armies taken from a source territory to be moved to a target territory.
  * This order can only be created by playing the airlift card.*/
 class Orders::Airlift : public Order {
 public:
-    Graph::Territory *source;
-    Graph::Territory *target;
-    int armies;
+    Graph::Territory *source;   //the territory where the armies will be taken from
+    Graph::Territory *target;   //the territory where the armies will be airlifted to
+    int armies;                 //the number of armies to airlift
 
     Airlift();
     Airlift(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies);
@@ -139,15 +151,16 @@ public:
 
     bool validate() override;
     void execute() override;
-    [[nodiscard]] std::string className() const override;
+
     [[nodiscard]] Airlift * clone() const override;
+    std::ostream & write(std::ostream &out) const override;
 };
 
 /* A negotiating order results in an enemy player and the player issuing the order to be unable to attack each other's
  * territories for the remainder of the turn. This order can only be created by playing the diplomacy card.*/
 class Orders::Negotiate : public Order {
 public:
-    Players::Player *target;
+    Players::Player *target;    //the negotiating counterparty
 
     Negotiate();
     Negotiate(Players::Player *issuer, Players::Player *target);
@@ -159,8 +172,9 @@ public:
 
     bool validate() override;
     void execute() override;
-    [[nodiscard]] std::string className() const override;
+
     [[nodiscard]] Negotiate * clone() const override;
+    std::ostream & write(std::ostream &out) const override;
 };
 
 // Represents a sequential list of orders with basic functionalities
