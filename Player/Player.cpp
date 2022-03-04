@@ -8,7 +8,7 @@ using namespace Players;
 using namespace Graph;
 
 Player *Players::Player::neutralPlayer = new Player("neutral");
-Cards::Deck Players::Player::deck = Cards::Deck();
+//Cards::Deck Players::Player::deck = Cards::Deck();
 
 // default constructor
 Player::Player() {

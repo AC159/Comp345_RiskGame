@@ -122,18 +122,18 @@ void Orders::ordersDriver() {
     testAirlift(&p1, eastPluto, northNeptune, 2);//invalid-:target doesn't belong to issuer
 
     //-----------------------------------------------------------------------------
-    //giving player one the required cards to execute orders, displaying player one's hand, and displaying deck content
-    Cards::Card *card1 = new Cards::Bomb();
-    Cards::Card *card2 = new Cards::Blockade();
-    Cards::Card *card3 = new Cards::Diplomacy();
-    p1.hand->cards.push_back(card1);
-    p1.hand->cards.push_back(card2);
-    p1.hand->cards.push_back(card3);
-    p1.displayCards();
-    cout << "Deck size: " << Player::deck.cards.size() << endl;
-    cout << "Deck content: " << endl;
-    for (auto card: Player::deck.cards)
-        cout << "\t" << card->getType() << endl;
+//    //giving player one the required cards to execute orders, displaying player one's hand, and displaying deck content
+//    Cards::Card *card1 = new Cards::Bomb();
+//    Cards::Card *card2 = new Cards::Blockade();
+//    Cards::Card *card3 = new Cards::Diplomacy();
+//    p1.hand->cards.push_back(card1);
+//    p1.hand->cards.push_back(card2);
+//    p1.hand->cards.push_back(card3);
+//    p1.displayCards();
+//    cout << "Deck size: " << Player::deck.cards.size() << endl;
+//    cout << "Deck content: " << endl;
+//    for (auto card: Player::deck.cards)
+//        cout << "\t" << card->getType() << endl;
 
 
     //code block testing bomb execution
@@ -142,24 +142,24 @@ void Orders::ordersDriver() {
         cout << "-----------------------------" << endl;
 
         //invalid; bombing your own territory
-        Bomb b = Bomb(&p1, westPluto, ml.map);
+        Bomb bomb = Bomb(&p1, westPluto, ml.map);
         cout << "Pluto-West number of armies: " << westPluto->numberOfArmies << endl;
-        b.execute();
+        bomb.execute();
         cout << "Pluto-West number of armies: " << westPluto->numberOfArmies << endl << endl;
 
         //invalid; territory not adjacent to any of issuing player's territories
         westPluto->transferOwnership(&p2);
         eastPluto->transferOwnership(&p2);
-        b = Bomb(&p1, westPluto, ml.map);
+        bomb = Bomb(&p1, westPluto, ml.map);
         cout << "Pluto-West number of armies: " << westPluto->numberOfArmies << endl;
-        b.execute();
+        bomb.execute();
         cout << "Pluto-West number of armies: " << westPluto->numberOfArmies << endl << endl;
 
         //valid; bombing enemy adjacent territory
         eastPluto->transferOwnership(&p1);
-        b = Bomb(&p1, westPluto, ml.map);
+        bomb = Bomb(&p1, westPluto, ml.map);
         cout << "Pluto-West number of armies: " << westPluto->numberOfArmies << endl;
-        b.execute();
+        bomb.execute();
         cout << "Pluto-West number of armies: " << westPluto->numberOfArmies << endl << endl;
     }
 
@@ -211,13 +211,24 @@ void Orders::ordersDriver() {
         for (auto s: p2.cannotAttack)
             cout << "  - " << s << endl;
         cout << endl;
+
+        //attempting to bomb a player with negotiation in effect
+        cout<<"Attempting to bomb a territory whose owner has a negotiation in effect: " << endl;
+        Bomb bomb = Bomb(&p1, westPluto, ml.map);
+        bomb.execute();
+        cout << endl;
+
+        //attempting to advance on a territory owned by a player with negotiation in effect
+        cout<<"Attempting to advance on a territory whose owner has a negotiation in effect: " << endl;
+        eastPluto->transferOwnership(&p1);
+        testAdvance(&p1, ml.map, eastPluto, westPluto, 4);//valid: conquers territory
+        cout << endl;
     }
 
-    //displaying player one's hand and deck content
-    p1.displayCards();
-    cout << "Deck size: " << Player::deck.cards.size() << endl;
-    cout << "Deck content: " << endl;
-    for (auto card: Player::deck.cards)
-        cout << "\t" << card->getType() << endl;
-
+//    //displaying player one's hand and deck content
+//    p1.displayCards();
+//    cout << "Deck size: " << Player::deck.cards.size() << endl;
+//    cout << "Deck content: " << endl;
+//    for (auto card: Player::deck.cards)
+//        cout << "\t" << card->getType() << endl;
 }
