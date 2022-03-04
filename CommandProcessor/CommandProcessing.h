@@ -42,7 +42,7 @@ public:
     string getCommand();
     bool validate(string userInput, const GameEngine &gameEngine);
     void saveCommand(string readCommandInput);
-
+    static void commandProcessorDriver();
 private:
     string readCommand();
     //void saveCommand(string readCommandInput);
