@@ -24,8 +24,12 @@ public:
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
     static void gameEngineDriver();
 
+    //added for implementation of As2 part1
+    string getState() const;
+
 //============= start state ================
     void welcomeMessage();
+    void startStateChange();
 
     //user command loadMap
     bool validateStartStateCommand();

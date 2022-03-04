@@ -3,6 +3,10 @@
 
 Orders::OrdersList *ordersList = new Orders::OrdersList();
 
+string GameEngine::getState() const {
+    return this->state;
+}
+
 //GameEngine class constructor
 GameEngine::GameEngine() {
     mapLoader = new Graph::MapLoader();
@@ -42,6 +46,10 @@ void GameEngine::changeState(string state) {
 void GameEngine::welcomeMessage() {
     changeState("start");
     cout << "Welcome to c++ Risk game!" << endl;
+}
+
+void GameEngine::startStateChange(){
+    changeState("start");
 }
 
 //method to check user input in the start state and perform related logic

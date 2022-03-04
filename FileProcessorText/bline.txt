@@ -1,0 +1,5 @@
+loadmap <asdasda>
+validatemap
+addplayer <asdasdas>
+gamestart
+quit

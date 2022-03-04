@@ -7,7 +7,7 @@ CommandProcessor::CommandProcessor(const CommandProcessor &cp){
     
 }
 string CommandProcessor::getCommand() {
-    cout << "Command: ";
+    // cout << "Command: ";
     string read = readCommand();
     saveCommand(read);
     return read;
@@ -37,13 +37,13 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
     userInputCommand = inputWords.at(0);
 
     if (vectorSize == 2) {
-        if ((userInputCommand == "loadmap" && (currentState == "start" || currentState == "maploaded")) ||
-            (userInputCommand == "addplayer" && (currentState == "mapvalidated" || currentState == "playersadded"))) {
+        if ((userInputCommand == "loadmap" && (currentState == "start" || currentState == "map loaded")) ||
+            (userInputCommand == "addplayer" && (currentState == "map validated" || currentState == "players added"))) {
             return true;
         }
     }
     else if (vectorSize == 1) {
-        if ((userInputCommand == "validatemap" && currentState == "maploaded") || (userInputCommand == "gamestart" && currentState == "playersadded")
+        if ((userInputCommand == "validatemap" && currentState == "map loaded") || (userInputCommand == "gamestart" && currentState == "players added")
             || (userInputCommand == "replay" && currentState == "win") || (userInputCommand == "quit" && currentState == "win")) {
             return true;
         }
@@ -67,29 +67,33 @@ void Command::setEffect(string effects) {
     effect = effects;
 }
 
-void Command::saveEffect(string commandEffect) {
-    //TODO add save effect to previous created object
-    Command::setEffect(commandEffect);
-
+void Command::saveEffect(string commandEffect, const CommandProcessor &processor) {
+    effect = commandEffect;
+    static int i=0;
+    processor.commandList.at(i)->effect.assign(effect);
+    i++;
 }
 
 //============================FileLineReader============================
 // default constructor sets the file name to NoFileName
 FileLineReader::FileLineReader(){
     fileName = "NoFileName";
+    stateOfFile = false;
 }
 
 // constructor to open a file with the passed file name
 FileLineReader::FileLineReader(string otherFileName){
     fileName = otherFileName;
+    stateOfFile = false;
 }
 
 // copy constructor
 FileLineReader::FileLineReader(const FileLineReader &flr){
     if(flr.inputFileStream.is_open()){
-        this->fileName = flr.fileName;
-        inputFileStream.open(flr.fileName);
+        this->inputFileStream.open(flr.fileName);
     }
+        this->fileName = flr.fileName;
+        this->stateOfFile = flr.stateOfFile;
 }
 
 // destructor
@@ -99,20 +103,22 @@ FileLineReader::~FileLineReader(){
     }
 }
 
-// equal operator
+// assignment operator
 FileLineReader& FileLineReader::operator=(const FileLineReader &flr){
 
     if(this == &flr){return *this;}
 
+    // close stream if it's open
     if(isFileOpen()){
         inputFileStream.close();
     }
+    // open stream if parameter FLR's stream is open
     if(flr.inputFileStream.is_open()){
-        this->fileName = flr.fileName;
         inputFileStream.open(flr.fileName);
     }
     else{
-        this->fileName = "NoFileName";
+        this->fileName = flr.fileName;
+        this->stateOfFile = flr.stateOfFile;
     }
 
     return *this;
@@ -120,44 +126,60 @@ FileLineReader& FileLineReader::operator=(const FileLineReader &flr){
 
 // ostream operator outputs the name of the file
 ostream& operator<<(ostream &out, const FileLineReader &flr){
-    out << "File name: " << flr.getFileName();
+    out << flr.getFileName();
     return out;
 }
 
 // reads a line from the inputFileStream
 string FileLineReader::readLineFromFile(){
     // checks if no files are open
+    // if true, exit program
     if(!isFileOpen()){
         cout << "No open files." << endl;
         cout << "Exiting." << endl;
         exit(0);
     }
 
-    char line[50];
-    // get a line from a file, puts it in line variable and then check if it is end of file or not depending on the return value of getline()
-    inputFileStream.getline(line, 50);
-    if(checkEOF()){
-        inputFileStream.close();
+    // get a line from a file, puts it in line variable
+    char line[250];
+    inputFileStream.getline(line, 250);
+    string lineInString = line;
+
+    // check if the line is a space, if so, set return string to NULL
+    if(lineInString.size() == 0){
+        lineInString = "NULL";
     }
 
-    return line;
+    // check if next line is end of file, if so, close stream
+    if(checkEOF()){
+        closeFile();
+    }
+
+    return lineInString;
 }
 
 // opens a file with the file name the member variable fileName
 void FileLineReader::openFile(){
     inputFileStream.open(fileName);
+
+    // check if file is opened
     if(!inputFileStream.is_open()){
         cout << "Error opening file " << fileName << "." << endl;
+    }
+    else{
+        stateOfFile = true;
     }
 }
 
 // closes a file with the file name the member variable fileName
 void FileLineReader::closeFile(){
+    // checks if there is not a file open, notifies user
     if(!inputFileStream.is_open()){
-        cout << "Error trying to close an unopened file with file name " << fileName << "." << endl;
+        cout << "Trying to close an unopened file with file name " << fileName << "." << endl;
     }
     else {
         inputFileStream.close();
+        stateOfFile = false;
     }
 }
 
@@ -168,7 +190,7 @@ bool FileLineReader::checkEOF(){
 
 // check if a file is open
 bool FileLineReader::isFileOpen(){
-    return inputFileStream.is_open();
+    return stateOfFile;
 }
 
 // returns the name of the file
