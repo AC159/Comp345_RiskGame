@@ -9,42 +9,41 @@
 using namespace std;
 
 class GameEngine;
-
 class CommandProcessor;
+
 class Command
 {
 public:
     string command;
     string effect;
-    Command() = default;
+
+    Command()=default;
     Command(string command);
     Command(const Command &command);
-    ~Command() = default;
+    ~Command()=default;
 
-    Command &operator=(const Command &command);
-    friend ostream &operator<<(ostream &out, const Command &command);
+    Command& operator=(const Command &command);
+    friend ostream& operator<<(ostream &out, const Command &command);
 
-    void setCommand(string command);
-    void setEffect(string effect);
     void saveEffect(string commandEffect, const CommandProcessor &processor);
 };
 
 class CommandProcessor
 {
 public:
+    static int lastCommandIndex;
     string currentState;
-    vector<Command *> commandList; // maybe static
-    CommandProcessor() = default;
+    vector<Command *> commandList;
+    CommandProcessor()= default;
     CommandProcessor(const CommandProcessor &commandProcessor);
     virtual ~CommandProcessor();
 
-    CommandProcessor &operator=(const CommandProcessor &commandProcessor);
-    friend ostream &operator<<(ostream &out, const CommandProcessor &commandProcessor);
+    CommandProcessor& operator=(const CommandProcessor &commandProcessor);
+    friend ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor);
 
     string getCommand();
     bool validate(string userInput, const GameEngine &gameEngine);
     static void commandProcessorDriver();
-
 private:
     virtual string readCommand();
     void saveCommand(string readCommandInput);
@@ -81,7 +80,7 @@ private:
     bool stateOfFile; // the state of file(open(true) or close(false))
 };
 
-// must abide to Adpater design pattern
+//must abide to Adpater design pattern
 class FileCommandProcessorAdapter : public CommandProcessor
 {
 public:

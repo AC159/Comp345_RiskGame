@@ -3,9 +3,8 @@
 #include "CommandProcessing.h"
 #include "../GameEngine/GameEngine.h"
 
-CommandProcessor::CommandProcessor(const CommandProcessor &cp){
-    
-}
+int CommandProcessor::lastCommandIndex = 0;
+
 string CommandProcessor::getCommand() {
     // cout << "Command: ";
     string read = readCommand();
@@ -20,8 +19,7 @@ string CommandProcessor::readCommand() {
 }
 
 void CommandProcessor::saveCommand(string readCommandInput){
-    //TODO create a command objects to put in a list
-    commandList.emplace_back(new Command(std::move(readCommandInput)));
+    commandList.push_back(new Command(std::move(readCommandInput)));
 }
 
 // validate (1) user command (2) command is used in the correct state
@@ -54,25 +52,17 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
 CommandProcessor::~CommandProcessor() {
     cout << "Invoking delete constructor or CommandProcessor" << endl;
     commandList.clear();
+    lastCommandIndex = 0;
 }
 Command::Command(string commands) {
-    command=commands;
+    command=std::move(commands);
     effect =" ";
-}
-
-void Command::setCommand(string commands) {
-    command =commands;
-}
-
-void Command::setEffect(string effects) {
-    effect = effects;
 }
 
 void Command::saveEffect(string commandEffect, const CommandProcessor &processor) {
     effect = commandEffect;
-    static int i=0;
-    processor.commandList.at(i)->effect.assign(effect);
-    i++;
+    processor.commandList.at(CommandProcessor::lastCommandIndex)->effect.assign(effect);
+    CommandProcessor::lastCommandIndex++;
 }
 
 //============================FileLineReader============================
@@ -121,7 +111,6 @@ FileLineReader& FileLineReader::operator=(const FileLineReader &flr){
         this->fileName = flr.fileName;
         this->stateOfFile = flr.stateOfFile;
     }
-
     return *this;
 }
 
@@ -212,7 +201,7 @@ FileCommandProcessorAdapter::FileCommandProcessorAdapter(string fileName){
 }
 
 // copy constructor
-FileCommandProcessorAdapter::FileCommandProcessorAdapter(const FileCommandProcessorAdapter& fcpa): CommandProcessor(fcpa){
+FileCommandProcessorAdapter::FileCommandProcessorAdapter(const FileCommandProcessorAdapter& fcpa){
     flr = new FileLineReader(*fcpa.flr);
     flr->openFile();
 }

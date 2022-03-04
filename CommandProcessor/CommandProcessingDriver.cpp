@@ -54,18 +54,27 @@ void CommandProcessor::commandProcessorDriver() {
         if (wordsFromInput.size() > 2)
         {
             cout << "Invalid -file command." << endl;
+            delete gameEngine;
+            delete commandProcessor;
+            delete command;
             return;
         }
             // if words is only 1, because -file needs a file name
         else if (wordsFromInput.size() == 1)
         {
             cout << "No file name." << endl;
+            delete gameEngine;
+            delete commandProcessor;
+            delete command;
             return;
         }
             // if file name does not either or both angled brackets
         else if (wordsFromInput[1].find("<") == std::string::npos || wordsFromInput[1].find(">") == std::string::npos)
         {
             cout << "Invalid file name." << endl;
+            delete gameEngine;
+            delete commandProcessor;
+            delete command;
             return;
         }
             // return the file name without the angled brackets
@@ -113,6 +122,7 @@ void CommandProcessor::commandProcessorDriver() {
             cout << " effect: " << commandProcessor->commandList.at(i)->effect << endl;
         }
     }
+
     delete gameEngine;
     delete commandProcessor;
     delete command;
