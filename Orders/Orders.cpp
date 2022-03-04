@@ -21,7 +21,7 @@ Order::Order(const Order &order) {
 Order::~Order() = default;
 
 //creates shallow copy via the assignment operator
-Order & Order::operator=(const Order &order) {
+Order &Order::operator=(const Order &order) {
     if (this != &order) {
         this->issuer = order.issuer;
     }
@@ -29,7 +29,7 @@ Order & Order::operator=(const Order &order) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const Order &order) {
+ostream &Orders::operator<<(ostream &out, const Order &order) {
     return order.write(out);
 }
 
@@ -44,10 +44,10 @@ Deploy::Deploy() : target(nullptr), armies(0) {
  * @param armies the number of armies to deploy (must be <= issuer's reinforcementPool for validity)
  */
 Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies)
-    : Order(issuer), target(target), armies(armies) {}
+        : Order(issuer), target(target), armies(armies) {}
 
 //copy constructor creates shallow copy due to circular dependency
-Deploy::Deploy(const Deploy &deploy)  : Order(deploy) {
+Deploy::Deploy(const Deploy &deploy) : Order(deploy) {
     this->target = deploy.target;
     this->armies = deploy.armies;
 }
@@ -56,7 +56,7 @@ Deploy::Deploy(const Deploy &deploy)  : Order(deploy) {
 Deploy::~Deploy() = default;
 
 //creates shallow copy via the assignment operator
-Deploy & Deploy::operator=(const Deploy &deploy) {
+Deploy &Deploy::operator=(const Deploy &deploy) {
     if (this != &deploy) {
         this->issuer = deploy.issuer;
         this->target = deploy.target;
@@ -66,7 +66,7 @@ Deploy & Deploy::operator=(const Deploy &deploy) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const Deploy &deploy) {
+ostream &Orders::operator<<(ostream &out, const Deploy &deploy) {
     return deploy.write(out);
 }
 
@@ -91,12 +91,12 @@ void Deploy::execute() {
 }
 
 //polymorphically returns a clone of the calling class
-Deploy * Deploy::clone() const {
+Deploy *Deploy::clone() const {
     return new Deploy(*this);
 }
 
 //helper for the stream insertion operator to function as a virtual
-std::ostream & Deploy::write(ostream &out) const {
+std::ostream &Deploy::write(ostream &out) const {
     return target == nullptr ? out << "Deploy" : out << "Deploy " << armies << " to " << target->name;
 }
 
@@ -112,8 +112,9 @@ Advance::Advance() : map(nullptr), source(nullptr), target(nullptr), armies(0) {
  * @param target the territory where armies will transfer to or attack (must be adjacent to source for validity)
  * @param armies the number of armies to attack with or to transfer (must be <= armies in source for validity)
  */
-Advance::Advance(Players::Player *issuer, Graph::Map *map, Graph::Territory *source, Graph::Territory *target, int armies)
-    : Order(issuer), map(map), source(source), target(target), armies(armies) {}
+Advance::Advance(Players::Player *issuer, Graph::Map *map, Graph::Territory *source, Graph::Territory *target,
+                 int armies)
+        : Order(issuer), map(map), source(source), target(target), armies(armies) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Advance::Advance(const Advance &advance) : Order(advance) {
@@ -139,7 +140,7 @@ Advance &Advance::operator=(const Advance &advance) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const Advance &advance) {
+ostream &Orders::operator<<(ostream &out, const Advance &advance) {
     return advance.write(out);
 }
 
@@ -190,14 +191,14 @@ void Advance::execute() {
 }
 
 //polymorphically returns a clone of the calling class
-Advance * Advance::clone() const {
+Advance *Advance::clone() const {
     return new Advance(*this);
 }
 
 //helper for the stream insertion operator to function as a virtual
-std::ostream & Advance::write(ostream &out) const {
+std::ostream &Advance::write(ostream &out) const {
     return target == nullptr ?
-        out << "Advance" : out << armies << " from " << source->name << " will attack/transfer " << target->name;
+           out << "Advance" : out << armies << " from " << source->name << " will attack/transfer " << target->name;
 }
 
 // ====================== Bomb class ======================
@@ -209,7 +210,8 @@ Bomb::Bomb() : target(nullptr) {
  * @param issuer the player whose turn it is
  * @param target the territory to bomb (must be adjacent to one of issuer's territories & have diff owner for validity)
  */
-Bomb::Bomb(Players::Player *issuer, Graph::Territory *target) : Order(issuer), target(target) {}
+Bomb::Bomb(Players::Player *issuer, Graph::Territory *target, Graph::Map *map) : Order(issuer), target(target),
+                                                                                 map(map) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Bomb::Bomb(const Bomb &bomb) : Order(bomb) {
@@ -229,32 +231,70 @@ Bomb &Bomb::operator=(const Bomb &bomb) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const Bomb &bomb) {
+ostream &Orders::operator<<(ostream &out, const Bomb &bomb) {
     return bomb.write(out);
 }
 
+//TODO: check for card and remove it from player's hand
 //returns whether the order is valid - behaviour is arbitrary for now
 bool Bomb::validate() {
-    cout << "Validated a Bomb order.";
-    return true;
+    bool hasCard = false;
+
+    //check if issuing player has the required card in hand
+    for (auto card: issuer->hand->cards)
+        if (card->getType() == "bomb") {
+            hasCard = true;
+            break;
+        }
+
+    if (hasCard) {
+        //checking if the target territory belongs to the issuing player
+        if (this->issuer == target->owner) {
+            cout << "INVALID ORDER: cannot bomb your own territory" << endl;;
+            return false;
+        }
+
+        //loop to check if the target territory is adjacent to any of the issuing player's territories
+        for (auto it = issuer->territories.begin();
+             it != issuer->territories.end(); it++) {
+            if (this->map->edgeExists(it->second, target))
+                return true;
+        }
+
+        cout << "INVALID ORDER: territory is not adjacent to any of your territories" << endl;
+        return false;
+    } else {
+        cout << "INVALID ORDER: bomb card is required to execute this order" << endl;
+        return false;
+    }
 }
 
 //performs the order action if it's valid - action is arbitrary for now
 void Bomb::execute() {
     if (this->validate()) {
         cout << issuer->getName() << " bombs " << target->name << endl;
+        target->numberOfArmies /= 2;
+
+        //play the bomb card from hand
+        for (auto card: issuer->hand->cards)
+            if (card->getType() == "bomb") {
+                card->play(*issuer, Players::Player::deck); //why is deck not passed as a pointer for the play method?
+                break;
+            }
+
+        cout << "Executed a Bomb Order." << endl;
     } else {
-        cout << "An invalid Bomb order could not be executed" << endl;
+        cout << "An invalid Bomb order could not be executed." << endl;
     }
 }
 
 //polymorphically returns a clone of the calling class
-Bomb * Bomb::clone() const {
+Bomb *Bomb::clone() const {
     return new Bomb(*this);
 }
 
 //helper for the stream insertion operator to function as a virtual
-std::ostream & Bomb::write(ostream &out) const {
+std::ostream &Bomb::write(ostream &out) const {
     return target == nullptr ? out << "Bomb" : out << "Bomb " << target->name;
 }
 
@@ -287,37 +327,68 @@ Blockade &Blockade::operator=(const Blockade &blockade) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const Blockade &blockade) {
+ostream &Orders::operator<<(ostream &out, const Blockade &blockade) {
     return blockade.write(out);
 }
 
 //returns whether the order is valid - behaviour is arbitrary for now
 bool Blockade::validate() {
-    cout << "Validated a Blockade order.";
-    return true;
+    bool hasCard = false;
+
+    //check if issuing player has the required card in hand
+    for (auto card: issuer->hand->cards)
+        if (card->getType() == "blockade") {
+            hasCard = true;
+            break;
+        }
+
+    if (hasCard) {
+
+        if (target->owner != this->issuer) {
+            cout << "INVALID ORDER: cannot create blockade on a territory you do not own" << endl;
+            return false;
+        }
+
+        cout << "Validated a Blockade order." << endl;
+        return true;
+    } else {
+        cout << "INVALID ORDER: blockade card is required to execute this order" << endl;
+        return false;
+    }
 }
 
 //performs the order action if it's valid - action is arbitrary for now
 void Blockade::execute() {
     if (this->validate()) {
         cout << issuer->getName() << " blockades " << target->name << endl;
+        target->numberOfArmies *= 2;
+        target->transferOwnership(Players::Player::neutralPlayer);
+
+        //play the blockade card from hand
+        for (auto card: issuer->hand->cards)
+            if (card->getType() == "blockade") {
+                card->play(*issuer, Players::Player::deck); //why is deck not passed as a pointer for the play method?
+                break;
+            }
+
+        cout << "Executed a Blockade Order." << endl;
     } else {
         cout << "An invalid Blockade order could not be executed" << endl;
     }
 }
 
 //polymorphically returns a clone of the calling class
-Blockade * Blockade::clone() const {
+Blockade *Blockade::clone() const {
     return new Blockade(*this);
 }
 
 //helper for the stream insertion operator to function as a virtual
-std::ostream & Blockade::write(ostream &out) const {
+std::ostream &Blockade::write(ostream &out) const {
     return target == nullptr ? out << "Blockade" : out << "Blockade " << target->name;
 }
 
 // ====================== Airlift class ======================
-Airlift::Airlift() : source(nullptr), target(nullptr), armies(0){
+Airlift::Airlift() : source(nullptr), target(nullptr), armies(0) {
     cout << "Created an Airlift order." << endl;
 }
 
@@ -328,7 +399,7 @@ Airlift::Airlift() : source(nullptr), target(nullptr), armies(0){
  * @param armies the number of armies to transfer (must be <= armies in source for validity)
  */
 Airlift::Airlift(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
-    : Order(issuer), source(source), target(target), armies(armies) {}
+        : Order(issuer), source(source), target(target), armies(armies) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Airlift::Airlift(const Airlift &airlift) : Order(airlift) {
@@ -351,7 +422,7 @@ Airlift &Airlift::operator=(const Airlift &airlift) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const Airlift &airlift) {
+ostream &Orders::operator<<(ostream &out, const Airlift &airlift) {
     return airlift.write(out);
 }
 
@@ -377,14 +448,14 @@ void Airlift::execute() {
 }
 
 //polymorphically returns a clone of the calling class
-Airlift * Airlift::clone() const {
+Airlift *Airlift::clone() const {
     return new Airlift(*this);
 }
 
 //helper for the stream insertion operator to function as a virtual
-std::ostream & Airlift::write(ostream &out) const {
+std::ostream &Airlift::write(ostream &out) const {
     return target == nullptr ?
-        out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name << " to " << target->name;
+           out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name << " to " << target->name;
 }
 
 // ====================== Negotiate class ======================
@@ -407,7 +478,7 @@ Negotiate::Negotiate(const Negotiate &negotiate) : Order(negotiate) {
 Negotiate::~Negotiate() = default;
 
 //creates shallow copy via the assignment operator
-Negotiate & Negotiate::operator=(const Negotiate &negotiate) {
+Negotiate &Negotiate::operator=(const Negotiate &negotiate) {
     if (this != &negotiate) {
         this->issuer = negotiate.issuer;
         this->target = negotiate.target;
@@ -416,32 +487,65 @@ Negotiate & Negotiate::operator=(const Negotiate &negotiate) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const Negotiate &negotiate) {
+ostream &Orders::operator<<(ostream &out, const Negotiate &negotiate) {
     return negotiate.write(out);
 }
 
 //returns whether the order is valid - behaviour is arbitrary for now
 bool Negotiate::validate() {
-    cout << "Validated a Negotiate order.";
-    return true;
+    bool hasCard = false;
+
+    //check if issuing player has the required card in hand
+    for (auto card: issuer->hand->cards)
+        if (card->getType() == "diplomacy") {
+            hasCard = true;
+            break;
+        }
+
+    if (hasCard) {
+        if (issuer == target) {
+            cout << "INVALID ORDER: cannot negotiate with yourself" << endl;
+            return false;
+        } else if (target->getName() == "neutral") {
+            cout << "INVALID ORDER: cannot negotiate with neutral player" << endl;
+            return false;
+        }
+
+        cout << "Validated a Negotiate order." << endl;
+        return true;
+    } else {
+        cout << "INVALID ORDER: diplomacy card is required to execute this order" << endl;
+        return false;
+    }
 }
 
+//TODO: must be executed before all other order types (except for deploy orders) during orderexecution phase
 //performs the order action if it's valid - action is arbitrary for now
 void Negotiate::execute() {
     if (this->validate()) {
-        cout << " Executed a Negotiate Order." << endl;
+        issuer->cannotAttack.push_back(target->getName());
+        target->cannotAttack.push_back(issuer->getName());
+
+        //play the negotiate card from hand
+        for (auto card: issuer->hand->cards)
+            if (card->getType() == "diplomacy") {
+                card->play(*issuer, Players::Player::deck); //why is deck not passed as a pointer for the play method?
+                break;
+            }
+
+        cout << "Executed a Negotiate Order." << endl;
     } else {
         cout << "An invalid Negotiate order could not be executed" << endl;
     }
 }
 
 //polymorphycally returns a clone of the calling class
-Negotiate * Negotiate::clone() const {
+Negotiate *Negotiate::clone() const {
     return new Negotiate(*this);
 }
 
 //helper for the stream insertion operator to function as a virtual
-std::ostream & Negotiate::write(ostream &out) const {
+std::ostream &Negotiate::write(ostream &out) const {
     return target == nullptr ? out << "Negotiate" : out << "Negotiate with " << target->getName();
 }
 
@@ -458,13 +562,13 @@ OrdersList::OrdersList(const OrdersList &ordersList) {
 
 //destructor deallocates memory to prevent memory leaks
 OrdersList::~OrdersList() {
-    for (Order *order : orders) {
+    for (Order *order: orders) {
         delete order;
     }
 }
 
 //creates true deep copy via the assignment operator
-OrdersList & OrdersList::operator=(const OrdersList &ordersList) {
+OrdersList &OrdersList::operator=(const OrdersList &ordersList) {
     if (this != &ordersList) {
         // deallocate memory from lhs
         for (Order *order: orders) {
@@ -482,10 +586,10 @@ OrdersList & OrdersList::operator=(const OrdersList &ordersList) {
 }
 
 //overloads the insertion operator with a basic string representation of the object
-ostream & Orders::operator<<(ostream &out, const OrdersList &ordersList) {
+ostream &Orders::operator<<(ostream &out, const OrdersList &ordersList) {
     out << "{" << endl;
     int i = 0;
-    for (auto order : ordersList.orders) {
+    for (auto order: ordersList.orders) {
         out << "\t[" << i << "] = " << *order << endl;
         i++;
     }
@@ -507,7 +611,8 @@ void OrdersList::remove(int index) {
 //moves the element from the given oldIndex to the given newIndex while preserving the order of other elements
 void OrdersList::move(int oldIndex, int newIndex) {
     //validate indices
-    if (oldIndex < 0 || newIndex < 0 || oldIndex == newIndex || oldIndex >= orders.size() || newIndex >= orders.size()) {
+    if (oldIndex < 0 || newIndex < 0 || oldIndex == newIndex || oldIndex >= orders.size() ||
+        newIndex >= orders.size()) {
         return;
     }
 
@@ -526,12 +631,12 @@ void OrdersList::add(Order *const newOrder) {
 }
 
 //returns the current number of elements in the list
-size_t OrdersList::length() const{
+size_t OrdersList::length() const {
     return orders.size();
 }
 
 //returns the element at the given index
-Order * OrdersList::element(size_t index) const {
+Order *OrdersList::element(size_t index) const {
     //validate index
     if (index >= orders.size()) {
         return nullptr;

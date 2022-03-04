@@ -96,9 +96,10 @@ public:
 class Orders::Bomb : public Order {
 public:
     Graph::Territory *target;   //the territory to bomb
+    Graph::Map *map;
 
     Bomb();
-    Bomb(Players::Player *issuer, Graph::Territory *target);
+    Bomb(Players::Player *issuer, Graph::Territory *target, Graph::Map *map);
     Bomb(const Bomb &bomb);
     ~Bomb() override;
 
