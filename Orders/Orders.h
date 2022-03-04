@@ -39,10 +39,12 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Order &order);
 
     virtual bool validate() = 0;
-    virtual void execute() = 0;
+    virtual bool execute() = 0;
 
     [[nodiscard]] virtual Order* clone() const = 0;
     virtual std::ostream & write(std::ostream &out) const = 0;
+
+    bool hasNegotiation(Players::Player* player1, Players::Player* player2);
 };
 
 /* A deployment order tells a number of armies taken from the reinforcement pool to deploy to a target territory owned
@@ -61,7 +63,7 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Deploy &deploy);
 
     bool validate() override;
-    void execute() override;
+    bool execute() override;
 
     [[nodiscard]] Deploy * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -85,7 +87,7 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Advance &advance);
 
     bool validate() override;
-    void execute() override;
+    bool execute() override;
 
     [[nodiscard]] Advance * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -96,9 +98,10 @@ public:
 class Orders::Bomb : public Order {
 public:
     Graph::Territory *target;   //the territory to bomb
+    Graph::Map *map;
 
     Bomb();
-    Bomb(Players::Player *issuer, Graph::Territory *target);
+    Bomb(Players::Player *issuer, Graph::Territory *target, Graph::Map *map);
     Bomb(const Bomb &bomb);
     ~Bomb() override;
 
@@ -106,7 +109,7 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Bomb &bomb);
 
     bool validate() override;
-    void execute() override;
+    bool execute() override;
 
     [[nodiscard]] Bomb * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -127,7 +130,7 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Blockade &blockade);
 
     bool validate() override;
-    void execute() override;
+    bool execute() override;
 
     [[nodiscard]] Blockade * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -150,7 +153,7 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Airlift &airlift);
 
     bool validate() override;
-    void execute() override;
+    bool execute() override;
 
     [[nodiscard]] Airlift * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -171,7 +174,7 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Negotiate &negotiate);
 
     bool validate() override;
-    void execute() override;
+    bool execute() override;
 
     [[nodiscard]] Negotiate * clone() const override;
     std::ostream & write(std::ostream &out) const override;

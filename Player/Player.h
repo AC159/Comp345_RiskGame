@@ -26,6 +26,9 @@ class Players::Player {
         Orders::OrdersList *orders; // list of orders
         int reinforcementPool; //the armies currently available for deployment
         bool receivesCard; //returns whether player has conquered territory and should receive card at the end of turn
+        static Player* neutralPlayer;
+//        static Cards::Deck deck; //may need to be removed if managed by GameEngine
+        std::vector<std::string> cannotAttack; //list of players the player cannot attack due to diplomacy card; TODO: needs to be cleared every turn
 
         Player();   // default constructor
         Player(std::string newName);
