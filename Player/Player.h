@@ -24,6 +24,7 @@ class Players::Player {
         std::map<int, Graph::Territory*> territories; // collection of territories
         Cards::Hand *hand; // collection of cards
         Orders::OrdersList *orders; // list of orders
+        int armyReinforcementPool;
 
         Player();   // default constructor
         Player(std::string newName);

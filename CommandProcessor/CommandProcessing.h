@@ -16,10 +16,10 @@ class Command
 public:
     string command;
     string effect;
-    Command();
+    Command() = default;
     Command(string command);
     Command(const Command &command);
-    ~Command();
+    ~Command() = default;
 
     Command &operator=(const Command &command);
     friend ostream &operator<<(ostream &out, const Command &command);
@@ -43,6 +43,7 @@ public:
 
     string getCommand();
     bool validate(string userInput, const GameEngine &gameEngine);
+    static void commandProcessorDriver();
 
 private:
     virtual string readCommand();

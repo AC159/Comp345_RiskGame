@@ -37,13 +37,13 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
     userInputCommand = inputWords.at(0);
 
     if (vectorSize == 2) {
-        if ((userInputCommand == "loadmap" && (currentState == "start" || currentState == "map loaded")) ||
-            (userInputCommand == "addplayer" && (currentState == "map validated" || currentState == "players added"))) {
+        if ((userInputCommand == "loadmap" && (currentState == "start" || currentState == "maploaded")) ||
+            (userInputCommand == "addplayer" && (currentState == "mapvalidated" || currentState == "playersadded"))) {
             return true;
         }
     }
     else if (vectorSize == 1) {
-        if ((userInputCommand == "validatemap" && currentState == "map loaded") || (userInputCommand == "gamestart" && currentState == "players added")
+        if ((userInputCommand == "validatemap" && currentState == "maploaded") || (userInputCommand == "gamestart" && currentState == "playersadded")
             || (userInputCommand == "replay" && currentState == "win") || (userInputCommand == "quit" && currentState == "win")) {
             return true;
         }
@@ -53,6 +53,7 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
 
 CommandProcessor::~CommandProcessor() {
     cout << "Invoking delete constructor or CommandProcessor" << endl;
+    commandList.clear();
 }
 Command::Command(string commands) {
     command=commands;

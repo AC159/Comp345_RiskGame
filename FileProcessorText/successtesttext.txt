@@ -37,3 +37,10 @@ validatemap
 addplayer <something>
 gamestart
 quit
+as
+d
+asd
+adasdasd
+
+xckljv
+asd
