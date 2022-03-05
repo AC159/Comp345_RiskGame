@@ -22,7 +22,8 @@ void CommandProcessor::commandProcessorDriver() {
 
         gameEngine->mapValidatedStateChange();
         string state = gameEngine->getState();
-        cout<< state;
+        cout<< state << endl;
+        cout << "Command: ";
         bool validate = commandProcessor->validate(commandProcessor->getCommand(), *gameEngine);
         cout<<state << validate;
         if (validate ==0)
