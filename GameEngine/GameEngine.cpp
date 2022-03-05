@@ -10,7 +10,6 @@ string GameEngine::getState() const {
     return this->state;
 }
 
-// GameEngine class constructor
 GameEngine::GameEngine() {
     mapLoader = new Graph::MapLoader();
     processor = new CommandProcessor();
@@ -18,7 +17,6 @@ GameEngine::GameEngine() {
     deck->fillDeckWithCards();
 }
 
-// GameEngine class copy constructor
 GameEngine::GameEngine(const GameEngine &game) {
     this->mapLoader = game.mapLoader;
     this->processor = new CommandProcessor(); // generate a new command processor
@@ -26,7 +24,6 @@ GameEngine::GameEngine(const GameEngine &game) {
     this->deck = new Cards::Deck(*game.deck);
 }
 
-// GameEngine assignment operator
 GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     if (this == &gameEngine) return *this;
     delete this->mapLoader;
@@ -42,7 +39,6 @@ GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     return *this;
 }
 
-// GameEngine stream operator
 ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
     out << "Nbr of players: " << gameEngine.playersList.size() << endl;
     return out;
@@ -181,7 +177,7 @@ void GameEngine::chooseMapToLoad() const {
                 if (!validCommand) {
                     cout << "Invalid command! Please try again." << endl;
                     //save Effect
-                    string effect="Invalid command! Please try again.";
+                    string effect = "Invalid command! Please try again.";
                     commands->saveEffect(effect,*processor);
                     continue;
                 } else break;
@@ -189,8 +185,7 @@ void GameEngine::chooseMapToLoad() const {
             if (mapLoader->map->validate()) {
                 cout << "The map is a connected graph and can be played!" << endl;
                 mapIsValid = true;
-                //save Effect
-                string effect="mapValidated";
+                string effect = "mapValidated";
                 commands->saveEffect(effect,*processor);
                 continue;
             } else {
@@ -199,7 +194,6 @@ void GameEngine::chooseMapToLoad() const {
             }
         }
     }
-
     cout << "The file has been loaded and validated! Moving to the next step" << endl;
 }
 

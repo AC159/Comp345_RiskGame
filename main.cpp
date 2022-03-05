@@ -42,7 +42,7 @@ int main() {
             cout << "Part 5: GameEngine Driver" << endl;
             GameEngine::gameEngineDriver();
         } else if (userInput == "6") {
-            cout << "Part 5: CommandProcessor Driver" << endl;
+            cout << "Part 6: CommandProcessor Driver" << endl;
             CommandProcessor::commandProcessorDriver();
         } else if (userInput != "7")
             cout << "ERROR: Invalid input!" << endl;
