@@ -5,6 +5,21 @@
 
 int CommandProcessor::lastCommandIndex = 0;
 
+// ==================== Command class ========================
+
+Command::Command() = default;
+
+Command::Command(string commands) {
+    command = std::move(commands);
+    effect = " ";
+}
+
+Command::~Command() = default;
+
+// ==================== CommandProcessor class ========================
+
+CommandProcessor::CommandProcessor() = default;
+
 string CommandProcessor::getCommand() {
     cout << "Command: ";
     string read = readCommand();
@@ -24,11 +39,11 @@ void CommandProcessor::saveCommand(string readCommandInput){
 
 // validate (1) user command (2) command is used in the correct state
 bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameEngine) {
-    vector<string>inputWords;
+    vector<string> inputWords;
     currentState = gameEngine.getState();
     string userInputCommand, userInputSecondWord;
     istringstream parse(readCommandInput);
-    while (parse>>readCommandInput){
+    while (parse >> readCommandInput){
         inputWords.push_back(readCommandInput);
     }
     int vectorSize= inputWords.size();
@@ -49,21 +64,16 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
     return false;
 }
 
-CommandProcessor::~CommandProcessor() {
-   cout << "Invoking delete constructor or CommandProcessor" << endl;
-    commandList.clear();
-    lastCommandIndex = 0;
-}
-
-Command::Command(string commands) {
-    command = std::move(commands);
-    effect = " ";
-}
-
 void Command::saveEffect(string commandEffect, const CommandProcessor &processor) {
-    effect = commandEffect;
+    effect = std::move(commandEffect);
     processor.commandList.at(CommandProcessor::lastCommandIndex)->effect.assign(effect);
     CommandProcessor::lastCommandIndex++;
+}
+
+CommandProcessor::~CommandProcessor() {
+    cout << "Invoking delete constructor for CommandProcessor" << endl;
+    commandList.clear();
+    lastCommandIndex = 0;
 }
 
 //============================FileLineReader============================
@@ -91,25 +101,25 @@ FileLineReader::FileLineReader(const FileLineReader &flr){
 
 // destructor
 FileLineReader::~FileLineReader(){
-    if(isFileOpen()){
+    if (isFileOpen()) {
         closeFile();
     }
 }
 
 // assignment operator
-FileLineReader& FileLineReader::operator=(const FileLineReader &flr){
+FileLineReader& FileLineReader::operator=(const FileLineReader &flr) {
 
     if(this == &flr){return *this;}
 
     // close stream if it's open
-    if(isFileOpen()){
+    if (isFileOpen()) {
         inputFileStream.close();
     }
     // open stream if parameter FLR's stream is open
-    if(flr.inputFileStream.is_open()){
+    if (flr.inputFileStream.is_open()) {
         inputFileStream.open(flr.fileName);
     }
-    else{
+    else {
         this->fileName = flr.fileName;
         this->stateOfFile = flr.stateOfFile;
     }
@@ -117,7 +127,7 @@ FileLineReader& FileLineReader::operator=(const FileLineReader &flr){
 }
 
 // ostream operator outputs the name of the file
-ostream& operator<<(ostream &out, const FileLineReader &flr){
+ostream& operator<<(ostream &out, const FileLineReader &flr) {
     out << flr.getFileName();
     return out;
 }
@@ -181,7 +191,7 @@ bool FileLineReader::checkEOF(){
 }
 
 // check if a file is open
-bool FileLineReader::isFileOpen(){
+bool FileLineReader::isFileOpen() const{
     return stateOfFile;
 }
 
@@ -198,7 +208,7 @@ FileCommandProcessorAdapter::FileCommandProcessorAdapter(){
 
 // constructor to open a file with the fileName parameter
 FileCommandProcessorAdapter::FileCommandProcessorAdapter(string fileName){
-    flr = new FileLineReader(fileName);
+    flr = new FileLineReader(std::move(fileName));
     flr->openFile();
 }
 
@@ -223,7 +233,7 @@ FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCo
     return *this;
 }
 
-// ostream operator ouputs the opened file name
+// ostream operator outputs the opened file name
 ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa){
     out << "FileCommandProcessorAdapter's file: " << fcpa.getFLRFileName();
     return out;
@@ -233,7 +243,7 @@ ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa){
 void FileCommandProcessorAdapter::openSpecificFLRFile(string fileName){
     // deletes the flr made in initialization and makes a new one with the fileName parameter
     delete flr;
-    flr = new FileLineReader(fileName);
+    flr = new FileLineReader(std::move(fileName));
     flr->openFile();
 }
 

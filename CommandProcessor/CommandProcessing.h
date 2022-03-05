@@ -47,8 +47,7 @@ private:
     void saveCommand(string readCommandInput);
 };
 
-class FileLineReader
-{
+class FileLineReader {
 public:
     FileLineReader();
     FileLineReader(string otherFileName);
@@ -65,10 +64,10 @@ public:
     void openFile();
     // closes a file with the file name the member variable fileName
     void closeFile();
-    // returns a boolean value depending if the next line is the end of file or not
+    // returns a boolean value depending on if the next line is the end of file or not
     bool checkEOF();
     // check if a file is open
-    bool isFileOpen();
+    bool isFileOpen() const;
     // returns the name of the file
     string getFileName() const;
 
@@ -105,7 +104,7 @@ private:
     // overridden readCommand() method from CommandProcessor that gets a line from the file and returns it as a string
     string readCommand();
 
-    // string mapFile; //
+    // string mapFile;
     FileLineReader *flr; // object for reading files
 };
 

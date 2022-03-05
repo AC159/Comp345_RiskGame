@@ -3,6 +3,7 @@
 #include "Map/Map.h"
 #include "Player/Player.h"
 #include "GameEngine/GameEngine.h"
+#include "CommandProcessor/CommandProcessing.h"
 
 using namespace std;
 using namespace Graph;

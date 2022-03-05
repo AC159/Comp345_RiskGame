@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <utility>
 #include <experimental/random>
+#include "../CommandProcessor/CommandProcessing.h"
 
 // todo: list of orders should be specific to a single player
 Orders::OrdersList *ordersList = new Orders::OrdersList();
@@ -152,13 +153,11 @@ void GameEngine::chooseMapToLoad() const {
             cout << count << ". " << mapName << endl;
             count++;
         }
-        string input;
         string command = processor->getCommand();
         if (!processor->validate(command, *this)) {
-            cout << "Invalid command! Please try again." << endl;
-            //save Effect
-            string effect="Invalid command! Please try again.";
-            commands->saveEffect(effect,*processor);
+            string effect = "Invalid command! Please try again.";
+            cout << effect << endl;
+            commands->saveEffect(effect, *processor);
             continue;
         }
         // extract name of the chosen map
@@ -166,7 +165,7 @@ void GameEngine::chooseMapToLoad() const {
         validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + mapName + "/" + mapName + ".map");
 
         //save Effect
-        string effect="Maploaded";
+        string effect = "Maploaded";
         commands->saveEffect(effect,*processor);
 
         if (validateFile) {
@@ -177,7 +176,7 @@ void GameEngine::chooseMapToLoad() const {
                 if (!validCommand) {
                     cout << "Invalid command! Please try again." << endl;
                     //save Effect
-                    string effect = "Invalid command! Please try again.";
+                    effect = "Invalid command! Please try again.";
                     commands->saveEffect(effect,*processor);
                     continue;
                 } else break;
@@ -185,7 +184,7 @@ void GameEngine::chooseMapToLoad() const {
             if (mapLoader->map->validate()) {
                 cout << "The map is a connected graph and can be played!" << endl;
                 mapIsValid = true;
-                string effect = "mapValidated";
+                effect = "mapValidated";
                 commands->saveEffect(effect,*processor);
                 continue;
             } else {

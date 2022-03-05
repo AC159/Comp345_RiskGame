@@ -5,14 +5,15 @@
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
 #include "../Player/Player.h"
-#include "../CommandProcessor/CommandProcessing.h"
 #include <istream>
 #include <string>
 
 using namespace std;
 
-class GameEngine {
+class CommandProcessor;
+class Command;
 
+class GameEngine {
 public:
     CommandProcessor* processor;
     Command* commands;
