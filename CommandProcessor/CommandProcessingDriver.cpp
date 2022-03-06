@@ -6,14 +6,14 @@
 void CommandProcessor::commandProcessorDriver() {
 
     GameEngine *gameEngine = new GameEngine();
-    CommandProcessor *commandProcessor = new CommandProcessor();
+    CommandProcessor *commandProcessor;
 
     string userInput;
 
     cout << "Choose way of input(-console, -file <filename>): ";
     getline(cin, userInput);
 
-    if(userInput == "-console"){
+    if (userInput == "-console") {
         commandProcessor = new CommandProcessor();
         Command *ml = new Command("maploaded");
         commandProcessor->saveCommand(*ml);
@@ -32,7 +32,7 @@ void CommandProcessor::commandProcessorDriver() {
             cout << "The command is valid. command: "<<commandProcessor->commandList.at(0)->command<<" state: "<<state<<endl;
 
         cout << *commandProcessor << endl;
-    } else if(userInput.substr(0, 5) == "-file"){
+    } else if(userInput.substr(0, 5) == "-file") {
         string fileName;
         vector<string> wordsFromInput;
         string temp = userInput;
@@ -40,8 +40,7 @@ void CommandProcessor::commandProcessorDriver() {
         int pos;
 
         // while loop to parse string based on the delimiter and put the words in a vector
-        while ((pos = temp.find(delimiter)) != std::string::npos)
-        {
+        while ((pos = temp.find(delimiter)) != std::string::npos) {
             string wordFromInput = temp.substr(0, pos);
             wordsFromInput.emplace_back(wordFromInput);
             temp.erase(0, pos + delimiter.length());
@@ -49,34 +48,27 @@ void CommandProcessor::commandProcessorDriver() {
         wordsFromInput.emplace_back(temp); // put the last word of the line in a vector
 
         // more than 2 words is invalid
-        if (wordsFromInput.size() > 2)
-        {
+        if (wordsFromInput.size() > 2) {
             cout << "Invalid -file command." << endl;
             delete gameEngine;
-            delete commandProcessor;
             return;
         }
             // if words is only 1, because -file needs a file name
-        else if (wordsFromInput.size() == 1)
-        {
+        else if (wordsFromInput.size() == 1) {
             cout << "No file name." << endl;
             delete gameEngine;
-            delete commandProcessor;
             return;
         }
             // if file name does not either or both angled brackets
-        else if (wordsFromInput[1].find("<") == std::string::npos || wordsFromInput[1].find(">") == std::string::npos)
-        {
+        else if (wordsFromInput[1].find("<") == std::string::npos || wordsFromInput[1].find(">") == std::string::npos) {
             cout << "Invalid file name." << endl;
             delete gameEngine;
-            delete commandProcessor;
             return;
         }
-            // return the file name without the angled brackets
-        else
-        {
+            // return the file name without the angle brackets
+        else {
             // string returnString;
-            fileName = "..\\FileProcessorText\\" + wordsFromInput[1].substr(wordsFromInput[1].find("<") + 1, wordsFromInput[1].find(">") - wordsFromInput[1].find("<") - 1);
+            fileName = "../FileProcessorText/" + wordsFromInput[1].substr(wordsFromInput[1].find("<") + 1, wordsFromInput[1].find(">") - wordsFromInput[1].find("<") - 1);
         }
 
         commandProcessor = new FileCommandProcessorAdapter(fileName);

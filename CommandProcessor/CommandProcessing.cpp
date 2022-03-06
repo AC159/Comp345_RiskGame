@@ -10,7 +10,7 @@ Command::Command() = default;
 // constructor with the command's name
 Command::Command(string commands) {
     command = std::move(commands);
-    effect = " ";
+    effect = "";
 }
 
 // copy constructor
@@ -24,11 +24,9 @@ Command::~Command() = default;
 
 // assignment operator
 Command& Command::operator=(const Command &command){
-    if (this == &command){ return *this;}
-
+    if (this == &command) return *this;
     this->command = command.command;
     this->effect = command.effect;
-
     return *this;
 }
 
@@ -51,31 +49,31 @@ CommandProcessor::CommandProcessor() = default;
 // copy constructor
 CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor){
     this->currentState = commandProcessor.currentState;
-    for(Command *c: commandList){
+    for (Command *c : commandProcessor.commandList) {
         commandList.push_back(new Command(*c));
     }
 }
 
 // destructor
 CommandProcessor::~CommandProcessor() {
-    cout << "Invoking delete constructor or CommandProcessor" << endl;
-    for(Command *c: commandList){
+    cout << "Invoking delete constructor for CommandProcessor" << endl;
+    for(Command *c: commandList) {
         delete c;
     }
 }
 
 // assignment operator
 CommandProcessor& CommandProcessor::operator=(const CommandProcessor &commandProcessor){
-    if(this == &commandProcessor){ return *this;}
+    if(this == &commandProcessor) return *this;
 
     this->currentState = commandProcessor.currentState;
-    for(Command *c: commandList){
+    for (Command *c : this->commandList) {
         delete c;
     }
-    for(Command *c: commandList){
+    this->commandList.clear();
+    for (Command *c : commandProcessor.commandList) {
         commandList.push_back(new Command(*c));
     }
-
     return *this;
 }
 
