@@ -3,38 +3,107 @@
 #include "CommandProcessing.h"
 #include "../GameEngine/GameEngine.h"
 
-int CommandProcessor::lastCommandIndex = 0;
-
 // ==================== Command class ========================
-
+// default constructor
 Command::Command() = default;
 
+// constructor with the command's name
 Command::Command(string commands) {
     command = std::move(commands);
     effect = " ";
 }
 
+// copy constructor
+Command::Command(const Command &command){
+    this->command = command.command;
+    this->effect = command.effect;
+}
+
+// destructor
 Command::~Command() = default;
 
-// ==================== CommandProcessor class ========================
+// assignment operator
+Command& Command::operator=(const Command &command){
+    if (this == &command){ return *this;}
 
+    this->command = command.command;
+    this->effect = command.effect;
+
+    return *this;
+}
+
+// stream insertion operator
+ostream& operator<<(ostream &out, const Command &command){
+    out << "Command: " << command.command << "\n";
+    out << "Effect: " << command.effect << "\n";
+
+    return out;
+}
+
+void Command::saveEffect(string commandEffect) {
+    effect = std::move(commandEffect);
+}
+
+// ==================== CommandProcessor class ========================
+// default constructor
 CommandProcessor::CommandProcessor() = default;
 
-string CommandProcessor::getCommand() {
-    cout << "Command: ";
+// copy constructor
+CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor){
+    this->currentState = commandProcessor.currentState;
+    for(Command *c: commandList){
+        commandList.push_back(new Command(*c));
+    }
+}
+
+// destructor
+CommandProcessor::~CommandProcessor() {
+    cout << "Invoking delete constructor or CommandProcessor" << endl;
+    for(Command *c: commandList){
+        delete c;
+    }
+}
+
+// assignment operator
+CommandProcessor& CommandProcessor::operator=(const CommandProcessor &commandProcessor){
+    if(this == &commandProcessor){ return *this;}
+
+    this->currentState = commandProcessor.currentState;
+    for(Command *c: commandList){
+        delete c;
+    }
+    for(Command *c: commandList){
+        commandList.push_back(new Command(*c));
+    }
+
+    return *this;
+}
+
+// stream insertion operator
+ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor){
+    out << "The CommandProcessor's list of commands:\n\n";
+    for(Command *c: commandProcessor.commandList){
+        out << *c << "\n";
+    }
+    return out;
+}
+
+Command& CommandProcessor::getCommand() {
     string read = readCommand();
-    saveCommand(read);
-    return read;
+    Command *c = new Command(read);
+    saveCommand(*c);
+    return *c;
 }
 
 string CommandProcessor::readCommand() {
     string readCommandInput;
+    cout << "Command: ";
     getline(cin, readCommandInput);
     return readCommandInput;
 }
 
-void CommandProcessor::saveCommand(string readCommandInput){
-    commandList.push_back(new Command(std::move(readCommandInput)));
+void CommandProcessor::saveCommand(Command &command){
+    commandList.push_back(&command);
 }
 
 // validate (1) user command (2) command is used in the correct state
@@ -62,18 +131,6 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
         }
     }
     return false;
-}
-
-void Command::saveEffect(string commandEffect, const CommandProcessor &processor) {
-    effect = std::move(commandEffect);
-    processor.commandList.at(CommandProcessor::lastCommandIndex)->effect.assign(effect);
-    CommandProcessor::lastCommandIndex++;
-}
-
-CommandProcessor::~CommandProcessor() {
-    cout << "Invoking delete constructor for CommandProcessor" << endl;
-    commandList.clear();
-    lastCommandIndex = 0;
 }
 
 //============================FileLineReader============================
@@ -119,10 +176,8 @@ FileLineReader& FileLineReader::operator=(const FileLineReader &flr) {
     if (flr.inputFileStream.is_open()) {
         inputFileStream.open(flr.fileName);
     }
-    else {
-        this->fileName = flr.fileName;
-        this->stateOfFile = flr.stateOfFile;
-    }
+    this->fileName = flr.fileName;
+    this->stateOfFile = flr.stateOfFile;
     return *this;
 }
 
@@ -215,7 +270,9 @@ FileCommandProcessorAdapter::FileCommandProcessorAdapter(string fileName){
 // copy constructor
 FileCommandProcessorAdapter::FileCommandProcessorAdapter(const FileCommandProcessorAdapter& fcpa){
     flr = new FileLineReader(*fcpa.flr);
-    flr->openFile();
+    if(fcpa.flr->isFileOpen()) {
+        flr->openFile();
+    }
 }
 
 // destructor
@@ -223,19 +280,26 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter(){
     delete flr;
 }
 
-// equal operator(not finished)
+// assignment operator
 FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCommandProcessorAdapter &fcpa){
     if(this == &fcpa){ return *this;}
 
     delete flr;
     flr = new FileLineReader(*fcpa.flr);
+    if(fcpa.flr->isFileOpen()){
+        this->flr->openFile();
+    }
 
     return *this;
 }
 
 // ostream operator outputs the opened file name
 ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa){
-    out << "FileCommandProcessorAdapter's file: " << fcpa.getFLRFileName();
+    out << "FileCommandProcessorAdapter's file: " << fcpa.getFLRFileName() << "\n";
+    out << "FileCommandProcessorAdapter's list of commands:\n\n";
+    for (Command *c: fcpa.commandList){
+        out << c;
+    }
     return out;
 }
 

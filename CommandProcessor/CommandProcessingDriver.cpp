@@ -7,27 +7,6 @@ void CommandProcessor::commandProcessorDriver() {
 
     GameEngine *gameEngine = new GameEngine();
     CommandProcessor *commandProcessor = new CommandProcessor();
-    Command *command = new Command();
-
-    commandProcessor->saveCommand("maploaded");
-    command->saveEffect("map is loaded", *commandProcessor);
-    commandProcessor->saveCommand("mapvalidated");
-    command->saveEffect("map is validated", *commandProcessor);
-
-    gameEngine->mapValidatedStateChange();
-    string state = gameEngine->getState();
-    cout<< state;
-    bool validate = commandProcessor->validate(commandProcessor->getCommand(), *gameEngine);
-    cout<<state << validate;
-    if (validate ==0)
-        cout<<"The command is not valid"<<"command: "<< commandProcessor->commandList.at(0)->command<<"state: "<<state<<endl;
-    else
-        cout<<"The command is valid"<<commandProcessor->commandList.at(0)->command<<"state: "<<state<<endl;
-
-    for (int i=0;i<commandProcessor->commandList.size();i++){
-        cout<<"command: "<<commandProcessor->commandList.at(i)->command;
-        cout<<" effect:  "<<commandProcessor->commandList.at(i)->effect<<endl;
-    }
 
     string userInput;
 
@@ -36,26 +15,23 @@ void CommandProcessor::commandProcessorDriver() {
 
     if(userInput == "-console"){
         commandProcessor = new CommandProcessor();
-        commandProcessor->saveCommand("maploaded");
-        command->saveEffect("map is loaded", *commandProcessor);
-        commandProcessor->saveCommand("mapvalidated");
-        command->saveEffect("map is validated", *commandProcessor);
+        Command *ml = new Command("maploaded");
+        commandProcessor->saveCommand(*ml);
+        ml->saveEffect("map is loaded");
+        Command *mv = new Command("mapvalidated");
+        commandProcessor->saveCommand(*mv);
+        mv->saveEffect("map is validated");
 
         gameEngine->mapValidatedStateChange();
         string state = gameEngine->getState();
         cout<< state << endl;
-        cout << "Command: ";
-        bool validate = commandProcessor->validate(commandProcessor->getCommand(), *gameEngine);
-        cout<<state << validate;
+        bool validate = commandProcessor->validate(commandProcessor->getCommand().command, *gameEngine);
         if (validate ==0)
-            cout<<"The command is not valid"<<"command: "<< commandProcessor->commandList.at(0)->command<<"state: "<<state<<endl;
+            cout << "The command is not valid. " << "command: "<< commandProcessor->commandList.at(0)->command << " state: "<<state<<endl;
         else
-            cout<<"The command is valid"<<commandProcessor->commandList.at(0)->command<<"state: "<<state<<endl;
+            cout << "The command is valid. command: "<<commandProcessor->commandList.at(0)->command<<" state: "<<state<<endl;
 
-        for (int i=0;i<commandProcessor->commandList.size();i++){
-            cout<<"command: "<<commandProcessor->commandList.at(i)->command;
-            cout<<" effect:  "<<commandProcessor->commandList.at(i)->effect<<endl;
-        }
+        cout << *commandProcessor << endl;
     } else if(userInput.substr(0, 5) == "-file"){
         string fileName;
         vector<string> wordsFromInput;
@@ -78,7 +54,6 @@ void CommandProcessor::commandProcessorDriver() {
             cout << "Invalid -file command." << endl;
             delete gameEngine;
             delete commandProcessor;
-            delete command;
             return;
         }
             // if words is only 1, because -file needs a file name
@@ -87,7 +62,6 @@ void CommandProcessor::commandProcessorDriver() {
             cout << "No file name." << endl;
             delete gameEngine;
             delete commandProcessor;
-            delete command;
             return;
         }
             // if file name does not either or both angled brackets
@@ -96,7 +70,6 @@ void CommandProcessor::commandProcessorDriver() {
             cout << "Invalid file name." << endl;
             delete gameEngine;
             delete commandProcessor;
-            delete command;
             return;
         }
             // return the file name without the angled brackets
@@ -116,36 +89,31 @@ void CommandProcessor::commandProcessorDriver() {
         if(dynamic_cast<FileCommandProcessorAdapter*>(commandProcessor)->moreCommands()) {
             string saveEffect;
             while (dynamic_cast<FileCommandProcessorAdapter *>(commandProcessor)->moreCommands()) {
-                string commandName = commandProcessor->getCommand();
-                validate = commandProcessor->validate(commandName, *gameEngine);
+                Command *c = &commandProcessor->getCommand();
+                validate = commandProcessor->validate(c->command, *gameEngine);
 
                 if (validate) {
-                    cout << "The command " << commandName << " is valid at state: "
+                    cout << "The command " << c->command << " is valid at state: "
                          << state << endl;
-                    if (commandName.substr(0, 9) == "addplayer"){
+                    if (c->command.substr(0, 9) == "addplayer"){
                         saveEffect = "player is added";
                     }
                     else {
                         saveEffect = "game is started";
                     }
                 } else {
-                    cout << "The command " << commandName << " is not valid at state: "
-                         << state << endl;
+                    cout << "The command " << c->command << " is not valid at state: " << state << endl;
                     saveEffect = "invalid command in state " + state;
                 }
-                command->saveEffect(saveEffect, *commandProcessor);
+                c->saveEffect(saveEffect);
             }
         } else {
             cout << "The file is empty." << endl;
         }
 
-        for (int i = 0; i < commandProcessor->commandList.size(); i++) {
-            cout << "command: " << commandProcessor->commandList.at(i)->command << " ";
-            cout << " effect: " << commandProcessor->commandList.at(i)->effect << endl;
-        }
+        cout << *commandProcessor << endl;
     }
 
     delete gameEngine;
     delete commandProcessor;
-    delete command;
 }

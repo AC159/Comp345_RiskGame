@@ -24,12 +24,11 @@ public:
     Command& operator=(const Command &command);
     friend ostream& operator<<(ostream &out, const Command &command);
 
-    void saveEffect(string commandEffect, const CommandProcessor &processor);
+    void saveEffect(string commandEffect);
 };
 
 class CommandProcessor {
 public:
-    static int lastCommandIndex;
     string currentState;
     vector<Command *> commandList;
     CommandProcessor();
@@ -39,12 +38,12 @@ public:
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);
     friend ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor);
 
-    string getCommand();
+    Command& getCommand();
     bool validate(string userInput, const GameEngine &gameEngine);
     static void commandProcessorDriver();
 private:
-    string readCommand();
-    void saveCommand(string readCommandInput);
+    virtual string readCommand();
+    void saveCommand(Command &command);
 };
 
 class FileLineReader {
