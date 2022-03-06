@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include "Map.h"
+#include "../Player/Player.h"
 
 using namespace std;
 using namespace Graph;
@@ -41,7 +42,6 @@ Territory& Territory::operator=(const Territory &territory) {
     this->continent = territory.continent;
     this->countryNumber = territory.countryNumber;
     this->numberOfArmies = territory.numberOfArmies;
-    delete this->owner;
     this->owner = territory.owner; // shallow copy will be made as overload assignment operator will be called for the Player class
     return *this;
 }
@@ -51,10 +51,23 @@ ostream& Graph::operator<<(ostream &out, const Territory &territory) {
     return out;
 }
 
-Territory::~Territory() {
-    cout << "Territory destructor invoked..." << endl;
-    delete this->owner;
+//updates this territory's owner and the owner's list of territories accordingly
+void Territory::transferOwnership(Players::Player *newOwner) {
+    if (owner != nullptr && newOwner != nullptr) {
+        owner->removeTerritory(*this);
+        owner = newOwner;
+        newOwner->addTerritory(*this);
+    } else if (owner == nullptr && newOwner != nullptr) {
+        owner = newOwner;
+        newOwner->addTerritory(*this);
+    } else if (owner != nullptr && newOwner == nullptr) {
+        owner->removeTerritory(*this);
+        owner = newOwner;
+    }
 }
+
+//memory de-allocation of territory's owner should be handled externally
+Territory::~Territory() = default;
 
 // ================= Edge Class =====================
 
@@ -431,6 +444,12 @@ Map::~Map() {
     this->territories.clear();
     this->continents.clear();
     this->edges.clear();
+}
+
+//returns whether given territories are neighbors
+bool Map::edgeExists(Territory *t1, Territory *t2) {
+    return std::find_if(edges.begin(), edges.end(),
+                        [t1, t2](Edge *e){return e->source == t1 && e->destination == t2;}) != edges.end();
 }
 
 

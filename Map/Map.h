@@ -40,6 +40,7 @@ public:
 
     Territory& operator=(const Territory &territory); // overloaded assignment operator
     friend std::ostream& operator<<(std::ostream &out, const Territory &territory); // overloaded stream insertion operator
+    void transferOwnership(Players::Player *newOwner);
 
     ~Territory();
 
@@ -94,6 +95,7 @@ public:
     friend std::ostream& operator<<(std::ostream &out, const Map &map); // overloaded stream insertion operator
 
     bool validate();
+    bool edgeExists(Territory *t1, Territory *t2); //returns whether given territories are adjacent
 
     ~Map();
 
