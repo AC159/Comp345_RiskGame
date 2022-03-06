@@ -160,9 +160,7 @@ void GameEngine::chooseMapToLoad() const {
         string mapName = command.command.substr(command.command.find_last_of(' ')+1, command.command.length());
         validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + mapName + "/" + mapName + ".map");
 
-        //save Effect
-        string effect = "Maploaded";
-        command.saveEffect(effect);
+        command.saveEffect("Maploaded");
 
         if (validateFile) {
             do {
@@ -170,7 +168,7 @@ void GameEngine::chooseMapToLoad() const {
                 Command validateMapCommand = processor->getCommand();
                 bool validCommand = processor->validate(validateMapCommand.command, *this);
                 if (!validCommand) {
-                    effect = "Invalid command! Please try again.";
+                    string effect = "Invalid command! Please try again.";
                     cout << effect << endl;
                     validateMapCommand.saveEffect(effect);
                     continue;
@@ -394,7 +392,7 @@ int GameEngine::validateWinCommand() {
 
 //GameEngine class destructor
 GameEngine::~GameEngine() {
-    delete ordersList;
+//    delete ordersList;
     delete mapLoader;
     mapLoader = nullptr;
     delete processor;

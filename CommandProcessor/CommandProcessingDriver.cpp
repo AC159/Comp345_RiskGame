@@ -26,7 +26,7 @@ void CommandProcessor::commandProcessorDriver() {
         string state = gameEngine->getState();
         cout<< state << endl;
         bool validate = commandProcessor->validate(commandProcessor->getCommand().command, *gameEngine);
-        if (validate ==0)
+        if (validate == 0)
             cout << "The command is not valid. " << "command: "<< commandProcessor->commandList.at(0)->command << " state: "<<state<<endl;
         else
             cout << "The command is valid. command: "<<commandProcessor->commandList.at(0)->command<<" state: "<<state<<endl;
