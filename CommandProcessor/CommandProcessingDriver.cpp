@@ -59,19 +59,20 @@ void CommandProcessor::commandProcessorDriver() {
             delete gameEngine;
             return;
         }
-            // if file name does not either or both angled brackets
-        else if (wordsFromInput[1].find("<") == std::string::npos || wordsFromInput[1].find(">") == std::string::npos) {
-            cout << "Invalid file name." << endl;
-            delete gameEngine;
-            return;
-        }
             // return the file name without the angle brackets
         else {
             // string returnString;
-            fileName = "../FileProcessorText/" + wordsFromInput[1].substr(wordsFromInput[1].find("<") + 1, wordsFromInput[1].find(">") - wordsFromInput[1].find("<") - 1);
+            fileName = "../FileProcessorText/" + wordsFromInput[1];
         }
 
         commandProcessor = new FileCommandProcessorAdapter(fileName);
+
+       if (!dynamic_cast<FileCommandProcessorAdapter*>(commandProcessor)->isFLRFileOpen()) {
+            cout << "Invalid file name." << endl;
+            delete gameEngine;
+            delete commandProcessor;
+            return;
+        }
 
         gameEngine->playersAddedStateChange();
         string state = gameEngine->getState();
