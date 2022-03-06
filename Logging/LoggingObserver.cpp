@@ -83,6 +83,7 @@ void LogObserver::update(const ILoggable &loggable) {
     fileStream.open("gamelog.txt", std::ios::out);
     std::string log = loggable.stringToLog(); // get the string to log from the observed subject
     fileStream << log << std::endl;
+    fileStream << "============================" << std::endl;
     fileStream.close();
 }
 

@@ -5,13 +5,14 @@
 #include <fstream>
 #include <ostream>
 #include <vector>
+#include "../Logging/LoggingObserver.h"
 
 using namespace std;
 
 class GameEngine;
 class CommandProcessor;
 
-class Command {
+class Command : public ILoggable, public Subject {
 public:
     string command;
     string effect;
@@ -23,11 +24,11 @@ public:
 
     Command& operator=(const Command &command);
     friend ostream& operator<<(ostream &out, const Command &command);
-
+    string stringToLog() const override;
     void saveEffect(string commandEffect);
 };
 
-class CommandProcessor {
+class CommandProcessor : public ILoggable, public Subject {
 public:
     string currentState;
     vector<Command *> commandList;
@@ -38,6 +39,7 @@ public:
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);
     friend ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor);
 
+    string stringToLog() const;
     Command& getCommand();
     bool validate(string userInput, const GameEngine &gameEngine);
     static void commandProcessorDriver();

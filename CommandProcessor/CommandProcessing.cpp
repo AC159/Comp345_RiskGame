@@ -40,6 +40,11 @@ ostream& operator<<(ostream &out, const Command &command){
 
 void Command::saveEffect(string commandEffect) {
     effect = std::move(commandEffect);
+    notify(*this); // notify all observers of this subject to write log to file
+}
+
+string Command::stringToLog() const {
+    return "Command: " + this->command + "\tEffect: " + this->effect;
 }
 
 // ==================== CommandProcessor class ========================
@@ -60,6 +65,10 @@ CommandProcessor::~CommandProcessor() {
     for(Command *c: commandList) {
         delete c;
     }
+}
+
+string CommandProcessor::stringToLog() const {
+    return "Command processor saved new command in the command list: " + this->commandList.back()->command;
 }
 
 // assignment operator
@@ -102,6 +111,7 @@ string CommandProcessor::readCommand() {
 
 void CommandProcessor::saveCommand(Command &command){
     commandList.push_back(&command);
+    notify(*this); // notify all observers of this subject to write log to file
 }
 
 // validate (1) user command (2) command is used in the correct state
