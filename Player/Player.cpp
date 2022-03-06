@@ -9,7 +9,6 @@ using namespace Players;
 using namespace Graph;
 
 Player *Players::Player::neutralPlayer = new Player("neutral");
-//Cards::Deck Players::Player::deck = Cards::Deck();
 
 // default constructor
 Player::Player() {
@@ -51,8 +50,8 @@ Player::Player(const Player &player) {
 
 // destructor
 Player::~Player() {
-    territories.erase(territories.begin(),
-                      territories.end()); // remove all territories on player's list of territories but not destroy them
+    // remove all territories on player's list of territories but not destroy them
+    territories.erase(territories.begin(), territories.end());
     delete orders;
     delete hand;
 }

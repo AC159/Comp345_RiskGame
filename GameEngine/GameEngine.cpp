@@ -123,7 +123,7 @@ void GameEngine::gameStart() {
 
     cout << "Assigning 50 initial armies & 2 cards to each player..." << endl;
     for (auto *player : this->playersList) {
-        player->armyReinforcementPool = 50;
+        player->reinforcementPool = 50;
         player->hand->cards.push_back(this->deck->draw());
         player->hand->cards.push_back(this->deck->draw());
     }
