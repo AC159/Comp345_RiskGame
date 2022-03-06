@@ -92,7 +92,7 @@ void testDeploy(Player *issuer, Territory *target, int armies) {
 void Orders::ordersDriver() {
     cout << "\nCreating map loader and loading smallsolar map..." << endl;
     MapLoader ml;
-    ml.loadMap("../WarzoneMaps/solar/smallsolar.map");
+    ml.loadMap("../WarzoneMaps/solar/solar.map");
     cout << "*******************************************************************************************" << endl;
 
     cout << "\n\nCreating players named PlayerOne and PlayerTwo..." << endl;

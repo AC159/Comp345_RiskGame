@@ -1,0 +1,46 @@
+
+loadmap <asdasdsa>
+
+adsa aksd aksd kasd
+asd
+
+loadmap <asdasdasdas>
+loadmap <asdasdasdasdadsdasd>
+loadmap <asdasdasdasdas>
+validatemap
+
+adsa aksd aksd kasd
+asd
+
+addplayer <something>
+addplayer <asdasdasdasd>
+addplayer <asdasdasdadasdasd>
+addplayer <asdasdsadsad>
+
+adsa aksd aksd kasd
+asd
+
+gamestart
+
+adsa aksd aksd kasd
+asd
+
+replay
+
+adsa aksd aksd kasd
+asd
+
+alskdjasdkjl
+alskdjasdkjl
+loadmap <asdasdkasld>
+validatemap
+addplayer <something>
+gamestart
+quit
+as
+d
+asd
+adasdasd
+
+xckljv
+asd

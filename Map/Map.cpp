@@ -429,7 +429,6 @@ bool Map::validate() {
 }
 
 Map::~Map() {
-    cout << "Map destructor invoked..." << endl;
     for (Edge *edge : this->edges) {
         delete edge;
         edge = nullptr;
@@ -716,7 +715,6 @@ bool MapLoader::loadMap(const string &path) const {
 }
 
 MapLoader::~MapLoader() {
-    cout << "MapLoader destructor invoked..." << endl;
     delete map;
     map = nullptr;
 }

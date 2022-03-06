@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <utility>
 #include "Player.h"
 
 using namespace std;
@@ -8,7 +9,6 @@ using namespace Players;
 using namespace Graph;
 
 Player *Players::Player::neutralPlayer = new Player("neutral");
-//Cards::Deck Players::Player::deck = Cards::Deck();
 
 // default constructor
 Player::Player() {
@@ -22,7 +22,7 @@ Player::Player() {
 
 // constructor for Player class to initialize the name and the collection of territories, cards, and orders
 Player::Player(string newName) {
-    name = newName;
+    name = std::move(newName);
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
     reinforcementPool = 0;
@@ -50,11 +50,10 @@ Player::Player(const Player &player) {
 
 // destructor
 Player::~Player() {
-    territories.erase(territories.begin(),
-                      territories.end()); // remove all territories on player's list of territories but not destroy them
+    // remove all territories on player's list of territories but not destroy them
+    territories.erase(territories.begin(), territories.end());
     delete orders;
     delete hand;
-//    delete neutralPlayer; //causes segmentation error
 }
 
 
@@ -62,7 +61,7 @@ Player::~Player() {
 Player &Player::operator=(const Player &player) {
 
     if (this == &player) return *this;
-
+    
     // delete the previous and copy the name from the other player
     this->name = player.name;
     this->reinforcementPool = player.reinforcementPool;

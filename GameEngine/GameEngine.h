@@ -10,11 +10,14 @@
 
 using namespace std;
 
-class GameEngine {
+class CommandProcessor;
+class Command;
 
+class GameEngine {
 public:
+    CommandProcessor* processor;
     Graph::MapLoader* mapLoader;
-    int playerAmount;
+    Cards::Deck* deck;
     vector<Players::Player*> playersList;
     GameEngine();
     GameEngine(const GameEngine &gameEngine); //copy constructor
@@ -24,54 +27,42 @@ public:
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
     static void gameEngineDriver();
 
+    //added for implementation of As2 part1
+    string getState() const;
+
 //============= start state ================
-    void welcomeMessage();
-
-    //user command loadMap
-    bool validateStartStateCommand();
-
+    void startupPhase();
+    void gameStart();
 
 //============= map loaded state =================
     void mapLoadedStateChange();
-
-    void chooseMapToLoad();
-
-    void validateMapLoadedCommand();
+    void chooseMapToLoad() const;
 
 //============= map validated state =================
     void mapValidatedStateChange();
 
-    bool validateMapValidatedCommand();
-
 //============= players added state =================
     void playersAddedStateChange();
-
     void addPlayer();
-
-    bool validatePlayersAddedCommand();
 
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();
-
     void validateAssignReinforcementCommand();
 
 //============= issue orders state =================
     void issueOrdersStateChange();
-
     void validateIssueOrdersCommand();
 
 //============= execute orders state =================
     void executeOrdersStateChange();
-
     int validateExecuteOrdersCommand();
 
 //============= win state =================
     void winStateChange();
-
     int validateWinCommand();
 
 private:
-    string state; //state variable
+    string state;
 
     void changeState(string state); //state to change current stated and output current state
     void createAndAddOrder(int commandNumber); //issue orders state

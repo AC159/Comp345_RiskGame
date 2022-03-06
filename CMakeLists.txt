@@ -11,4 +11,4 @@ add_executable(
         Orders/Orders.cpp Orders/Orders.h Orders/OrdersDriver.cpp
         Cards/Cards.cpp Cards/Cards.h Cards/CardsDriver.cpp
         main.cpp
-)
+        CommandProcessor/CommandProcessing.cpp CommandProcessor/CommandProcessing.h CommandProcessor/CommandProcessingDriver.cpp)
