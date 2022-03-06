@@ -154,6 +154,7 @@ public:
     friend std::ostream& operator<<(std::ostream &out, const Deck &deck);
 
     Card* draw();
+    void fillDeckWithCards();
 
     ~Deck();
 

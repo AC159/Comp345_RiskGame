@@ -45,8 +45,23 @@ Card* Deck::draw() {
     int nbrOfCards = this->cards.size()-1;
     int random = std::experimental::randint(0, nbrOfCards);
     Card* c = this->cards.at(random);
-    this->cards.erase(this->cards.begin() + random);
+    if (random != nbrOfCards) this->cards.erase(this->cards.begin() + random);
+    else this->cards.erase(this->cards.begin() - 1);
     return c;
+}
+
+void Deck::fillDeckWithCards() {
+    std::string cardTypes[5] = {"diplomacy", "airlift", "blockade", "reinforcement", "bomb"};
+    for (int i = 0; i < 50; i++) {
+        int random = std::experimental::randint(0, 4);
+        Card* card;
+        if (cardTypes[random] == "diplomacy") card = new Diplomacy();
+        else if (cardTypes[random] == "airlift") card = new Airlift();
+        else if (cardTypes[random] == "blockade") card = new Blockade();
+        else if (cardTypes[random] == "reinforcement") card = new Reinforcement();
+        else card = new Bomb();
+        this->cards.push_back(card);
+    }
 }
 
 Deck::~Deck() {
