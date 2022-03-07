@@ -15,6 +15,7 @@ Order::Order(Players::Player *issuer) : issuer(issuer) {}
 //copy constructor creates shallow copy due to circular dependency
 Order::Order(const Order &order) {
     this->issuer = order.issuer;
+    this->orderEffect = order.orderEffect;
 }
 
 //memory de-allocation should be handled externally
@@ -24,6 +25,7 @@ Order::~Order() = default;
 Order &Order::operator=(const Order &order) {
     if (this != &order) {
         this->issuer = order.issuer;
+        this->orderEffect = order.orderEffect;
     }
     return *this;
 }
@@ -63,6 +65,10 @@ Deploy::Deploy(const Deploy &deploy) : Order(deploy) {
 //memory de-allocation should be handled externally
 Deploy::~Deploy() = default;
 
+std::string Deploy::stringToLog() const {
+    return this->orderEffect;
+}
+
 //creates shallow copy via the assignment operator
 Deploy &Deploy::operator=(const Deploy &deploy) {
     if (this != &deploy) {
@@ -90,12 +96,16 @@ bool Deploy::validate() {
 //if valid, the number of armies are taken from the player's reinforcement pool and added to their target territory
 bool Deploy::execute() {
     if (this->validate()) {
-        cout << "Deploy " << armies << " to " << target->name << endl;
+        this->orderEffect = "Deploy " + to_string(armies) + " to " + target->name;
+        cout << this->orderEffect << endl;
         issuer->reinforcementPool -= armies;
         target->numberOfArmies += armies;
+        notify(*this);
         return true;
     } else {
-        cout << "An invalid Deploy order could not be executed" << endl;
+        this->orderEffect = "An invalid Deploy order could not be executed";
+        cout << this->orderEffect << endl;
+        notify(*this);
         return false;
     }
 }
@@ -137,6 +147,10 @@ Advance::Advance(const Advance &advance) : Order(advance) {
 //memory de-allocation should be handled externally
 Advance::~Advance() = default;
 
+std::string Advance::stringToLog() const {
+    return this->orderEffect;
+}
+
 //creates shallow copy via the assignment operator
 Advance &Advance::operator=(const Advance &advance) {
     if (this != &advance) {
@@ -169,12 +183,15 @@ bool Advance::validate() {
 bool Advance::execute() {
     if (validate()) {
         if (source->owner == target->owner) { //perform simple army transfer
-            cout << armies << " transferred to " << target->name << " from " << source->name << endl;
+            this->orderEffect = to_string(armies) + " transferred to " + target->name + " from " + source->name;
+            cout << this->orderEffect << endl;
             source->numberOfArmies -= armies;
             target->numberOfArmies += armies;
         } else { //initiate an attack
             if (hasNegotiation(issuer, target->owner)) {
-                cout << "INVALID ORDER: cannot advance on target player's territory; negotiation in effect" << endl;
+                this->orderEffect = "INVALID ADVANCE ORDER: cannot advance on target player's territory; negotiation in effect";
+                cout << this->orderEffect << endl;
+                notify(*this);
                 return false;
             }
 
@@ -182,13 +199,15 @@ bool Advance::execute() {
             int attackersKilled = static_cast<int>(round(target->numberOfArmies * 0.7));
 
             if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { //failed to conquer
-                cout << armies << " failed to take " << target->name << " from " << source->name << endl;
+                this->orderEffect = to_string(armies) + " failed to take " + target->name + " from " + source->name;
+                cout << this->orderEffect << endl;
 
                 //update territories' armies
                 target->numberOfArmies -= defendersKilled;
                 source->numberOfArmies -= armies < attackersKilled ? armies : attackersKilled;
             } else { //territory successfully conquered
-                cout << armies << " captured " << target->name << " from " << source->name << endl;
+                this->orderEffect = to_string(armies) + " captured " + target->name + " from " + source->name;
+                cout << this->orderEffect << endl;
                 target->transferOwnership(issuer); //issuer now owns the territory
 
                 //update territories' armies
@@ -199,20 +218,22 @@ bool Advance::execute() {
                 issuer->receivesCard = true;
             }
         }
-
+        notify(*this);
         return true;
     } else {
-        cout << "An invalid Advance order could not be executed" << endl;
+        this->orderEffect = "An invalid Advance order could not be executed";
+        cout << this->orderEffect << endl;
+        notify(*this);
         return false;
     }
 }
 
-//polymorphically returns a clone of the calling class
+// polymorphically returns a clone of the calling class
 Advance *Advance::clone() const {
     return new Advance(*this);
 }
 
-//helper for the stream insertion operator to function as a virtual
+// helper for the stream insertion operator to function as a virtual
 std::ostream &Advance::write(ostream &out) const {
     return target == nullptr ?
            out << "Advance" : out << armies << " from " << source->name << " will attack/transfer " << target->name;
@@ -237,6 +258,10 @@ Bomb::Bomb(const Bomb &bomb) : Order(bomb) {
 
 //memory de-allocation should be handled externally
 Bomb::~Bomb() = default;
+
+std::string Bomb::stringToLog() const {
+    return this->orderEffect;
+}
 
 //creates shallow via the assignment operator
 Bomb &Bomb::operator=(const Bomb &bomb) {
@@ -293,7 +318,8 @@ bool Bomb::validate() {
 //performs the order action if it's valid - action is arbitrary for now
 bool Bomb::execute() {
     if (this->validate()) {
-        cout << issuer->getName() << " bombs " << target->name << endl;
+        this->orderEffect = "Executed a Bomb Order: "+  issuer->getName() + " bombs " + target->name;
+        cout << this->orderEffect << endl;
         target->numberOfArmies /= 2;
 
 //        //play the bomb card from hand
@@ -303,15 +329,17 @@ bool Bomb::execute() {
 //                break;
 //            }
 
-        cout << "Executed a Bomb Order." << endl;
+        notify(*this);
         return true;
     } else {
-        cout << "An invalid Bomb order could not be executed." << endl;
+        this->orderEffect = "An invalid Bomb order could not be executed";
+        cout << this->orderEffect << endl;
+        notify(*this);
         return false;
     }
 }
 
-//polymorphically returns a clone of the calling class
+// polymorphically returns a clone of the calling class
 Bomb *Bomb::clone() const {
     return new Bomb(*this);
 }
@@ -339,6 +367,10 @@ Blockade::Blockade(const Blockade &blockade) : Order(blockade) {
 
 //memory de-allocation should be handled externally
 Blockade::~Blockade() = default;
+
+std::string Blockade::stringToLog() const {
+    return this->orderEffect;
+}
 
 //creates shallow copy via the assignment operator
 Blockade &Blockade::operator=(const Blockade &blockade) {
@@ -383,7 +415,8 @@ bool Blockade::validate() {
 //performs the order action if it's valid - action is arbitrary for now
 bool Blockade::execute() {
     if (this->validate()) {
-        cout << issuer->getName() << " blockades " << target->name << endl;
+        this->orderEffect = "Executed a Blockade Order: " + issuer->getName() + " blockades " + target->name;
+        cout << this->orderEffect << endl;
         target->numberOfArmies *= 2;
         target->transferOwnership(Players::Player::neutralPlayer);
 
@@ -394,15 +427,17 @@ bool Blockade::execute() {
 //                break;
 //            }
 
-        cout << "Executed a Blockade Order." << endl;
+        notify(*this);
         return true;
     } else {
-        cout << "An invalid Blockade order could not be executed" << endl;
+        this->orderEffect = "An invalid Blockade order could not be executed";
+        cout << this->orderEffect << endl;
+        notify(*this);
         return false;
     }
 }
 
-//polymorphically returns a clone of the calling class
+// polymorphically returns a clone of the calling class
 Blockade *Blockade::clone() const {
     return new Blockade(*this);
 }
@@ -436,6 +471,10 @@ Airlift::Airlift(const Airlift &airlift) : Order(airlift) {
 //memory de-allocation should be handled externally
 Airlift::~Airlift() = default;
 
+std::string Airlift::stringToLog() const {
+    return this->orderEffect;
+}
+
 //creates shallow copy via the assignment operator
 Airlift &Airlift::operator=(const Airlift &airlift) {
     if (this != &airlift) {
@@ -463,28 +502,28 @@ bool Airlift::validate() {
 //if the order is valid, the selected number of armies are moved from the source to the target territories
 bool Airlift::execute() {
     if (this->validate()) {
-        cout << issuer->getName() << " airlifts " << armies << " armies from " << source->name << " to " << target->name
-             << endl;
+        this->orderEffect = "Executed Airlift order: " + issuer->getName() + " airlifts " + to_string(armies) + " armies from " + source->name + " to " + target->name;
+        cout << this->orderEffect << endl;
         source->numberOfArmies -= armies;
         target->numberOfArmies += armies;
-
+        notify(*this);
         return true;
     } else {
-        cout << "An invalid Airlift order could not be executed" << endl;
-
+        this->orderEffect = "An invalid Airlift order could not be executed";
+        cout << this->orderEffect << endl;
+        notify(*this);
         return false;
     }
 }
 
-//polymorphically returns a clone of the calling class
+// polymorphically returns a clone of the calling class
 Airlift *Airlift::clone() const {
     return new Airlift(*this);
 }
 
 //helper for the stream insertion operator to function as a virtual
 std::ostream &Airlift::write(ostream &out) const {
-    return target == nullptr ?
-           out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name << " to " << target->name;
+    return target == nullptr ? out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name << " to " << target->name;
 }
 
 // ====================== Negotiate class ======================
@@ -505,6 +544,10 @@ Negotiate::Negotiate(const Negotiate &negotiate) : Order(negotiate) {
 
 //memory de-allocation should be handled externally
 Negotiate::~Negotiate() = default;
+
+std::string Negotiate::stringToLog() const {
+    return this->orderEffect;
+}
 
 //creates shallow copy via the assignment operator
 Negotiate &Negotiate::operator=(const Negotiate &negotiate) {
@@ -562,16 +605,19 @@ bool Negotiate::execute() {
 //                break;
 //            }
 
-        cout << "Executed a Negotiate Order." << endl;
+        this->orderEffect = "Executed a Negotiate Order";
+        cout << this->orderEffect << endl;
+        notify(*this);
         return true;
     } else {
-        cout << "An invalid Negotiate order could not be executed" << endl;
-
+        this->orderEffect = "An invalid Negotiate order could not be executed";
+        cout << this->orderEffect << endl;
+        notify(*this);
         return false;
     }
 }
 
-//polymorphycally returns a clone of the calling class
+// polymorphically returns a clone of the calling class
 Negotiate *Negotiate::clone() const {
     return new Negotiate(*this);
 }
@@ -597,6 +643,10 @@ OrdersList::~OrdersList() {
     for (Order *order: orders) {
         delete order;
     }
+}
+
+std::string OrdersList::stringToLog() const {
+    return "New order has been added to the list of orders";
 }
 
 //creates true deep copy via the assignment operator
@@ -660,6 +710,7 @@ void OrdersList::move(int oldIndex, int newIndex) {
 //adds an element to the back of the list
 void OrdersList::add(Order *const newOrder) {
     orders.push_back(newOrder);
+    notify(*this);
 }
 
 //returns the current number of elements in the list
