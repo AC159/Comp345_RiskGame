@@ -20,16 +20,18 @@ public:
 
 
 class Subject {
+    // this class should not be instantiated since it's only goal is to record and notify observers.
+    // There is no need to have individual subject objects.
 private:
-    std::vector<Observer*> observers;
+    static std::vector<Observer*> observers;
 public:
     Subject();
     Subject(const Subject &subject);
     friend std::ostream& operator<<(std::ostream &out, const Subject &subject);
     Subject& operator=(const Subject &subject);
-    void attach(Observer *observer);
-    void detach(const Observer *observer);
-    void notify(const ILoggable &loggable);
+    static void attach(Observer *observer);
+    static void detach(const Observer *observer);
+    static void notify(const ILoggable &loggable);
     ~Subject();
 };
 

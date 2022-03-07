@@ -1,49 +1,35 @@
 #include "LoggingObserver.h"
 
+std::vector<Observer*> Subject::observers;
 
 Observer::~Observer() = default;
 
 Subject::Subject() = default;
 
-Subject::Subject(const Subject &subject) {
-    // shallow copy of the subject's observers
-    for (auto* observer : subject.observers) {
-        this->observers.push_back(observer);
-    }
-}
+Subject::Subject(const Subject &subject) = default;
 
-Subject &Subject::operator=(const Subject &subject) {
-    if (&subject == this) return *this;
-    for (auto* observer : this->observers) {
-        delete observer;
-    }
-    this->observers.clear();
-    // shallow copy of the subject's observers
-    for (auto* observer : subject.observers) {
-        this->observers.push_back(observer);
-    }
-}
+Subject &Subject::operator=(const Subject &subject) = default;
 
 std::ostream& operator<<(std::ostream &out, const Subject &subject) {
-    out << "Subject: \n\tNbr of observers: " << subject.observers.size() << std::endl;
+    out << "Subject: \n\tNbr of observers: " << Subject::observers.size() << std::endl;
     return out;
 }
 
 void Subject::attach(Observer *observer) {
     // add an observer to the subject's list of observers
-    this->observers.push_back(observer);
+    observers.push_back(observer);
 }
 
 void Subject::detach(const Observer *observer) {
     // remove an observer from the subject's list of observers
-    auto it = std::find(this->observers.begin(), this->observers.end(), observer);
-    if (it == this->observers.end()) this->observers.erase(this->observers.begin(), it-1);
-    else this->observers.erase(this->observers.begin(), it);
+    auto it = std::find(observers.begin(), observers.end(), observer);
+    if (it == observers.end()) observers.erase(observers.begin(), it-1);
+    else observers.erase(observers.begin(), it);
 }
 
 void Subject::notify(const ILoggable &loggable) {
     // update the state of every observer subscribed to the subject
-    for (auto *observer : this->observers) {
+    for (auto *observer : observers) {
         observer->update(loggable);
     }
 }

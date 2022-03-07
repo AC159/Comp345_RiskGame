@@ -4,6 +4,7 @@
 void LogObserver::LoggingDriver() {
     LogObserver *logObserver = new LogObserver();
     GameEngine* engine = new GameEngine();
+    engine->attach(logObserver);
     engine->processor->attach(logObserver);
     engine->startupPhase();
     delete engine;
