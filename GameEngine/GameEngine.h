@@ -25,7 +25,8 @@ public:
 
     GameEngine& operator=(const GameEngine &gameEngine);
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
-    static void gameEngineDriver();
+    static void gameStartupDriver();
+    static void gamePlayDriver();
 
     //added for implementation of As2 part1
     string getState() const;

@@ -2,8 +2,12 @@
 
 using namespace std;
 
-void GameEngine::gameEngineDriver() {
-    GameEngine* gameEngine = new GameEngine();
+void GameEngine::gameStartupDriver() {
+    auto* gameEngine = new GameEngine();
     gameEngine->startupPhase();
     delete gameEngine;
+}
+
+void GameEngine::gamePlayDriver() {
+
 }

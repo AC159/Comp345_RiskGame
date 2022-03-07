@@ -15,39 +15,35 @@ int main() {
 
     do {
         cout << "Command list:\n"
-                "1. Part 1: Map Driver\n"
-                "2. Part 2: Player Driver\n"
-                "3. Part 3: Orders Driver\n"
-                "4. Part 4: Cards Driver\n"
-                "5. Part 5: GameEngine Driver\n"
-                "6. Part 6: CommandProcessor Driver\n"
-                "7. Exit\n"
+                "1. Part 1: Command processor and command adapter\n"
+                "2. Part 2: Game startup phase\n"
+                "3. Part 3: Game play - main game loop\n"
+                "4. Part 4: Order execution implementation\n"
+                "5. Part 5: Game log observer - commands and orders\n"
+                "6. Exit\n"
                 "Select the part you would like to run: ";
         cin >> userInput;
         cin.ignore();
         cout << endl;
 
         if (userInput == "1") {
-            cout << "Part 1: Map Driver" << endl;
-            Graph::Map::mapDriver();
-        } else if (userInput == "2") {
-            cout << "Part 2: Player Driver" << endl;
-            Player::playerDriver();
-        } else if (userInput == "3") {
-            cout << "Part 3: Orders Driver" << endl;
-            Orders::ordersDriver();
-        } else if (userInput == "4") {
-            cout << "Part 4: Cards Driver" << endl;
-            Cards::Card::cardsDriver();
-        } else if (userInput == "5") {
-            cout << "Part 5: GameEngine Driver" << endl;
-            GameEngine::gameEngineDriver();
-        } else if (userInput == "6") {
-            cout << "Part 6: CommandProcessor Driver" << endl;
+            cout << "Part 1: Command processor and command adapter" << endl;
             CommandProcessor::commandProcessorDriver();
-        } else if (userInput != "7")
+        } else if (userInput == "2") {
+            cout << "Part 2: Game startup phase" << endl;
+            GameEngine::gameStartupDriver();
+        } else if (userInput == "3") {
+            cout << "Part 3: Game play - main game loop" << endl;
+            GameEngine::gamePlayDriver();
+        } else if (userInput == "4") {
+            cout << "Part 4: Order execution implementation" << endl;
+            Orders::ordersDriver();
+        } else if (userInput == "5") {
+            cout << "Part 5: Game log observer - commands and orders" << endl;
+            //call driver for Game log observer: commands and orders here
+        } else if (userInput != "6")
             cout << "ERROR: Invalid input!" << endl;
-    } while (userInput != "7");
+    } while (userInput != "6");
 
     return 0;
 }
