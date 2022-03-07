@@ -21,7 +21,8 @@ int main() {
                 "4. Part 4: Cards Driver\n"
                 "5. Part 5: GameEngine Driver\n"
                 "6. Part 6: CommandProcessor Driver\n"
-                "7. Exit\n"
+                "7. Part 7: Logging Driver\n"
+                "8. Exit\n"
                 "Select the part you would like to run: ";
         cin >> userInput;
         cin.ignore();
@@ -45,9 +46,12 @@ int main() {
         } else if (userInput == "6") {
             cout << "Part 6: CommandProcessor Driver" << endl;
             CommandProcessor::commandProcessorDriver();
-        } else if (userInput != "7")
+        } else if (userInput == "7") {
+            cout << "Part 7: Logging Driver" << endl;
+            LogObserver::LoggingDriver();
+        } else if (userInput != "8")
             cout << "ERROR: Invalid input!" << endl;
-    } while (userInput != "7");
+    } while (userInput != "8");
 
     return 0;
 }

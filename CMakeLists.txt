@@ -13,4 +13,4 @@ add_executable(
         main.cpp
         CommandProcessor/CommandProcessing.cpp CommandProcessor/CommandProcessing.h CommandProcessor/CommandProcessingDriver.cpp
         Logging/LoggingObserver.cpp Logging/LoggingObserver.h
-)
+        Logging/LoggingDriver.cpp)

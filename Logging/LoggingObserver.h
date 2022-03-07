@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 class ILoggable {
 public:
@@ -26,22 +27,26 @@ public:
     Subject(const Subject &subject);
     friend std::ostream& operator<<(std::ostream &out, const Subject &subject);
     Subject& operator=(const Subject &subject);
-    virtual void attach(Observer *observer);
-    virtual void detach(const Observer *observer);
-    virtual void notify(const ILoggable &loggable);
-    virtual ~Subject();
+    void attach(Observer *observer);
+    void detach(const Observer *observer);
+    void notify(const ILoggable &loggable);
+    ~Subject();
 };
 
 
 class LogObserver : public Observer {
 private:
     std::vector<Subject*> subjects;
+    std::fstream fileStream; // reference to log file
+    void openLogFileStream();
+    void closeLogFileStream();
 public:
     LogObserver();
     LogObserver(const LogObserver &logObserver);
     friend std::ostream& operator<<(std::ostream &out, const LogObserver &logObserver);
     LogObserver& operator=(const LogObserver &logObserver);
     void update(const ILoggable &loggable) override;
+    static void LoggingDriver();
     ~LogObserver() override;
 };
 

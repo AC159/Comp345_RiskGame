@@ -10,7 +10,6 @@
 using namespace std;
 
 class GameEngine;
-class CommandProcessor;
 
 class Command : public ILoggable, public Subject {
 public:

@@ -1,4 +1,3 @@
-#include <fstream>
 #include "LoggingObserver.h"
 
 
@@ -49,19 +48,27 @@ void Subject::notify(const ILoggable &loggable) {
     }
 }
 
-Subject::~Subject() {
-    for (auto *observer : this->observers) {
-        delete observer;
-    }
-}
+Subject::~Subject() = default;
 
-LogObserver::LogObserver() = default;
+// ===================== LogObserver class =====================
+
+LogObserver::LogObserver() {
+    openLogFileStream();
+}
 
 LogObserver::LogObserver(const LogObserver &logObserver) {
     // shallow copy of all subjects in the logObserver object
     for (auto* subject : logObserver.subjects) {
         this->subjects.push_back(subject);
     }
+}
+
+void LogObserver::openLogFileStream() {
+    this->fileStream.open("gamelog.txt", std::ios::out);
+}
+
+void LogObserver::closeLogFileStream() {
+    this->fileStream.close();
 }
 
 LogObserver &LogObserver::operator=(const LogObserver &logObserver) {
@@ -79,12 +86,9 @@ LogObserver &LogObserver::operator=(const LogObserver &logObserver) {
 
 void LogObserver::update(const ILoggable &loggable) {
     // write log to file
-    std::fstream fileStream;
-    fileStream.open("gamelog.txt", std::ios::out);
     std::string log = loggable.stringToLog(); // get the string to log from the observed subject
     fileStream << log << std::endl;
     fileStream << "============================" << std::endl;
-    fileStream.close();
 }
 
 std::ostream &operator<<(std::ostream &out, const LogObserver &logObserver) {
@@ -92,5 +96,6 @@ std::ostream &operator<<(std::ostream &out, const LogObserver &logObserver) {
     return out;
 }
 
-LogObserver::~LogObserver() = default;
-
+LogObserver::~LogObserver() {
+    closeLogFileStream();
+}
