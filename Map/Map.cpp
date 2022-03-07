@@ -51,19 +51,15 @@ ostream& Graph::operator<<(ostream &out, const Territory &territory) {
     return out;
 }
 
-//updates this territory's owner and the owner's list of territories accordingly
+//updates this territory's owner and the old and new owners' list of territories accordingly
 void Territory::transferOwnership(Players::Player *newOwner) {
-    if (owner != nullptr && newOwner != nullptr) {
+    if (owner != nullptr) {
         owner->removeTerritory(*this);
-        owner = newOwner;
-        newOwner->addTerritory(*this);
-    } else if (owner == nullptr && newOwner != nullptr) {
-        owner = newOwner;
-        newOwner->addTerritory(*this);
-    } else if (owner != nullptr && newOwner == nullptr) {
-        owner->removeTerritory(*this);
-        owner = newOwner;
     }
+    if (newOwner != nullptr) {
+        newOwner->addTerritory(*this);
+    }
+    owner = newOwner;
 }
 
 //memory de-allocation of territory's owner should be handled externally
