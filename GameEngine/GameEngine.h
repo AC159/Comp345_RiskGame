@@ -62,6 +62,11 @@ public:
     void winStateChange();
     int validateWinCommand();
 
+//============ gameplay phases =============
+    void reinforcementPhase();
+    void issueOrdersPhase();
+    void executeOrdersPhase();
+
 private:
     string state;
 

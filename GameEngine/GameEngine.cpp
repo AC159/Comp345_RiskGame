@@ -403,3 +403,32 @@ GameEngine::~GameEngine() {
     playersList.clear();
 }
 
+/* fill all players' reinforcement pools for the turn according to the territories they own
+ * the minimum reinforcements a player receives is 3 */
+void GameEngine::reinforcementPhase() {
+    for (auto player: playersList) {
+        int baseRate = static_cast<int>(player->territories.size() / 3);
+        int totalBonus = 0;
+        for (auto continent : mapLoader->map->continents) {
+            //find if player owns any whole continent and honor bonus reinforcements accordingly
+            int bonus = continent->bonusValue;
+            for (auto continentTerritory: continent->territories) {
+                if (!player->territories.contains(continentTerritory->countryNumber)) {
+                    bonus = 0;
+                    break;
+                }
+            }
+            totalBonus += bonus;
+        }
+        player->reinforcementPool = baseRate + totalBonus > 3 ? baseRate + totalBonus : 3;
+    }
+}
+
+void GameEngine::executeOrdersPhase() {
+
+}
+
+void GameEngine::issueOrdersPhase() {
+
+}
+
