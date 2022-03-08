@@ -72,7 +72,7 @@ LogObserver &LogObserver::operator=(const LogObserver &logObserver) {
 
 void LogObserver::update(const ILoggable &loggable) {
     // write log to file
-    std::string log = loggable.stringToLog(); // get the string to log from the observed subject
+    std::string log = loggable.stringToLog(); // get the string to log from the observed
     fileStream << log << std::endl;
     fileStream << "============================" << std::endl;
 }
