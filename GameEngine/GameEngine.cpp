@@ -3,9 +3,6 @@
 #include <utility>
 #include <experimental/random>
 
-// todo: list of orders should be specific to a single player
-Orders::OrdersList *ordersList = new Orders::OrdersList();
-
 string GameEngine::getState() const {
     return this->state;
 }
@@ -250,15 +247,25 @@ void GameEngine::assignReinforcementStateChange() {
     GameEngine::changeState("assign reinforcement");
 }
 
-//method to check user input in the assign reinforcement state and perform related logic
-void GameEngine::validateAssignReinforcementCommand() {
-    cout << "Command list:\n1. issueorder" << endl;
-    cout << "Please enter command number:";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1") {
-        cout << "Invalid selection. Please enter command number:";
-        cin >> userInput;
+// fill all players' reinforcement pools for the turn according to the territories they own
+void GameEngine::reinforcementPhase() {
+    for (auto player: playersList) {
+        int baseRate = static_cast<int>(player->territories.size() / 3);
+        int totalBonus = 0;
+        for (auto continent : mapLoader->map->continents) {
+            //find if player owns any whole continent and honor bonus reinforcements accordingly
+            int bonus = continent->bonusValue;
+            for (auto continentTerritory: continent->territories) {
+                if (!player->territories.contains(continentTerritory->countryNumber)) {
+                    bonus = 0;
+                    break;
+                }
+            }
+            totalBonus += bonus;
+        }
+
+        //the minimum reinforcements a player receives is 3
+        player->reinforcementPool = baseRate + totalBonus > 3 ? baseRate + totalBonus : 3;
     }
 }
 
@@ -268,57 +275,8 @@ void GameEngine::issueOrdersStateChange() {
     GameEngine::changeState("issue orders");
 }
 
-//method to create orders and add them to an order list
-void GameEngine::createAndAddOrder(int commandNumber) {
-    switch (commandNumber) {
-        case 1:
-            cout << "Adding 'deploy' order to order list..." << endl;
-            ordersList->add(new Orders::Deploy);
-            break;
-        case 2:
-            cout << "Adding 'advance' order to order list..." << endl;
-            ordersList->add(new Orders::Advance);
-            break;
-        case 3:
-            cout << "Adding 'bomb' order to order list..." << endl;
-            ordersList->add(new Orders::Bomb);
-            break;
-        case 4:
-            cout << "Adding 'blockade' order to order list..." << endl;
-            ordersList->add(new Orders::Blockade);
-            break;
-        case 5:
-            cout << "Adding 'airlift' order to order list..." << endl;
-            ordersList->add(new Orders::Airlift);
-            break;
-        case 6:
-            cout << "Adding 'negotiate' order to order list..." << endl;
-            ordersList->add(new Orders::Negotiate);
-            break;
-    }
-}
+void GameEngine::issueOrdersPhase() {
 
-//method to check user input in the issue orders state and perform related logic
-void GameEngine::validateIssueOrdersCommand() {
-    cout << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
-         << endl;
-    cout << "Please enter command number:";
-    int userInput;
-    cin >> userInput;
-
-    while (userInput != 7) {
-        if (userInput < 1 || userInput > 7) {
-            cout << "Invalid selection. Please enter command number:" << endl;
-            cin >> userInput;
-        } else {
-            GameEngine::createAndAddOrder(userInput);
-            cout
-                    << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
-                    << endl;
-            cout << "Please enter command number:";
-            cin >> userInput;
-        }
-    }
 }
 
 //=============execute orders state =================
@@ -327,40 +285,8 @@ void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
 
-//method to execute orders in the order list
-void GameEngine::executeOrders() {
-    for (size_t i = 0; i < ordersList->length(); i++) {
-        ordersList->element(i)->execute();
-        ordersList->remove(i);
-        i--;
-    }
-}
+void GameEngine::executeOrdersPhase() {
 
-//method to check user input in the execute orders state and perform related logic
-int GameEngine::validateExecuteOrdersCommand() {
-    cout << "Command list:\n1. execorder\n2. win" << endl;
-    cout << "Please enter command number:";
-    int userInput;
-    cin >> userInput;
-
-    while (userInput != 1 && userInput != 2) {
-        cout << "Invalid selection. Please enter command number:" << endl;
-        cin >> userInput;
-    }
-
-    if (userInput == 1) {
-        GameEngine::executeOrders();
-        cout << "Command list:\n1. endexecorder\n2. win" << endl;
-        cout << "Please enter command number:";
-        cin >> userInput;
-
-        while (userInput != 1 && userInput != 2) {
-            cout << "Invalid selection. Please enter command number:" << endl;
-            cin >> userInput;
-        }
-    }
-
-    return userInput;
 }
 
 //=============win state =================
@@ -396,7 +322,6 @@ int GameEngine::validateWinCommand() {
 
 //GameEngine class destructor
 GameEngine::~GameEngine() {
-//    delete ordersList;
     delete mapLoader;
     mapLoader = nullptr;
     delete processor;
@@ -406,33 +331,3 @@ GameEngine::~GameEngine() {
     }
     playersList.clear();
 }
-
-/* fill all players' reinforcement pools for the turn according to the territories they own
- * the minimum reinforcements a player receives is 3 */
-void GameEngine::reinforcementPhase() {
-    for (auto player: playersList) {
-        int baseRate = static_cast<int>(player->territories.size() / 3);
-        int totalBonus = 0;
-        for (auto continent : mapLoader->map->continents) {
-            //find if player owns any whole continent and honor bonus reinforcements accordingly
-            int bonus = continent->bonusValue;
-            for (auto continentTerritory: continent->territories) {
-                if (!player->territories.contains(continentTerritory->countryNumber)) {
-                    bonus = 0;
-                    break;
-                }
-            }
-            totalBonus += bonus;
-        }
-        player->reinforcementPool = baseRate + totalBonus > 3 ? baseRate + totalBonus : 3;
-    }
-}
-
-void GameEngine::executeOrdersPhase() {
-
-}
-
-void GameEngine::issueOrdersPhase() {
-
-}
-

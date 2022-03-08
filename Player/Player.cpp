@@ -151,12 +151,6 @@ string Player::getName() {
     return name;
 }
 
-
-// mutator method for name
-void Player::setName(string newName) {
-    name = std::move(newName);
-}
-
 // displays player's territories
 void Player::displayTerritories() {
     cout << name << "'s territories: " << endl;

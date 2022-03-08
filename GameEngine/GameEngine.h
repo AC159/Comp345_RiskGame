@@ -47,31 +47,24 @@ public:
 
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();
-    void validateAssignReinforcementCommand();
+    void reinforcementPhase();
 
 //============= issue orders state =================
     void issueOrdersStateChange();
-    void validateIssueOrdersCommand();
+    void issueOrdersPhase();
 
 //============= execute orders state =================
     void executeOrdersStateChange();
-    int validateExecuteOrdersCommand();
+    void executeOrdersPhase();
 
 //============= win state =================
     void winStateChange();
     int validateWinCommand();
 
-//============ gameplay phases =============
-    void reinforcementPhase();
-    void issueOrdersPhase();
-    void executeOrdersPhase();
-
 private:
     string state;
 
     void changeState(string state); //state to change current stated and output current state
-    void createAndAddOrder(int commandNumber); //issue orders state
-    void executeOrders(); //execute orders state
 };
 
 
