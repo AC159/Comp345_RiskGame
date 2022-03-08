@@ -23,8 +23,8 @@ void Subject::attach(Observer *observer) {
 void Subject::detach(const Observer *observer) {
     // remove an observer from the subject's list of observers
     auto it = std::find(observers.begin(), observers.end(), observer);
-    if (it == observers.end()) observers.erase(observers.begin(), it-1);
-    else observers.erase(observers.begin(), it);
+    if (it == observers.end()) observers.erase(it-1);
+    else observers.erase(it);
 }
 
 void Subject::notify(const ILoggable &loggable) {
