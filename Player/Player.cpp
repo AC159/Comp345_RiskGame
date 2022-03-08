@@ -99,13 +99,26 @@ ostream &Players::operator<<(ostream &out, const Player &player) {
     return out;
 }
 
-
-// return a list of territories that can be defended by the player
-map<int, Territory *> Player::toDefend() {
-    map<int, Territory *> territoriesToDefend;   // a list of territories to defend
-    // put all the elements from this object's territories to the territoriesToDefend
-    for (map<int, Territory *>::iterator it = territories.begin(); it != territories.end(); it++) {
-        territoriesToDefend.insert(pair<int, Territory *>(it->second->countryNumber, (it->second)));
+/**
+ * @param mapEdges the list of edges from the map used in the current game
+ * @return map of territories to defend, ordered by priority
+ *     detailed explanation:
+ *     map values hold the territories to defend
+ *         - all territories owned by this player which have at least one adjacent enemy territory are contained
+ *     map keys correspond to the difference between the value's armies and armies on adjacent enemy territories
+ *     map is ordered in descending order such that territories with more adjacent enemy armies are defended first
+ */
+std::multimap<int, Territory *, std::greater<>> Player::toDefend(const vector<Edge *> &mapEdges) {
+    std::multimap<int, Territory *, std::greater<>> territoriesToDefend;
+    for (auto pair : territories) {
+        int enemyArmies = 0;
+        vector<Territory *> enemyTerritories = pair.second->adjacentEnemyTerritories(mapEdges);
+        for (const auto &enemyTerritory : enemyTerritories) {
+            enemyArmies += enemyTerritory->numberOfArmies;
+        }
+        if (!enemyTerritories.empty()) {
+            territoriesToDefend.insert({enemyArmies - pair.second->numberOfArmies, pair.second});
+        }
     }
     return territoriesToDefend;
 }

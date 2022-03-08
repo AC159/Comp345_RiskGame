@@ -39,8 +39,8 @@ class Players::Player {
         // ostream operator
         friend std::ostream& operator<<(std::ostream& out, const Player& player);
 
-        //returns a list of territories to be defended
-        std::map<int, Graph::Territory*> toDefend();
+        //returns a list of territories to be defended in order of priority
+        std::multimap<int, Graph::Territory *, std::greater<>> toDefend(const std::vector<Graph::Edge *> &mapEdges);
 
         //returns a list of territories to be attacked
         std::map<int, Graph::Territory*> toAttack(std::list<Graph::Edge*> &edges);
