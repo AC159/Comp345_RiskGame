@@ -61,7 +61,7 @@ Player::~Player() {
 Player &Player::operator=(const Player &player) {
 
     if (this == &player) return *this;
-    
+
     // delete the previous and copy the name from the other player
     this->name = player.name;
     this->reinforcementPool = player.reinforcementPool;
@@ -144,20 +144,20 @@ map<int, Territory *> Player::toAttack(list<Edge *> &edges) {
     return territoriesToAttack;
 }
 
+// creates an order and places it in the player's list of orders
+void Player::issueOrder(const vector<Edge *> &mapEdges, int i) {
+    if (reinforcementPool != 0) {
+        std::multimap<int, Territory *, std::greater<>> defend = toDefend(mapEdges);
+        auto it = defend.begin();
+        std::advance(it, i >= defend.size() ? i % defend.size() : i);
 
-// inserts an order to the player's list of orders
-// orderType: deploy, advance, bomb, blockade, airlift, negotiate
-void Player::issueOrder(const string &orderType) const {
-    Orders::Order *newOrder;
-    if (orderType == "deploy") { newOrder = new Orders::Deploy(); }
-    else if (orderType == "advance") { newOrder = new Orders::Advance(); }
-    else if (orderType == "bomb") { newOrder = new Orders::Bomb(); }
-    else if (orderType == "blockade") { newOrder = new Orders::Blockade(); }
-    else if (orderType == "airlift") { newOrder = new Orders::Airlift(); }
-    else if (orderType == "negotiate") { newOrder = new Orders::Negotiate(); }
-    orders->add(newOrder);
+        int armiesDeployed = it->first > reinforcementPool ? reinforcementPool : it->first;
+        orders->add(new Orders::Deploy(this, it->second, armiesDeployed));
+        cout << this->getName() << " ADDED "  << orders->element(orders->length() - 1);
+    } else {
+
+    }
 }
-
 
 // accessor method for name
 string Player::getName() {

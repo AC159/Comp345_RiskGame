@@ -276,7 +276,13 @@ void GameEngine::issueOrdersStateChange() {
 }
 
 void GameEngine::issueOrdersPhase() {
-
+    int i = 0;
+    while (reinforcementsRemain()) {
+        for (auto player: playersList) {
+            player->issueOrder(mapLoader->map->edges, i);
+        }
+        i++;
+    }
 }
 
 //=============execute orders state =================
@@ -330,4 +336,16 @@ GameEngine::~GameEngine() {
         delete p;
     }
     playersList.clear();
+}
+
+bool GameEngine::reinforcementsRemain() {
+//    for (const auto &player : playersList) {
+//        if (player->reinforcementPool > 0) {
+//            return false;
+//        }
+//    }
+    if (std::all_of(playersList.begin(), playersList.end(), [](Players::Player *p){ return p->reinforcementPool == 0; })) {
+        return true;
+    }
+    return false;
 }

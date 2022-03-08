@@ -51,7 +51,7 @@ ostream& Graph::operator<<(ostream &out, const Territory &territory) {
     return out;
 }
 
-//updates this territory's owner and the old and new owners' list of territories accordingly
+// updates this territory's owner and the old and new owners' list of territories accordingly
 void Territory::transferOwnership(Players::Player *newOwner) {
     if (owner != nullptr) {
         owner->removeTerritory(*this);
@@ -62,7 +62,18 @@ void Territory::transferOwnership(Players::Player *newOwner) {
     owner = newOwner;
 }
 
-//memory de-allocation of territory's owner should be handled externally
+// returns all territories that are both adjacent to this territory and have a different owner
+vector<Territory *> Territory::adjacentEnemyTerritories(const vector<Edge *> &mapEdges) {
+    vector<Territory *> adjacentEnemyTerritories;
+    for (const auto &edge : mapEdges) {
+        if (edge->source == this && edge->destination->owner != owner) {
+            adjacentEnemyTerritories.push_back(edge->destination);
+        }
+    }
+    return adjacentEnemyTerritories;
+}
+
+// memory de-allocation of territory's owner should be handled externally
 Territory::~Territory() = default;
 
 // ================= Edge Class =====================

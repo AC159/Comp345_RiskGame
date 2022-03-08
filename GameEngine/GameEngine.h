@@ -61,6 +61,7 @@ public:
     void winStateChange();
     int validateWinCommand();
 
+    bool reinforcementsRemain();
 private:
     string state;
 
