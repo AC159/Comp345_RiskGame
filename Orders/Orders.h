@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "../Map/Map.h"
+#include "../Logging/LoggingObserver.h"
 
 namespace Orders {
     class Order;
@@ -26,9 +27,10 @@ namespace Orders {
 }
 
 // Abstract base class for Deploy, Advance, Bomb, Blockade, Airlift and Negotiate orders
-class Orders::Order {
+class Orders::Order : public ILoggable, public Subject {
 public:
     Players::Player *issuer;    //the player whose turn it is to issue orders
+    std::string orderEffect;
 
     Order();
     explicit Order(Players::Player *issuer);
@@ -40,6 +42,7 @@ public:
 
     virtual bool validate() = 0;
     virtual bool execute() = 0;
+    std::string stringToLog() const override = 0;
 
     [[nodiscard]] virtual Order* clone() const = 0;
     virtual std::ostream & write(std::ostream &out) const = 0;
@@ -62,6 +65,7 @@ public:
     Deploy & operator=(const Deploy &deploy);
     friend std::ostream & operator<<(std::ostream &out, const Deploy &deploy);
 
+    std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -86,6 +90,7 @@ public:
     Advance & operator=(const Advance &advance);
     friend std::ostream & operator<<(std::ostream &out, const Advance &advance);
 
+    std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -108,6 +113,7 @@ public:
     Bomb & operator=(const Bomb &bomb);
     friend std::ostream & operator<<(std::ostream &out, const Bomb &bomb);
 
+    std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -129,6 +135,7 @@ public:
     Blockade & operator=(const Blockade &blockade);
     friend std::ostream & operator<<(std::ostream &out, const Blockade &blockade);
 
+    std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -152,6 +159,7 @@ public:
     Airlift & operator=(const Airlift &airlift);
     friend std::ostream & operator<<(std::ostream &out, const Airlift &airlift);
 
+    std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -173,6 +181,7 @@ public:
     Negotiate & operator=(const Negotiate &negotiate);
     friend std::ostream & operator<<(std::ostream &out, const Negotiate &negotiate);
 
+    std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -181,7 +190,7 @@ public:
 };
 
 // Represents a sequential list of orders with basic functionalities
-class Orders::OrdersList {
+class Orders::OrdersList : public ILoggable, public Subject {
 private:
     std::vector<Order*> orders;
 
@@ -193,6 +202,7 @@ public:
     OrdersList & operator=(const OrdersList &ordersList);
     friend std::ostream & operator<<(std::ostream &out, const OrdersList &ordersList);
 
+    std::string stringToLog() const override;
     void remove(int index);
     void move(int oldIndex, int newIndex);
     void add(Order *newOrder);

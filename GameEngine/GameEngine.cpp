@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <utility>
 #include <experimental/random>
-#include "../CommandProcessor/CommandProcessing.h"
 
 // todo: list of orders should be specific to a single player
 Orders::OrdersList *ordersList = new Orders::OrdersList();
@@ -23,6 +22,10 @@ GameEngine::GameEngine(const GameEngine &game) {
     this->processor = new CommandProcessor(); // generate a new command processor
     this->playersList = game.playersList;
     this->deck = new Cards::Deck(*game.deck);
+}
+
+string GameEngine::stringToLog() const {
+    return "Game engine state: " + this->state;
 }
 
 GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
@@ -49,6 +52,7 @@ ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
 void GameEngine::changeState(string changedState) {
     this->state = std::move(changedState);
     cout << "========== state = " << this->state << " ==========" << endl;
+    notify(*this);
 }
 
 //=============Start state ================

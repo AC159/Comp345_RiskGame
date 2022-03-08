@@ -40,7 +40,7 @@ int main() {
             Orders::ordersDriver();
         } else if (userInput == "5") {
             cout << "Part 5: Game log observer - commands and orders" << endl;
-            //call driver for Game log observer: commands and orders here
+            LogObserver::LoggingDriver();
         } else if (userInput != "6")
             cout << "ERROR: Invalid input!" << endl;
     } while (userInput != "6");

@@ -5,15 +5,13 @@
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
 #include "../Player/Player.h"
+#include "../CommandProcessor/CommandProcessing.h"
 #include <istream>
 #include <string>
 
 using namespace std;
 
-class CommandProcessor;
-class Command;
-
-class GameEngine {
+class GameEngine : public ILoggable, public Subject {
 public:
     CommandProcessor* processor;
     Graph::MapLoader* mapLoader;
@@ -23,6 +21,7 @@ public:
     GameEngine(const GameEngine &gameEngine); //copy constructor
     ~GameEngine();
 
+    string stringToLog() const override;
     GameEngine& operator=(const GameEngine &gameEngine);
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
     static void gameStartupDriver();
