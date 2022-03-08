@@ -108,7 +108,7 @@ void GameEngine::gameStart() {
             int random;
             if (nbrOfTerritories == 1) random = 0;
             else random = std::experimental::randint(0, nbrOfTerritories-1);
-            player->addTerritory(*territories.at(random));
+            territories.at(random)->transferOwnership(player);
             if (random != nbrOfTerritories) territories.erase(territories.begin() + random);
             else territories.erase(territories.end() - 1);
             nbrOfTerritories = territories.size();
