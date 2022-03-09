@@ -12,8 +12,6 @@ void showAdj(const vector<Edge *> &edges, Territory *territory) {
     }
 }
 
-#pragma clang diagnostic pop //warning suppression ends here
-
 //assigns territory to given owner with given num of armies & displays territory info
 void assignT(const vector<Edge *> &edges, Territory *territory, Player *owner, int armyCount) {
     cout << "• Giving territory " << territory->name << " to " << owner->getName() << endl;
@@ -52,32 +50,26 @@ void GameEngine::gamePlayDriver() {
     assignT(ml->map->edges, eastPluto, p2, 3);
     assignT(ml->map->edges, westPluto, p2, 2);
 
-    cout << "\n\nPlayerOne reinforcement pool: " << p1->reinforcementPool << endl;
-    cout << "PlayerTwo reinforcement pool: " << p2->reinforcementPool << "\n" << endl;
-    GameEngine x;
-    x.mapLoader = ml;
-    x.playersList.push_back(p1);
-    x.playersList.push_back(p2);
-    x.reinforcementPhase();
+    GameEngine game;
+    game.mapLoader = ml;
+    game.playersList.push_back(p1);
+    game.playersList.push_back(p2);
+    game.reinforcementPhase();
+    p1->reinforcementPool = 50;
+    p2->reinforcementPool = 30;
     cout << "\n\nPlayerOne reinforcement pool: " << p1->reinforcementPool << endl;
     cout << "PlayerTwo reinforcement pool: " << p2->reinforcementPool << "\n\n" << endl;
-//    map<int, Territory *> attack = p1->toAttack(ml->map->edges);
-//    for (const auto &t : attack) {
-//        cout << t.second->name << endl;
-//    }
-//    cout << endl;
 
-    multimap<int, Territory *, greater<>> defend = p1->toDefend(ml->map->edges);
-    for (const auto &i : defend) {
+    cout << p1->getName() << endl;
+    for (const auto &i : p1->toDefend(ml->map->edges)) {
+        cout << "DEFEND " << i.first << " " <<i.second->name << endl;
+    }
+    cout << endl;
+    cout << p2->getName() << endl;
+    for (const auto &i : p2->toDefend(ml->map->edges)) {
         cout << "DEFEND " << i.first << " " <<i.second->name << endl;
     }
     cout << endl;
 
-
-    x.issueOrdersPhase();
-//    vector<Territory *> attack = p1->toAttack(ml->map->edges);
-//    for (const auto &t : attack) {
-//        cout << t->name << endl;
-//    }
-//    cout << endl;
+    game.issueOrdersPhase();
 }

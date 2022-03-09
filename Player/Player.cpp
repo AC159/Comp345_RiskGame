@@ -2,6 +2,7 @@
 #include <list>
 #include <map>
 #include <utility>
+#include <numeric>
 #include "Player.h"
 
 using namespace std;
@@ -117,7 +118,8 @@ std::multimap<int, Territory *, std::greater<>> Player::toDefend(const vector<Ed
             enemyArmies += enemyTerritory->numberOfArmies;
         }
         if (!enemyTerritories.empty()) {
-            territoriesToDefend.insert({enemyArmies - pair.second->numberOfArmies, pair.second});
+            int armies = enemyArmies - pair.second->numberOfArmies > 0 ? enemyArmies - pair.second->numberOfArmies : 1;
+            territoriesToDefend.insert({armies, pair.second});
         }
     }
     return territoriesToDefend;
@@ -146,17 +148,28 @@ map<int, Territory *> Player::toAttack(list<Edge *> &edges) {
 
 // creates an order and places it in the player's list of orders
 void Player::issueOrder(const vector<Edge *> &mapEdges, int i) {
-    if (reinforcementPool != 0) {
+    if (reinforcementsDeployed != reinforcementPool) {
         std::multimap<int, Territory *, std::greater<>> defend = toDefend(mapEdges);
         auto it = defend.begin();
         std::advance(it, i >= defend.size() ? i % defend.size() : i);
+        int multiplier = reinforcementPool / std::accumulate(defend.begin(), defend.end(), 0,
+                        [](const int previous, const std::pair<int, Territory *> &p)
+                        { return previous + p.first; });
 
-        int armiesDeployed = it->first > reinforcementPool ? reinforcementPool : it->first;
+        int armiesDeployed = 0;
+        if (it->first * multiplier > reinforcementPool - reinforcementsDeployed) {
+            armiesDeployed = reinforcementPool - reinforcementsDeployed;
+        } else {
+            armiesDeployed = it->first * multiplier;
+        }
         orders->add(new Orders::Deploy(this, it->second, armiesDeployed));
-        cout << this->getName() << " ADDED "  << orders->element(orders->length() - 1);
+        reinforcementsDeployed += armiesDeployed;
+
+        cout << this->getName() << " issued: "  << *orders->element(orders->length() - 1) << endl;
     } else {
 
     }
+
 }
 
 // accessor method for name

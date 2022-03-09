@@ -277,6 +277,8 @@ void GameEngine::issueOrdersStateChange() {
 
 void GameEngine::issueOrdersPhase() {
     int i = 0;
+    std::for_each(playersList.begin(), playersList.end(),
+                  [](Players::Player *p){p->reinforcementsDeployed = 0;});
     while (reinforcementsRemain()) {
         for (auto player: playersList) {
             player->issueOrder(mapLoader->map->edges, i);
@@ -339,13 +341,9 @@ GameEngine::~GameEngine() {
 }
 
 bool GameEngine::reinforcementsRemain() {
-//    for (const auto &player : playersList) {
-//        if (player->reinforcementPool > 0) {
-//            return false;
-//        }
-//    }
-    if (std::all_of(playersList.begin(), playersList.end(), [](Players::Player *p){ return p->reinforcementPool == 0; })) {
-        return true;
+    if (std::all_of(playersList.begin(), playersList.end(),
+                    [](Players::Player *p){ return p->reinforcementPool == p->reinforcementsDeployed; })) {
+        return false;
     }
-    return false;
+    return true;
 }
