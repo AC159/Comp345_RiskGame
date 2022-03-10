@@ -33,8 +33,8 @@ void GameEngine::gamePlayDriver() {
     cout << "*******************************************************************************************" << endl;
 
     cout << "\n\nCreating players named PlayerOne and PlayerTwo..." << endl;
-    auto *p1 = new Player("PlayerOne");
-    auto *p2 = new Player("PlayerTwo");
+    auto *p1 = new Player("Player1");
+    auto *p2 = new Player("Player2");
 
     cout << "\n\nAssigning territories..." << endl;
     Territory *southNeptune = ml->map->territories[0];
@@ -72,4 +72,22 @@ void GameEngine::gamePlayDriver() {
     cout << endl;
 
     game.issueOrdersPhase();
+    auto *p3 = new Player("Player3");
+    game.playersList.push_back(p3);
+    p1->orders->add(new Orders::Deploy());
+    p1->orders->add(new Orders::Deploy());
+    p1->orders->add(new Orders::Advance());
+    p1->orders->add(new Orders::Advance());
+    p1->orders->add(new Orders::Advance());
+    p2->orders->add(new Orders::Deploy());
+    p2->orders->add(new Orders::Advance());
+    p2->orders->add(new Orders::Advance());
+    p2->orders->add(new Orders::Advance());
+    p2->orders->add(new Orders::Advance());
+    p3->orders->add(new Orders::Deploy());
+    p3->orders->add(new Orders::Deploy());
+    p3->orders->add(new Orders::Deploy());
+    p3->orders->add(new Orders::Advance());
+    p3->orders->add(new Orders::Advance());
+    game.executeOrdersPhase();
 }

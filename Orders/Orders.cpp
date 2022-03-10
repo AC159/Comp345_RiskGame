@@ -43,6 +43,10 @@ bool Order::hasNegotiation(Players::Player *player1, Players::Player *player2) {
     return false;
 }
 
+bool Order::isDeployType() const {
+    return false;
+}
+
 // ====================== Deploy class ======================
 Deploy::Deploy() : target(nullptr), armies(0) {
     cout << "Created a Deploy order." << endl;
@@ -118,6 +122,10 @@ Deploy *Deploy::clone() const {
 //helper for the stream insertion operator to function as a virtual
 std::ostream &Deploy::write(ostream &out) const {
     return target == nullptr ? out << "Deploy" : out << "Deploy " << armies << " to " << target->name;
+}
+
+bool Deploy::isDeployType() const {
+    return true;
 }
 
 // ====================== Advance class ======================

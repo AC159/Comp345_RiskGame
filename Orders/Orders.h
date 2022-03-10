@@ -46,7 +46,7 @@ public:
 
     [[nodiscard]] virtual Order* clone() const = 0;
     virtual std::ostream & write(std::ostream &out) const = 0;
-
+    [[nodiscard]] virtual bool isDeployType() const;
     bool hasNegotiation(Players::Player* player1, Players::Player* player2);
 };
 
@@ -71,6 +71,7 @@ public:
 
     [[nodiscard]] Deploy * clone() const override;
     std::ostream & write(std::ostream &out) const override;
+    [[nodiscard]] bool isDeployType() const override;
 };
 
 /* An advance order tells a number of army units from a source territory to transfer to or to attack a target adjacent

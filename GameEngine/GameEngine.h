@@ -62,6 +62,7 @@ public:
     int validateWinCommand();
 
     bool reinforcementsRemain();
+    bool ordersRemain();
 private:
     string state;
 

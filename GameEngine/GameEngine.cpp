@@ -249,6 +249,8 @@ void GameEngine::assignReinforcementStateChange() {
 
 // fill all players' reinforcement pools for the turn according to the territories they own
 void GameEngine::reinforcementPhase() {
+    assignReinforcementStateChange();
+
     for (auto player: playersList) {
         int baseRate = static_cast<int>(player->territories.size() / 3);
         int totalBonus = 0;
@@ -276,6 +278,8 @@ void GameEngine::issueOrdersStateChange() {
 }
 
 void GameEngine::issueOrdersPhase() {
+    issueOrdersStateChange();
+
     int i = 0;
     std::for_each(playersList.begin(), playersList.end(),
                   [](Players::Player *p){p->reinforcementsDeployed = 0;});
@@ -294,7 +298,29 @@ void GameEngine::executeOrdersStateChange() {
 }
 
 void GameEngine::executeOrdersPhase() {
+    executeOrdersStateChange();
 
+    int skipStrike = 0; //the number of non-deploy orders skipped in a row
+    int numOfPlayers = static_cast<int>(playersList.size());
+    bool doneDeploying = false;
+
+    while (ordersRemain()) {
+        for (const auto &player : playersList) {
+
+            //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
+            if (skipStrike == numOfPlayers) {doneDeploying = true;}
+
+            if (player->orders->length() != 0 && (doneDeploying || player->orders->element(0)->isDeployType())) {
+                skipStrike = 0;
+
+                cout << player->getName() << " executed: ";
+                player->orders->element(0)->execute();
+                player->orders->remove(0);
+            } else {
+                skipStrike++;
+            }
+        }
+    }
 }
 
 //=============win state =================
@@ -343,6 +369,14 @@ GameEngine::~GameEngine() {
 bool GameEngine::reinforcementsRemain() {
     if (std::all_of(playersList.begin(), playersList.end(),
                     [](Players::Player *p){ return p->reinforcementPool == p->reinforcementsDeployed; })) {
+        return false;
+    }
+    return true;
+}
+
+bool GameEngine::ordersRemain() {
+    if (std::all_of(playersList.begin(), playersList.end(),
+                    [](Players::Player *p){ return p->orders->length() == 0; })) {
         return false;
     }
     return true;
