@@ -1,21 +1,21 @@
 
-loadmap <asdasdsa>
+loadmap asdasdsa
 
 adsa aksd aksd kasd
 asd
 
-loadmap <asdasdasdas>
-loadmap <asdasdasdasdadsdasd>
-loadmap <asdasdasdasdas>
+loadmap asdasdasdas
+loadmap asdasdasdasdadsdasd
+loadmap sdasdasdasdas
 validatemap
 
 adsa aksd aksd kasd
 asd
 
-addplayer <something>
-addplayer <asdasdasdasd>
-addplayer <asdasdasdadasdasd>
-addplayer <asdasdsadsad>
+addplayer something
+addplayer asdasdasdasd
+addplayer asdasdasdadasdasd
+addplayer asdasdsadsad
 
 adsa aksd aksd kasd
 asd
@@ -32,9 +32,9 @@ asd
 
 alskdjasdkjl
 alskdjasdkjl
-loadmap <asdasdkasld>
+loadmap asdasdkasld
 validatemap
-addplayer <something>
+addplayer something
 gamestart
 quit
 as

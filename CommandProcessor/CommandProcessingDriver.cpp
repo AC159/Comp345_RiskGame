@@ -6,11 +6,12 @@
 void CommandProcessor::commandProcessorDriver() {
 
     GameEngine *gameEngine = new GameEngine();
-    CommandProcessor *commandProcessor;
+    CommandProcessor *commandProcessor = nullptr;
 
     string userInput;
 
-    cout << "Choose way of input(-console, -file <filename>): ";
+    cout << "=======Inputting Commands=======" << endl;
+    cout << "Choose way of inputting commands (-console, -file <filename>): ";
     getline(cin, userInput);
 
     if (userInput == "-console") {
@@ -24,12 +25,11 @@ void CommandProcessor::commandProcessorDriver() {
 
         gameEngine->mapValidatedStateChange();
         string state = gameEngine->getState();
-        cout<< state << endl;
         bool validate = commandProcessor->validate(commandProcessor->getCommand().command, *gameEngine);
         if (validate == 0)
-            cout << "The command is not valid. " << "command: "<< commandProcessor->commandList.at(0)->command << " state: "<<state<<endl;
+            cout << "The command " << commandProcessor->commandList.at(0)->command << " is not valid at state "<<state<<endl;
         else
-            cout << "The command is valid. command: "<<commandProcessor->commandList.at(0)->command<<" state: "<<state<<endl;
+            cout << "The command " << commandProcessor->commandList.at(0)->command << "  is valid at state " <<state<<endl;
 
         cout << *commandProcessor << endl;
     } else if(userInput.substr(0, 5) == "-file") {
@@ -86,7 +86,7 @@ void CommandProcessor::commandProcessorDriver() {
                 validate = commandProcessor->validate(c->command, *gameEngine);
 
                 if (validate) {
-                    cout << "The command " << c->command << " is valid at state: "
+                    cout << "The command " << c->command << " is valid at state "
                          << state << endl;
                     if (c->command.substr(0, 9) == "addplayer"){
                         saveEffect = "player is added";
@@ -95,15 +95,15 @@ void CommandProcessor::commandProcessorDriver() {
                         saveEffect = "game is started";
                     }
                 } else {
-                    cout << "The command " << c->command << " is not valid at state: " << state << endl;
-                    saveEffect = "invalid command in state " + state;
+                    cout << "The command " << c->command << " is not valid at state " << state << endl;
+                    saveEffect = "Invalid command in state " + state;
                 }
                 c->saveEffect(saveEffect);
             }
         } else {
             cout << "The file is empty." << endl;
         }
-
+        cout << endl;
         cout << *commandProcessor << endl;
     }
 

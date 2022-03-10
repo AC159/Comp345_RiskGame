@@ -95,7 +95,15 @@ Command& CommandProcessor::getCommand() {
 
 string CommandProcessor::readCommand() {
     string readCommandInput;
-    cout << "Command: ";
+    cout << "List of possible console commands:" << endl;
+    cout << " loadmap <mapfile>" << endl;
+    cout << " validatemap" << endl;
+    cout << " addplayer <playername>" << endl;
+    cout << " gamestart" << endl;
+    cout << " replay" << endl;
+    cout << " quit" << endl;
+
+    cout << "Input command: ";
     getline(cin, readCommandInput);
     return readCommandInput;
 }
@@ -201,7 +209,7 @@ string FileLineReader::readLineFromFile(){
     string lineInString = line;
 
     // check if the line is a space, if so, set return string to NULL
-    if(lineInString.size() == 0){
+    if(lineInString.empty()){
         lineInString = "NULL";
     }
 
@@ -281,6 +289,8 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter(){
 // assignment operator
 FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCommandProcessorAdapter &fcpa){
     if(this == &fcpa){ return *this;}
+
+    CommandProcessor::operator=(fcpa);
 
     delete flr;
     flr = new FileLineReader(*fcpa.flr);
