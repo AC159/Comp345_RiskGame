@@ -31,9 +31,12 @@ class Orders::Order : public ILoggable, public Subject {
 public:
     Players::Player *issuer;    //the player whose turn it is to issue orders
     std::string orderEffect;
+    std::string type;
 
     Order();
     explicit Order(Players::Player *issuer);
+    explicit Order(Players::Player *issuer, std::string type);
+    explicit Order(std::string type);
     Order(const Order &order);
     virtual ~Order();
 
