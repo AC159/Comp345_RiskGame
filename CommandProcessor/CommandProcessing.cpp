@@ -32,9 +32,7 @@ Command& Command::operator=(const Command &command){
 
 // stream insertion operator
 ostream& operator<<(ostream &out, const Command &command){
-    out << "Command: " << command.command << "\n";
-    out << "Effect: " << command.effect << "\n";
-
+    out << "Command: " << command.command << "\nEffect: " << command.effect << "\n";
     return out;
 }
 
@@ -79,9 +77,9 @@ CommandProcessor& CommandProcessor::operator=(const CommandProcessor &commandPro
 
 // stream insertion operator
 ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor){
-    out << "The CommandProcessor's list of commands:\n\n";
+    out << "The CommandProcessor's list of commands:\n";
     for(Command *c: commandProcessor.commandList){
-        out << *c << "\n";
+        out << *c;
     }
     return out;
 }
@@ -95,15 +93,7 @@ Command& CommandProcessor::getCommand() {
 
 string CommandProcessor::readCommand() {
     string readCommandInput;
-    cout << "List of possible console commands:" << endl;
-    cout << " loadmap <mapfile>" << endl;
-    cout << " validatemap" << endl;
-    cout << " addplayer <playername>" << endl;
-    cout << " gamestart" << endl;
-    cout << " replay" << endl;
-    cout << " quit" << endl;
-
-    cout << "Input command: ";
+    cout << "Input command:";
     getline(cin, readCommandInput);
     return readCommandInput;
 }
@@ -304,9 +294,9 @@ FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCo
 // ostream operator outputs the opened file name
 ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa){
     out << "FileCommandProcessorAdapter's file: " << fcpa.getFLRFileName() << "\n";
-    out << "FileCommandProcessorAdapter's list of commands:\n\n";
+    out << "FileCommandProcessorAdapter's list of commands:\n";
     for (Command *c: fcpa.commandList){
-        out << c;
+        out << *c;
     }
     return out;
 }
