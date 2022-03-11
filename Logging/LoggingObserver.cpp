@@ -43,10 +43,7 @@ LogObserver::LogObserver() {
 }
 
 LogObserver::LogObserver(const LogObserver &logObserver) {
-    // shallow copy of all subjects in the logObserver object
-    for (auto* subject : logObserver.subjects) {
-        this->subjects.push_back(subject);
-    }
+    this->openLogFileStream();
 }
 
 void LogObserver::openLogFileStream() {
@@ -58,16 +55,8 @@ void LogObserver::closeLogFileStream() {
 }
 
 LogObserver &LogObserver::operator=(const LogObserver &logObserver) {
-    if (&logObserver == this) return *this;
-    for (auto* subject : this->subjects) {
-        delete subject;
-    }
-    this->subjects.clear();
-    // shallow copy of all subjects in the logObserver object
-    for (auto* subject : logObserver.subjects) {
-        this->subjects.push_back(subject);
-    }
-    return *this;
+    if (this == &logObserver) return *this;
+    return *this; // nothing to copy
 }
 
 void LogObserver::update(const ILoggable &loggable) {
@@ -78,7 +67,7 @@ void LogObserver::update(const ILoggable &loggable) {
 }
 
 std::ostream &operator<<(std::ostream &out, const LogObserver &logObserver) {
-    out << "LogObserver: \n\tNbr of observed subjects: " << logObserver.subjects.size() << std::endl;
+    out << "LogObserver: \n\tLog file status: \n\topen:" << logObserver.fileStream.is_open() << std::endl;
     return out;
 }
 

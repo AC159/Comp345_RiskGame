@@ -38,7 +38,6 @@ public:
 
 class LogObserver : public Observer {
 private:
-    std::vector<Subject*> subjects;
     std::fstream fileStream; // reference to log file
     void openLogFileStream();
     void closeLogFileStream();
