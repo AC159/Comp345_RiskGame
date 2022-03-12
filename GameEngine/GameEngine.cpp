@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <utility>
 #include <experimental/random>
-#include "../CommandProcessor/CommandProcessing.h"
 
 
 #ifdef _WIN32 // any windows system
@@ -32,6 +31,10 @@ GameEngine::GameEngine(const GameEngine &game) {
     this->deck = new Cards::Deck(*game.deck);
 }
 
+string GameEngine::stringToLog() const {
+    return "Game engine state: " + this->state;
+}
+
 GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     if (this == &gameEngine) return *this;
     delete this->mapLoader;
@@ -56,6 +59,7 @@ ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
 void GameEngine::changeState(string changedState) {
     this->state = std::move(changedState);
     cout << "========== state = " << this->state << " ==========" << endl;
+    notify(*this);
 }
 
 //=============Start state ================

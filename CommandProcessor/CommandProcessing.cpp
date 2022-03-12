@@ -8,13 +8,13 @@
 Command::Command() = default;
 
 // constructor with the command's name
-Command::Command(string commands) {
+Command::Command(string commands) : Subject() {
     command = std::move(commands);
     effect = "";
 }
 
 // copy constructor
-Command::Command(const Command &command){
+Command::Command(const Command &command) {
     this->command = command.command;
     this->effect = command.effect;
 }
@@ -23,7 +23,7 @@ Command::Command(const Command &command){
 Command::~Command() = default;
 
 // assignment operator
-Command& Command::operator=(const Command &command){
+Command& Command::operator=(const Command &command) {
     if (this == &command) return *this;
     this->command = command.command;
     this->effect = command.effect;
@@ -38,6 +38,11 @@ ostream& operator<<(ostream &out, const Command &command){
 
 void Command::saveEffect(string commandEffect) {
     effect = std::move(commandEffect);
+    notify(*this); // notify all observers of this subject to write log to file
+}
+
+string Command::stringToLog() const {
+    return "Command: " + this->command + "\tEffect: " + this->effect;
 }
 
 // ==================== CommandProcessor class ========================
@@ -45,7 +50,7 @@ void Command::saveEffect(string commandEffect) {
 CommandProcessor::CommandProcessor() = default;
 
 // copy constructor
-CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor){
+CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor) {
     this->currentState = commandProcessor.currentState;
     for (Command *c : commandProcessor.commandList) {
         commandList.push_back(new Command(*c));
@@ -60,8 +65,12 @@ CommandProcessor::~CommandProcessor() {
     }
 }
 
+string CommandProcessor::stringToLog() const {
+    return "Command processor saved new command in the command list: " + this->commandList.back()->command;
+}
+
 // assignment operator
-CommandProcessor& CommandProcessor::operator=(const CommandProcessor &commandProcessor){
+CommandProcessor& CommandProcessor::operator=(const CommandProcessor &commandProcessor) {
     if(this == &commandProcessor) return *this;
 
     this->currentState = commandProcessor.currentState;
@@ -98,8 +107,9 @@ string CommandProcessor::readCommand() {
     return readCommandInput;
 }
 
-void CommandProcessor::saveCommand(Command &command){
+void CommandProcessor::saveCommand(Command &command) {
     commandList.push_back(&command);
+    notify(*this); // notify all observers of this subject to write log to file
 }
 
 // validate (1) user command (2) command is used in the correct state
@@ -132,19 +142,19 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
 //============================FileLineReader============================
 
 // default constructor sets the file name to NoFileName
-FileLineReader::FileLineReader(){
+FileLineReader::FileLineReader() {
     fileName = "NoFileName";
     stateOfFile = false;
 }
 
 // constructor to open a file with the passed file name
-FileLineReader::FileLineReader(string otherFileName){
+FileLineReader::FileLineReader(string otherFileName) {
     fileName = otherFileName;
     stateOfFile = false;
 }
 
 // copy constructor
-FileLineReader::FileLineReader(const FileLineReader &flr){
+FileLineReader::FileLineReader(const FileLineReader &flr) {
     if(flr.inputFileStream.is_open()){
         this->inputFileStream.open(flr.fileName);
     }
@@ -153,7 +163,7 @@ FileLineReader::FileLineReader(const FileLineReader &flr){
 }
 
 // destructor
-FileLineReader::~FileLineReader(){
+FileLineReader::~FileLineReader() {
     if (isFileOpen()) {
         closeFile();
     }
@@ -162,7 +172,7 @@ FileLineReader::~FileLineReader(){
 // assignment operator
 FileLineReader& FileLineReader::operator=(const FileLineReader &flr) {
 
-    if(this == &flr){return *this;}
+    if(this == &flr) return *this;
 
     // close stream if it's open
     if (isFileOpen()) {
