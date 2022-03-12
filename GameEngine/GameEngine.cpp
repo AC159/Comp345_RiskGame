@@ -6,9 +6,9 @@
 
 
 #ifdef _WIN32 // any windows system
-    #define PLATFORM "windows"
+#define PLATFORM "windows"
 #else // any linux distribution
-    #define PLATFORM "unix"
+#define PLATFORM "unix"
 #endif
 
 // todo: list of orders should be specific to a single player
@@ -93,9 +93,8 @@ void GameEngine::startupPhase() {
 
 void GameEngine::gameStart() {
     while (true) {
-        cout
-                << "Use the 'gamestart' command to distribute territories, determine play order, assign initial armies and draw cards from the deck"
-                << endl;
+        cout << "Use the 'gamestart' command to distribute territories, determine play order, assign initial armies and draw cards from the deck"
+             << endl;
         Command command = processor->getCommand();
         if (!processor->validate(command.command, *this)) {
             cout << "Invalid command! Please try again." << endl;
