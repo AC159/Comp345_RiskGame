@@ -1,1 +1,1 @@
-addplayer <asdasdasdasd>
+addplayer asdasdasdasd

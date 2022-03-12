@@ -1,1 +1,1 @@
-loadmap <asdasda>
+loadmap asdasda

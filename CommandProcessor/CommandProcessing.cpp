@@ -32,9 +32,7 @@ Command& Command::operator=(const Command &command){
 
 // stream insertion operator
 ostream& operator<<(ostream &out, const Command &command){
-    out << "Command: " << command.command << "\n";
-    out << "Effect: " << command.effect << "\n";
-
+    out << "Command: " << command.command << "\nEffect: " << command.effect << "\n";
     return out;
 }
 
@@ -79,9 +77,9 @@ CommandProcessor& CommandProcessor::operator=(const CommandProcessor &commandPro
 
 // stream insertion operator
 ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor){
-    out << "The CommandProcessor's list of commands:\n\n";
+    out << "The CommandProcessor's list of commands:\n";
     for(Command *c: commandProcessor.commandList){
-        out << *c << "\n";
+        out << *c;
     }
     return out;
 }
@@ -95,7 +93,7 @@ Command& CommandProcessor::getCommand() {
 
 string CommandProcessor::readCommand() {
     string readCommandInput;
-    cout << "Command: ";
+    cout << "Input command:";
     getline(cin, readCommandInput);
     return readCommandInput;
 }
@@ -201,7 +199,7 @@ string FileLineReader::readLineFromFile(){
     string lineInString = line;
 
     // check if the line is a space, if so, set return string to NULL
-    if(lineInString.size() == 0){
+    if(lineInString.empty()){
         lineInString = "NULL";
     }
 
@@ -282,6 +280,8 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter(){
 FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCommandProcessorAdapter &fcpa){
     if(this == &fcpa){ return *this;}
 
+    CommandProcessor::operator=(fcpa);
+
     delete flr;
     flr = new FileLineReader(*fcpa.flr);
     if(fcpa.flr->isFileOpen()){
@@ -294,9 +294,9 @@ FileCommandProcessorAdapter& FileCommandProcessorAdapter::operator=(const FileCo
 // ostream operator outputs the opened file name
 ostream& operator<<(ostream &out, const FileCommandProcessorAdapter &fcpa){
     out << "FileCommandProcessorAdapter's file: " << fcpa.getFLRFileName() << "\n";
-    out << "FileCommandProcessorAdapter's list of commands:\n\n";
+    out << "FileCommandProcessorAdapter's list of commands:\n";
     for (Command *c: fcpa.commandList){
-        out << c;
+        out << *c;
     }
     return out;
 }
