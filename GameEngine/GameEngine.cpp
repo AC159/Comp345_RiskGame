@@ -5,10 +5,10 @@
 #include "../CommandProcessor/CommandProcessing.h"
 
 
-#if defined(_WIN32) // any windows system
-#define PLATFORM "windows"
+#ifdef _WIN32 // any windows system
+    #define PLATFORM "windows"
 #elif // any linux distribution
-#define PLATFORM "unix"
+    #define PLATFORM "unix"
 #endif
 
 // todo: list of orders should be specific to a single player
