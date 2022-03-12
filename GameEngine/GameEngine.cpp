@@ -7,8 +7,8 @@
 // todo: list of orders should be specific to a single player
 Orders::OrdersList *ordersList = new Orders::OrdersList();
 
-string GameEngine::getState() const{
-    return state;
+string GameEngine::getState() const {
+    return this->state;
 }
 
 GameEngine::GameEngine() {
