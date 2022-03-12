@@ -144,10 +144,10 @@ void GameEngine::chooseMapToLoad() const {
         string mapPaths {"../WarzoneMaps"};
         int count {1};
         for (const auto &dir : filesystem::directory_iterator(mapPaths)) {
-//            string token = dir.path();
-//            string mapName = token.substr(token.find_last_of('/') + 1, token.length());
-//            cout << count << ". " << mapName << endl;
-//            count++;
+            string token = dir.path();
+            string mapName = token.substr(token.find_last_of('/') + 1, token.length());
+            cout << count << ". " << mapName << endl;
+            count++;
         }
         Command command = processor->getCommand();
         if (!processor->validate(command.command, *this)) {
