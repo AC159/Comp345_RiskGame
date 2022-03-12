@@ -7,7 +7,7 @@
 
 #ifdef _WIN32 // any windows system
     #define PLATFORM "windows"
-#elif // any linux distribution
+#else // any linux distribution
     #define PLATFORM "unix"
 #endif
 
