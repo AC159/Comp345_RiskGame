@@ -6,12 +6,14 @@
 #include <vector>
 #include <fstream>
 
+// Interface that all observable objects (i.e. subjects) will need to implement
 class ILoggable {
 public:
     virtual std::string stringToLog() const = 0;
 };
 
 
+// Interface that all concrete observers will need to implement to respond to state changes from the observed subject
 class Observer {
 public:
     virtual void update(const ILoggable &loggable) = 0;
@@ -36,6 +38,7 @@ public:
 };
 
 
+// Concrete observer class
 class LogObserver : public Observer {
 private:
     std::fstream fileStream; // reference to log file
