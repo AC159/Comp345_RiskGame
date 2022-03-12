@@ -4,6 +4,13 @@
 #include <experimental/random>
 #include "../CommandProcessor/CommandProcessing.h"
 
+
+#if defined(_WIN32) // any windows system
+#define PLATFORM "windows"
+#elif // any linux distribution
+#define PLATFORM "unix"
+#endif
+
 // todo: list of orders should be specific to a single player
 Orders::OrdersList *ordersList = new Orders::OrdersList();
 
@@ -29,7 +36,7 @@ GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     if (this == &gameEngine) return *this;
     delete this->mapLoader;
     delete this->deck;
-    for (auto *player : this->playersList) {
+    for (auto *player: this->playersList) {
         delete player;
     }
     delete this->processor;
@@ -57,22 +64,22 @@ void GameEngine::changeState(string changedState) {
 void GameEngine::startupPhase() {
     changeState("start");
     string welcomeBanner =
-        "WWWWWWWW                           WWWWWWWW                                                                                                          \n"
-        "W::::::W                           W::::::W                                                                                                          \n"
-        "W::::::W                           W::::::W                                                                                                          \n"
-        "W::::::W                           W::::::W                                                                                                          \n"
-        " W:::::W           WWWWW           W:::::Waaaaaaaaaaaaa  rrrrr   rrrrrrrrr   zzzzzzzzzzzzzzzzz   ooooooooooo   nnnn  nnnnnnnn        eeeeeeeeeeee    \n"
-        "  W:::::W         W:::::W         W:::::W a::::::::::::a r::::rrr:::::::::r  z:::::::::::::::z oo:::::::::::oo n:::nn::::::::nn    ee::::::::::::ee  \n"
-        "   W:::::W       W:::::::W       W:::::W  aaaaaaaaa:::::ar:::::::::::::::::r z::::::::::::::z o:::::::::::::::on::::::::::::::nn  e::::::eeeee:::::ee\n"
-        "    W:::::W     W:::::::::W     W:::::W            a::::arr::::::rrrrr::::::rzzzzzzzz::::::z  o:::::ooooo:::::onn:::::::::::::::ne::::::e     e:::::e\n"
-        "     W:::::W   W:::::W:::::W   W:::::W      aaaaaaa:::::a r:::::r     r:::::r      z::::::z   o::::o     o::::o  n:::::nnnn:::::ne:::::::eeeee::::::e\n"
-        "      W:::::W W:::::W W:::::W W:::::W     aa::::::::::::a r:::::r     rrrrrrr     z::::::z    o::::o     o::::o  n::::n    n::::ne:::::::::::::::::e \n"
-        "       W:::::W:::::W   W:::::W:::::W     a::::aaaa::::::a r:::::r                z::::::z     o::::o     o::::o  n::::n    n::::ne::::::eeeeeeeeeee  \n"
-        "        W:::::::::W     W:::::::::W     a::::a    a:::::a r:::::r               z::::::z      o::::o     o::::o  n::::n    n::::ne:::::::e           \n"
-        "         W:::::::W       W:::::::W      a::::a    a:::::a r:::::r              z::::::zzzzzzzzo:::::ooooo:::::o  n::::n    n::::ne::::::::e          \n"
-        "          W:::::W         W:::::W       a:::::aaaa::::::a r:::::r             z::::::::::::::zo:::::::::::::::o  n::::n    n::::n e::::::::eeeeeeee  \n"
-        "           W:::W           W:::W         a::::::::::aa:::ar:::::r            z:::::::::::::::z oo:::::::::::oo   n::::n    n::::n  ee:::::::::::::e  \n"
-        "            WWW             WWW           aaaaaaaaaa  aaaarrrrrrr            zzzzzzzzzzzzzzzzz   ooooooooooo     nnnnnn    nnnnnn    eeeeeeeeeeeeee  ";
+            "WWWWWWWW                           WWWWWWWW                                                                                                          \n"
+            "W::::::W                           W::::::W                                                                                                          \n"
+            "W::::::W                           W::::::W                                                                                                          \n"
+            "W::::::W                           W::::::W                                                                                                          \n"
+            " W:::::W           WWWWW           W:::::Waaaaaaaaaaaaa  rrrrr   rrrrrrrrr   zzzzzzzzzzzzzzzzz   ooooooooooo   nnnn  nnnnnnnn        eeeeeeeeeeee    \n"
+            "  W:::::W         W:::::W         W:::::W a::::::::::::a r::::rrr:::::::::r  z:::::::::::::::z oo:::::::::::oo n:::nn::::::::nn    ee::::::::::::ee  \n"
+            "   W:::::W       W:::::::W       W:::::W  aaaaaaaaa:::::ar:::::::::::::::::r z::::::::::::::z o:::::::::::::::on::::::::::::::nn  e::::::eeeee:::::ee\n"
+            "    W:::::W     W:::::::::W     W:::::W            a::::arr::::::rrrrr::::::rzzzzzzzz::::::z  o:::::ooooo:::::onn:::::::::::::::ne::::::e     e:::::e\n"
+            "     W:::::W   W:::::W:::::W   W:::::W      aaaaaaa:::::a r:::::r     r:::::r      z::::::z   o::::o     o::::o  n:::::nnnn:::::ne:::::::eeeee::::::e\n"
+            "      W:::::W W:::::W W:::::W W:::::W     aa::::::::::::a r:::::r     rrrrrrr     z::::::z    o::::o     o::::o  n::::n    n::::ne:::::::::::::::::e \n"
+            "       W:::::W:::::W   W:::::W:::::W     a::::aaaa::::::a r:::::r                z::::::z     o::::o     o::::o  n::::n    n::::ne::::::eeeeeeeeeee  \n"
+            "        W:::::::::W     W:::::::::W     a::::a    a:::::a r:::::r               z::::::z      o::::o     o::::o  n::::n    n::::ne:::::::e           \n"
+            "         W:::::::W       W:::::::W      a::::a    a:::::a r:::::r              z::::::zzzzzzzzo:::::ooooo:::::o  n::::n    n::::ne::::::::e          \n"
+            "          W:::::W         W:::::W       a:::::aaaa::::::a r:::::r             z::::::::::::::zo:::::::::::::::o  n::::n    n::::n e::::::::eeeeeeee  \n"
+            "           W:::W           W:::W         a::::::::::aa:::ar:::::r            z:::::::::::::::z oo:::::::::::oo   n::::n    n::::n  ee:::::::::::::e  \n"
+            "            WWW             WWW           aaaaaaaaaa  aaaarrrrrrr            zzzzzzzzzzzzzzzzz   ooooooooooo     nnnnnn    nnnnnn    eeeeeeeeeeeeee  ";
 
     cout << welcomeBanner << endl << endl;
     cout << "Let's begin!" << endl;
@@ -86,7 +93,9 @@ void GameEngine::startupPhase() {
 
 void GameEngine::gameStart() {
     while (true) {
-        cout << "Use the 'gamestart' command to distribute territories, determine play order, assign initial armies and draw cards from the deck" << endl;
+        cout
+                << "Use the 'gamestart' command to distribute territories, determine play order, assign initial armies and draw cards from the deck"
+                << endl;
         Command command = processor->getCommand();
         if (!processor->validate(command.command, *this)) {
             cout << "Invalid command! Please try again." << endl;
@@ -100,14 +109,14 @@ void GameEngine::gameStart() {
 
     cout << "Assigning territories to players..." << endl;
     // copy all territory pointers into another vector in order to randomly distribute territories to players
-    vector<Graph::Territory*> territories = this->mapLoader->map->territories;
+    vector<Graph::Territory *> territories = this->mapLoader->map->territories;
     int nbrOfTerritories = territories.size();
     while (territories.size() > 0) {
-        for (auto *player : this->playersList) {
+        for (auto *player: this->playersList) {
             if (nbrOfTerritories == 0) break;
             int random;
             if (nbrOfTerritories == 1) random = 0;
-            else random = std::experimental::randint(0, nbrOfTerritories-1);
+            else random = std::experimental::randint(0, nbrOfTerritories - 1);
             territories.at(random)->transferOwnership(player);
             if (random != nbrOfTerritories) territories.erase(territories.begin() + random);
             else territories.erase(territories.end() - 1);
@@ -117,12 +126,12 @@ void GameEngine::gameStart() {
 
     // Randomize the order of play of players
     cout << "Assigning play order..." << endl;
-    auto rd = std::random_device {};
-    auto rng = std::default_random_engine {rd()};
+    auto rd = std::random_device{};
+    auto rng = std::default_random_engine{rd()};
     std::shuffle(this->playersList.begin(), this->playersList.end(), rng);
 
     cout << "Assigning 50 initial armies & 2 cards to each player..." << endl;
-    for (auto *player : this->playersList) {
+    for (auto *player: this->playersList) {
         player->reinforcementPool = 50;
         player->hand->cards.push_back(this->deck->draw());
         player->hand->cards.push_back(this->deck->draw());
@@ -141,11 +150,15 @@ void GameEngine::chooseMapToLoad() const {
     bool mapIsValid = false;
     while (!validateFile || !mapIsValid) {
         cout << "Use the 'loadmap <filename>' command to choose among the available maps: " << endl;
-        string mapPaths {"../WarzoneMaps"};
-        int count {1};
-        for (const auto &dir : filesystem::directory_iterator(mapPaths)) {
-            string token = dir.path();
-            string mapName = token.substr(token.find_last_of('/') + 1, token.length());
+        string mapPaths{"../WarzoneMaps"};
+        int count{1};
+        for (const auto &dir: filesystem::directory_iterator(mapPaths)) {
+            string token = dir.path().string();
+            string mapName;
+            if (PLATFORM == "windows")
+                mapName = token.substr(token.find_last_of('\\') + 1, token.length());
+            else
+                mapName = token.substr(token.find_last_of('/') + 1, token.length());
             cout << count << ". " << mapName << endl;
             count++;
         }
@@ -157,7 +170,7 @@ void GameEngine::chooseMapToLoad() const {
             continue;
         }
         // extract name of the chosen map
-        string mapName = command.command.substr(command.command.find_last_of(' ')+1, command.command.length());
+        string mapName = command.command.substr(command.command.find_last_of(' ') + 1, command.command.length());
         validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + mapName + "/" + mapName + ".map");
 
         command.saveEffect("Maploaded");
@@ -222,7 +235,7 @@ void GameEngine::addPlayer() {
     }
     playersAddedStateChange();
 
-    int count {0};
+    int count{0};
     while (count < playerCount) {
         cout << "Use the 'addplayer <player name>' command to enter players in the game" << endl;
         Command command = processor->getCommand();
@@ -232,7 +245,8 @@ void GameEngine::addPlayer() {
             command.saveEffect(effect);
             continue;
         } else {
-            Players::Player* p = new Players::Player(command.command.substr(command.command.find_last_of(' ')+1, command.command.length()));
+            Players::Player *p = new Players::Player(
+                    command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
             this->playersList.push_back((p));
             count++;
             command.saveEffect("playersadded");
@@ -381,7 +395,7 @@ int GameEngine::validateWinCommand() {
         delete mapLoader->map;
         mapLoader->map = new Graph::Map;
 
-        for (auto & i : playersList) {
+        for (auto &i: playersList) {
             delete i;
         }
         playersList.clear();
@@ -397,7 +411,7 @@ GameEngine::~GameEngine() {
     mapLoader = nullptr;
     delete processor;
     delete deck;
-    for (Players::Player* p : playersList) {
+    for (Players::Player *p: playersList) {
         delete p;
     }
     playersList.clear();
