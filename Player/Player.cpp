@@ -125,7 +125,7 @@ std::multimap<int, Territory *, std::greater<>> Player::toDefend(const vector<Ed
     return territoriesToDefend;
 }
 
-
+// TODO: Refactor toAttack() as needed to assign a priority for issuing advance orders & card orders
 // return a list of territories that can be attacked by the player
 map<int, Territory *> Player::toAttack(list<Edge *> &edges) {
     map<int, Territory *> territoriesToAttack;   // a list of territories to attack
@@ -172,9 +172,17 @@ void Player::issueOrder(const vector<Edge *> &mapEdges) {
         cout << getName() << " issued: "  << *orders->element(orders->length() - 1) << endl;
         totalArmiesDeployed += armiesDeployed;
     }
+
     // ----- issuing order by playing a card -----
+    //TODO: Implement logic to issue an order by playing a card
+    //      (Clear the to-dos for refactoring card.play() & player.toAttack() method before this)
+
     // ----- issuing advance orders to defend -----
+    //TODO: Implement logic to issue advance orders using toAttack()
+    //      (Clear the to-do for refactoring the player.toAttack() method before this)
+
     // ----- issuing advance orders to attack -----
+    //TODO: Implement logic to issue advance orders using toDefend()
 }
 
 // accessor method for name

@@ -10,9 +10,6 @@
 #define PLATFORM "unix"
 #endif
 
-// todo: list of orders should be specific to a single player
-Orders::OrdersList *ordersList = new Orders::OrdersList();
-
 string GameEngine::getState() const {
     return this->state;
 }

@@ -605,7 +605,6 @@ bool Negotiate::validate() {
 //    }
 }
 
-//TODO: must be executed before all other order types (except for deploy orders) during orderexecution phase
 //performs the order action if it's valid - action is arbitrary for now
 bool Negotiate::execute() {
     if (this->validate()) {

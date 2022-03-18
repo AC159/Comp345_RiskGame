@@ -55,14 +55,13 @@ public:
 
 //============= execute orders state =================
     void executeOrdersStateChange();
-    void executeOrdersPhase();
+    bool executeOrdersPhase();
+    bool ordersRemain();
 
 //============= win state =================
     void winStateChange();
     int validateWinCommand();
 
-    bool reinforcementsRemain();
-    bool ordersRemain();
 private:
     string state;
 
