@@ -280,14 +280,8 @@ void GameEngine::issueOrdersStateChange() {
 void GameEngine::issueOrdersPhase() {
     issueOrdersStateChange();
 
-    int i = 0;
-    std::for_each(playersList.begin(), playersList.end(),
-                  [](Players::Player *p){p->reinforcementsDeployed = 0;});
-    while (reinforcementsRemain()) {
-        for (auto player: playersList) {
-            player->issueOrder(mapLoader->map->edges, i);
-        }
-        i++;
+    for (auto player: playersList) {
+        player->issueOrder(mapLoader->map->edges);
     }
 }
 
@@ -366,14 +360,7 @@ GameEngine::~GameEngine() {
     playersList.clear();
 }
 
-bool GameEngine::reinforcementsRemain() {
-    if (std::all_of(playersList.begin(), playersList.end(),
-                    [](Players::Player *p){ return p->reinforcementPool == p->reinforcementsDeployed; })) {
-        return false;
-    }
-    return true;
-}
-
+// returns whether any of the players have orders left in their order list
 bool GameEngine::ordersRemain() {
     if (std::all_of(playersList.begin(), playersList.end(),
                     [](Players::Player *p){ return p->orders->length() == 0; })) {

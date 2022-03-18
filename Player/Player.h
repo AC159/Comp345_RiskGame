@@ -25,7 +25,6 @@ class Players::Player {
         Cards::Hand *hand; // collection of cards
         Orders::OrdersList *orders; // list of orders
         int reinforcementPool; //the armies currently available for deployment
-        int reinforcementsDeployed;
         bool receivesCard; //returns whether player has conquered territory and should receive card at the end of turn
         static Player* neutralPlayer;
         std::vector<std::string> cannotAttack; //list of players the player cannot attack due to diplomacy card; TODO: needs to be cleared every turn
@@ -47,7 +46,7 @@ class Players::Player {
         std::map<int, Graph::Territory*> toAttack(std::list<Graph::Edge*> &edges);
 
         //creates an order object and adds it to the player's list of orders
-        void issueOrder(const std::vector<Graph::Edge *> &mapEdges, int i);
+        void issueOrder(const std::vector<Graph::Edge *> &mapEdges);
 
         // accessor method for name
         std::string getName();

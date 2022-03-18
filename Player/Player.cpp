@@ -146,30 +146,35 @@ map<int, Territory *> Player::toAttack(list<Edge *> &edges) {
     return territoriesToAttack;
 }
 
-// creates an order and places it in the player's list of orders
-void Player::issueOrder(const vector<Edge *> &mapEdges, int i) {
-    if (reinforcementsDeployed != reinforcementPool) {
-        std::multimap<int, Territory *, std::greater<>> defend = toDefend(mapEdges);
-        auto it = defend.begin();
-        std::advance(it, i >= defend.size() ? i % defend.size() : i);
-        int multiplier = reinforcementPool / std::accumulate(defend.begin(), defend.end(), 0,
+// creates all orders for the player's turn and places them in the player's list of orders
+void Player::issueOrder(const vector<Edge *> &mapEdges) {
+    std::multimap<int, Territory *, std::greater<>> defend = toDefend(mapEdges);
+
+    // ----- issuing all deployment orders -----
+    double totalDefendingArmies = std::accumulate(defend.begin(), defend.end(), 0,
                         [](const int previous, const std::pair<int, Territory *> &p)
                         { return previous + p.first; });
+    double multiplier = reinforcementPool / totalDefendingArmies < 1 ? 1 : reinforcementPool / totalDefendingArmies;
 
-        int armiesDeployed = 0;
-        if (it->first * multiplier > reinforcementPool - reinforcementsDeployed) {
-            armiesDeployed = reinforcementPool - reinforcementsDeployed;
-        } else {
-            armiesDeployed = it->first * multiplier;
+    int totalArmiesDeployed = 0;
+    for (const auto &pair : defend) {
+        int remainingArmies = reinforcementPool - totalArmiesDeployed;
+        if (remainingArmies == 0) {
+            break;
         }
-        orders->add(new Orders::Deploy(this, it->second, armiesDeployed));
-        reinforcementsDeployed += armiesDeployed;
-
-        cout << this->getName() << " issued: "  << *orders->element(orders->length() - 1) << endl;
-    } else {
-
+        int armiesDeployed;
+        if (defend.rbegin()->second == pair.second || pair.first * multiplier > remainingArmies) {
+            armiesDeployed = remainingArmies;
+        } else {
+            armiesDeployed = static_cast<int>(pair.first * multiplier);
+        }
+        orders->add(new Orders::Deploy(this, pair.second, armiesDeployed));
+        cout << getName() << " issued: "  << *orders->element(orders->length() - 1) << endl;
+        totalArmiesDeployed += armiesDeployed;
     }
-
+    // ----- issuing order by playing a card -----
+    // ----- issuing advance orders to defend -----
+    // ----- issuing advance orders to attack -----
 }
 
 // accessor method for name
