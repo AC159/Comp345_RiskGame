@@ -5,7 +5,7 @@ void LogObserver::LoggingDriver() {
     LogObserver *logObserver = new LogObserver();
     GameEngine* engine = new GameEngine();
     cout << "States logging:" << endl;
-    engine->attach(logObserver);
+    Subject::attach(logObserver);
     engine->startupPhase();
     cout << endl;
 
@@ -30,6 +30,8 @@ void LogObserver::LoggingDriver() {
     cout << "Commands logging:" << endl;
     CommandProcessor::commandProcessorDriver();
 
+    cout << "Detaching log observer..." << endl;
+    Subject::detach(logObserver);
     delete engine;
     delete logObserver;
 }
