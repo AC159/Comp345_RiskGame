@@ -45,6 +45,9 @@ public:
     void playersAddedStateChange();
     void addPlayer();
 
+//==== main game loop: reinforcement, order issuing & execution phases ====
+    void mainGameLoop();
+
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();
     void reinforcementPhase();
@@ -56,7 +59,6 @@ public:
 //============= execute orders state =================
     void executeOrdersStateChange();
     bool executeOrdersPhase();
-    bool ordersRemain();
 
 //============= win state =================
     void winStateChange();
@@ -66,6 +68,7 @@ private:
     string state;
 
     void changeState(string state); //state to change current stated and output current state
+    bool ordersRemain(); //helper for the order execution phase
 };
 
 

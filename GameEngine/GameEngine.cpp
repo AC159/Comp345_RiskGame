@@ -253,6 +253,23 @@ void GameEngine::addPlayer() {
     }
 }
 
+//==== main game loop: reinforcement, order issuing & execution phases ====
+void GameEngine::mainGameLoop() {
+    bool playerWon = false;
+    int turnCount = 0;
+    while(!playerWon) {
+        turnCount++;
+        if (turnCount == 100) {
+            cout << "* ERROR:  Too many turns. Main game loop terminated to avoid infinite loop. *\n" << endl;
+            break;
+        }
+        cout << " —▶ TURN " << turnCount << endl;
+        reinforcementPhase();
+        issueOrdersPhase();
+        playerWon = executeOrdersPhase(); //player win and player eliminations are determined in the execution phase
+    }
+}
+
 //=============assign reinforcement state =================
 //method to modify current game state to 'assign reinforcement'
 void GameEngine::assignReinforcementStateChange() {
