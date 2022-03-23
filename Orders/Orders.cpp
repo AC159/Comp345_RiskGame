@@ -8,20 +8,12 @@ using namespace std;
 using namespace Orders;
 
 // ====================== Order class ======================
-Order::Order() : issuer(nullptr) {}
-
-//creates an order with all members initialized through parameters
-Order::Order(Players::Player *issuer) : issuer(issuer) {}
-
 Order::Order(Players::Player *issuer, std::string type) : issuer(issuer), type(std::move(type)) {}
 
-Order::Order(std::string type) : type(std::move(type)) {}
-
 //copy constructor creates shallow copy due to circular dependency
-Order::Order(const Order &order) {
+Order::Order(const Order &order) : type(order.type) {
     this->issuer = order.issuer;
     this->orderEffect = order.orderEffect;
-    this->type = order.type;
 }
 
 //memory de-allocation should be handled externally
@@ -49,13 +41,8 @@ bool Order::hasNegotiation(Players::Player *player1, Players::Player *player2) {
     return false;
 }
 
-bool Order::isDeployType() const {
-    return false;
-}
-
 // ====================== Deploy class ======================
-Deploy::Deploy() : Order("deploy"), target(nullptr), armies(0) {
-    type = "deploy";
+Deploy::Deploy() : Order(nullptr, "deploy"), target(nullptr), armies(0) {
     cout << "Created a Deploy order." << endl;
 }
 
@@ -64,8 +51,8 @@ Deploy::Deploy() : Order("deploy"), target(nullptr), armies(0) {
  * @param target the territory where armies will be deployed (must belong to issuer for validity)
  * @param armies the number of armies to deploy (must be <= issuer's reinforcementPool for validity)
  */
-Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies)
-        : Order(issuer, "deploy"), target(target), armies(armies) {}
+Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies) : Order(issuer, "deploy"), target(target),
+                                                                                armies(armies) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Deploy::Deploy(const Deploy &deploy) : Order(deploy) {
@@ -131,12 +118,8 @@ std::ostream &Deploy::write(ostream &out) const {
     return target == nullptr ? out << "Deploy" : out << "Deploy " << armies << " to " << target->name;
 }
 
-bool Deploy::isDeployType() const {
-    return true;
-}
-
 // ====================== Advance class ======================
-Advance::Advance() : map(nullptr), source(nullptr), target(nullptr), armies(0) {
+Advance::Advance() : Order(nullptr, "advance"), map(nullptr), source(nullptr), target(nullptr), armies(0) {
     cout << "Created an Advance order." << endl;
 }
 
@@ -148,8 +131,7 @@ Advance::Advance() : map(nullptr), source(nullptr), target(nullptr), armies(0) {
  * @param armies the number of armies to attack with or to transfer (must be <= armies in source for validity)
  */
 Advance::Advance(Players::Player *issuer, Graph::Map *map, Graph::Territory *source, Graph::Territory *target,
-                 int armies)
-        : Order(issuer, "advance"), map(map), source(source), target(target), armies(armies) {}
+                 int armies) : Order(issuer, "advance"), map(map), source(source), target(target), armies(armies) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Advance::Advance(const Advance &advance) : Order(advance) {
@@ -255,7 +237,7 @@ std::ostream &Advance::write(ostream &out) const {
 }
 
 // ====================== Bomb class ======================
-Bomb::Bomb() : Order("bomb"), target(nullptr) {
+Bomb::Bomb() : Order(nullptr, "bomb"), target(nullptr), map(nullptr) {
     cout << "Created a Bomb order." << endl;
 }
 
@@ -263,11 +245,13 @@ Bomb::Bomb() : Order("bomb"), target(nullptr) {
  * @param issuer the player whose turn it is
  * @param target the territory to bomb (must be adjacent to one of issuer's territories & have diff owner for validity)
  */
-Bomb::Bomb(Players::Player *issuer, Graph::Territory *target, Graph::Map *map) : Order(issuer, "bomb"), target(target), map(map) {}
+Bomb::Bomb(Players::Player *issuer, Graph::Territory *target, Graph::Map *map) : Order(issuer, "bomb"), target(target),
+                                                                                 map(map) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Bomb::Bomb(const Bomb &bomb) : Order(bomb) {
     this->target = bomb.target;
+    this->map = bomb.map;
 }
 
 //memory de-allocation should be handled externally
@@ -318,7 +302,7 @@ bool Bomb::validate() {
 //performs the order action if it's valid - action is arbitrary for now
 bool Bomb::execute() {
     if (this->validate()) {
-        this->orderEffect = "Executed a Bomb Order: "+  issuer->getName() + " bombs " + target->name;
+        this->orderEffect = "Executed a Bomb Order: " + issuer->getName() + " bombs " + target->name;
         cout << this->orderEffect << endl;
         target->numberOfArmies /= 2;
 
@@ -343,7 +327,7 @@ std::ostream &Bomb::write(ostream &out) const {
 }
 
 // ====================== Blockade class ======================
-Blockade::Blockade() : Order("blockade"), target(nullptr) {
+Blockade::Blockade() : Order(nullptr, "blockade"), target(nullptr) {
     cout << "Created a Blockade order." << endl;
 }
 
@@ -419,7 +403,7 @@ std::ostream &Blockade::write(ostream &out) const {
 }
 
 // ====================== Airlift class ======================
-Airlift::Airlift() : Order("airlift"), source(nullptr), target(nullptr), armies(0) {
+Airlift::Airlift() : Order(nullptr, "airlift"), source(nullptr), target(nullptr), armies(0) {
     cout << "Created an Airlift order." << endl;
 }
 
@@ -473,7 +457,9 @@ bool Airlift::validate() {
 //if the order is valid, the selected number of armies are moved from the source to the target territories
 bool Airlift::execute() {
     if (this->validate()) {
-        this->orderEffect = "Executed Airlift order: " + issuer->getName() + " airlifts " + to_string(armies) + " armies from " + source->name + " to " + target->name;
+        this->orderEffect =
+                "Executed Airlift order: " + issuer->getName() + " airlifts " + to_string(armies) + " armies from " +
+                source->name + " to " + target->name;
         cout << this->orderEffect << endl;
         source->numberOfArmies -= armies;
         target->numberOfArmies += armies;
@@ -494,11 +480,12 @@ Airlift *Airlift::clone() const {
 
 //helper for the stream insertion operator to function as a virtual
 std::ostream &Airlift::write(ostream &out) const {
-    return target == nullptr ? out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name << " to " << target->name;
+    return target == nullptr ? out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name
+                                                      << " to " << target->name;
 }
 
 // ====================== Negotiate class ======================
-Negotiate::Negotiate() : Order("negotiate"), target(nullptr) {
+Negotiate::Negotiate() : Order(nullptr, "negotiate"), target(nullptr) {
     cout << "Created a Negotiate order." << endl;
 }
 
@@ -641,7 +628,7 @@ void OrdersList::remove(int index) {
 }
 
 //moves the element from the given oldIndex to the given newIndex while preserving the order of other elements
-void OrdersList::move(int oldIndex, int newIndex) {
+[[maybe_unused]] void OrdersList::move(int oldIndex, int newIndex) {
     //validate indices
     if (oldIndex < 0 || newIndex < 0 || oldIndex == newIndex || oldIndex >= orders.size() ||
         newIndex >= orders.size()) {

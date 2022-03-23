@@ -338,7 +338,7 @@ bool GameEngine::executeOrdersPhase() {
                 doneDeploying = true;
             }
 
-            if (player->orders->length() != 0 && (doneDeploying || topOrder->isDeployType())) {
+            if (player->orders->length() != 0 && (doneDeploying || topOrder->type == "deploy")) {
                 skipStrike = 0;
 
                 //save the targeted territory's owner to check if they should be eliminated afterwards

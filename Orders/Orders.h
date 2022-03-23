@@ -31,13 +31,8 @@ class Orders::Order : public ILoggable, public Subject {
 public:
     Players::Player *issuer;    //the player whose turn it is to issue orders
     std::string orderEffect;
-    std::string type;
+    const std::string type;
 
-    Order();
-    explicit Order(Players::Player *issuer);
-    explicit Order(Players::Player *issuer, std::string type);
-    explicit Order(std::string type);
-    Order(const Order &order);
     virtual ~Order();
 
     Order & operator=(const Order &order);
@@ -45,12 +40,15 @@ public:
 
     virtual bool validate() = 0;
     virtual bool execute() = 0;
-    std::string stringToLog() const override = 0;
+    [[nodiscard]] std::string stringToLog() const override = 0;
 
     [[nodiscard]] virtual Order* clone() const = 0;
     virtual std::ostream & write(std::ostream &out) const = 0;
-    [[nodiscard]] virtual bool isDeployType() const;
     bool hasNegotiation(Players::Player* player1, Players::Player* player2);
+
+protected:
+    Order(Players::Player *issuer, std::string type);
+    Order(const Order &order);
 };
 
 /* A deployment order tells a number of armies taken from the reinforcement pool to deploy to a target territory owned
@@ -68,13 +66,12 @@ public:
     Deploy & operator=(const Deploy &deploy);
     friend std::ostream & operator<<(std::ostream &out, const Deploy &deploy);
 
-    std::string stringToLog() const override;
+    [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
     [[nodiscard]] Deploy * clone() const override;
     std::ostream & write(std::ostream &out) const override;
-    [[nodiscard]] bool isDeployType() const override;
 };
 
 /* An advance order tells a number of army units from a source territory to transfer to or to attack a target adjacent
@@ -94,7 +91,7 @@ public:
     Advance & operator=(const Advance &advance);
     friend std::ostream & operator<<(std::ostream &out, const Advance &advance);
 
-    std::string stringToLog() const override;
+    [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -117,7 +114,7 @@ public:
     Bomb & operator=(const Bomb &bomb);
     friend std::ostream & operator<<(std::ostream &out, const Bomb &bomb);
 
-    std::string stringToLog() const override;
+    [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -139,7 +136,7 @@ public:
     Blockade & operator=(const Blockade &blockade);
     friend std::ostream & operator<<(std::ostream &out, const Blockade &blockade);
 
-    std::string stringToLog() const override;
+    [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -163,7 +160,7 @@ public:
     Airlift & operator=(const Airlift &airlift);
     friend std::ostream & operator<<(std::ostream &out, const Airlift &airlift);
 
-    std::string stringToLog() const override;
+    [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -185,7 +182,7 @@ public:
     Negotiate & operator=(const Negotiate &negotiate);
     friend std::ostream & operator<<(std::ostream &out, const Negotiate &negotiate);
 
-    std::string stringToLog() const override;
+    [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
     bool execute() override;
 
@@ -206,9 +203,10 @@ public:
     OrdersList & operator=(const OrdersList &ordersList);
     friend std::ostream & operator<<(std::ostream &out, const OrdersList &ordersList);
 
-    std::string stringToLog() const override;
+    [[nodiscard]] std::string stringToLog() const override;
     void remove(int index);
-    void move(int oldIndex, int newIndex);
+
+    [[maybe_unused]] void move(int oldIndex, int newIndex);
     void add(Order *newOrder);
     [[nodiscard]] size_t length() const;
     [[nodiscard]] Order * element(size_t index) const;
