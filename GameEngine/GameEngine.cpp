@@ -303,7 +303,8 @@ void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
 
-void GameEngine::executeOrdersPhase() {
+//returns true if a player won during the turn
+bool GameEngine::executeOrdersPhase() {
     executeOrdersStateChange();
 
     int skipStrike = 0; //the number of non-deploy orders skipped in a row
@@ -311,22 +312,83 @@ void GameEngine::executeOrdersPhase() {
     bool doneDeploying = false;
 
     while (ordersRemain()) {
-        for (const auto &player : playersList) {
+        for (auto it = playersList.begin(); it < playersList.end(); it++) {
+            Players::Player *player = *it;
+            Orders::Order *topOrder = player->orders->element(0);
 
             //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
-            if (skipStrike == numOfPlayers) {doneDeploying = true;}
+            if (skipStrike == numOfPlayers) {
+                doneDeploying = true;
+            }
 
-            if (player->orders->length() != 0 && (doneDeploying || player->orders->element(0)->isDeployType())) {
+            if (player->orders->length() != 0 && (doneDeploying || topOrder->isDeployType())) {
                 skipStrike = 0;
 
+                //save the targeted territory's owner to check if they should be eliminated afterwards
+                auto targetPlayerIt = playersList.end();
+                if (topOrder->type == "advance") {
+                    targetPlayerIt = std::find(playersList.begin(), playersList.end(),
+                                               (dynamic_cast<Orders::Advance *>(topOrder))->target->owner);
+                }
+
                 cout << player->getName() << " executed: ";
-                player->orders->element(0)->execute();
+                bool executed = topOrder->execute();
+
+                //player won if they own all territories
+                if (player->territories.size() == mapLoader->map->territories.size()) {
+                    cout << player->getName() << " won!" << endl;
+                    return true;
+                }
+
+                //if card execution failed, put the card back in the player's hand and remove it from the deck
+                //~should this be in execute method??
+                if (!executed && topOrder->type != "deploy" && topOrder->type != "advance") {
+                    auto card0 = std::find_if(deck->cards.rbegin(), deck->cards.rend(),
+                                 [topOrder](Cards::Card *card) { return card->getType() == topOrder->type; });
+
+                    if (card0 != deck->cards.rend()) {
+                        player->hand->cards.push_back(*card0);
+                        cout << " → " << (*card0)->getType() << " card was returned to " << player->getName() << endl;
+                        deck->cards.erase(next(card0).base());
+                    }
+                }
+
+                //player is eliminated if their last territory was taken
+                if (executed && targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()) {
+                    cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
+                    delete *targetPlayerIt;
+                    playersList.erase(targetPlayerIt);
+                }
+
                 player->orders->remove(0);
             } else {
                 skipStrike++;
             }
         }
     }
+
+    for (const auto &player : playersList) {
+        player->cannotAttack.clear(); //reset each player's negotiation list at the end of the turn
+
+        if (player->receivesCard) {
+            //give card to all players who conquered a territory this turn
+            Cards::Card *awardedCard = deck->draw();
+            player->hand->cards.push_back(awardedCard);
+            cout << player->getName() << " received a " << awardedCard->getType() << " card" << endl;
+            player->receivesCard = false;
+        }
+    }
+    cout << endl;
+    return false;
+}
+
+// returns whether any of the players have orders left in their order list
+bool GameEngine::ordersRemain() {
+    if (std::all_of(playersList.begin(), playersList.end(),
+                    [](Players::Player *p){ return p->orders->length() == 0; })) {
+        return false;
+    }
+    return true;
 }
 
 //=============win state =================
@@ -370,13 +432,4 @@ GameEngine::~GameEngine() {
         delete p;
     }
     playersList.clear();
-}
-
-// returns whether any of the players have orders left in their order list
-bool GameEngine::ordersRemain() {
-    if (std::all_of(playersList.begin(), playersList.end(),
-                    [](Players::Player *p){ return p->orders->length() == 0; })) {
-        return false;
-    }
-    return true;
 }
