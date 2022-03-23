@@ -298,16 +298,6 @@ bool Bomb::validate() {
         return false;
     }
 
-//    bool hasCard = false;
-//
-//    //check if issuing player has the required card in hand
-//    for (auto card: issuer->hand->cards)
-//        if (card->getType() == "bomb") {
-//            hasCard = true;
-//            break;
-//        }
-//
-//    if (hasCard) {
     //checking if the target territory belongs to the issuing player
     if (this->issuer == target->owner) {
         cout << "INVALID ORDER: cannot bomb your own territory" << endl;;
@@ -323,10 +313,6 @@ bool Bomb::validate() {
 
     cout << "INVALID ORDER: territory is not adjacent to any of your territories" << endl;
     return false;
-//    } else {
-//        cout << "INVALID ORDER: bomb card is required to execute this order" << endl;
-//        return false;
-//    }
 }
 
 //performs the order action if it's valid - action is arbitrary for now
@@ -335,13 +321,6 @@ bool Bomb::execute() {
         this->orderEffect = "Executed a Bomb Order: "+  issuer->getName() + " bombs " + target->name;
         cout << this->orderEffect << endl;
         target->numberOfArmies /= 2;
-
-//        //play the bomb card from hand
-//        for (auto card: issuer->hand->cards)
-//            if (card->getType() == "bomb") {
-//                card->play(*issuer, Players::Player::deck); //why is deck not passed as a pointer for the play method?
-//                break;
-//            }
 
         notify(*this);
         return true;
@@ -402,17 +381,6 @@ ostream &Orders::operator<<(ostream &out, const Blockade &blockade) {
 
 //returns whether the order is valid - behaviour is arbitrary for now
 bool Blockade::validate() {
-//    bool hasCard = false;
-//
-//    //check if issuing player has the required card in hand
-//    for (auto card: issuer->hand->cards)
-//        if (card->getType() == "blockade") {
-//            hasCard = true;
-//            break;
-//        }
-//
-//    if (hasCard) {
-
     if (target->owner != this->issuer) {
         cout << "INVALID ORDER: cannot create blockade on a territory you do not own" << endl;
         return false;
@@ -420,10 +388,6 @@ bool Blockade::validate() {
 
     cout << "Validated a Blockade order." << endl;
     return true;
-//    } else {
-//        cout << "INVALID ORDER: blockade card is required to execute this order" << endl;
-//        return false;
-//    }
 }
 
 //performs the order action if it's valid - action is arbitrary for now
@@ -433,13 +397,6 @@ bool Blockade::execute() {
         cout << this->orderEffect << endl;
         target->numberOfArmies *= 2;
         target->transferOwnership(Players::Player::neutralPlayer);
-
-//        //play the blockade card from hand
-//        for (auto card: issuer->hand->cards)
-//            if (card->getType() == "blockade") {
-//                card->play(*issuer, Players::Player::deck); //why is deck not passed as a pointer for the play method?
-//                break;
-//            }
 
         notify(*this);
         return true;
@@ -579,16 +536,6 @@ ostream &Orders::operator<<(ostream &out, const Negotiate &negotiate) {
 
 //returns whether the order is valid - behaviour is arbitrary for now
 bool Negotiate::validate() {
-//    bool hasCard = false;
-//
-//    //check if issuing player has the required card in hand
-//    for (auto card: issuer->hand->cards)
-//        if (card->getType() == "diplomacy") {
-//            hasCard = true;
-//            break;
-//        }
-//
-//    if (hasCard) {
     if (issuer == target) {
         cout << "INVALID ORDER: cannot negotiate with yourself" << endl;
         return false;
@@ -599,10 +546,6 @@ bool Negotiate::validate() {
 
     cout << "Validated a Negotiate order." << endl;
     return true;
-//    } else {
-//        cout << "INVALID ORDER: diplomacy card is required to execute this order" << endl;
-//        return false;
-//    }
 }
 
 //performs the order action if it's valid - action is arbitrary for now
@@ -610,13 +553,6 @@ bool Negotiate::execute() {
     if (this->validate()) {
         issuer->cannotAttack.push_back(target->getName());
         target->cannotAttack.push_back(issuer->getName());
-
-//        //play the negotiate card from hand
-//        for (auto card: issuer->hand->cards)
-//            if (card->getType() == "diplomacy") {
-//                card->play(*issuer, Players::Player::deck); //why is deck not passed as a pointer for the play method?
-//                break;
-//            }
 
         this->orderEffect = "Executed a Negotiate Order";
         cout << this->orderEffect << endl;
