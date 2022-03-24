@@ -4,6 +4,7 @@
 
 using namespace Cards;
 
+
 // TODO: Refactor each card's play method to create an order without calling issueOrder()
 
 // ======================== Deck class ========================
@@ -147,10 +148,13 @@ Card* Bomb::clone() {
     return new Bomb(*this);
 }
 
-void Bomb::play(Players::Player &player, Deck &deck) {
+void Bomb::play(Players::Player &player, Deck &deck, Graph::Territory *target, Graph::Map *map) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
     std::cout << "Playing bomb card..." << std::endl;
 //    player.issueOrder(this->getType());
+// create the order
+    Orders::Bomb* bomb = new Orders::Bomb(&player,target,map);
+    player.orders->add(bomb);
     auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
     deck.cards.push_back(*it);
     if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
@@ -183,8 +187,11 @@ std::string Reinforcement::getType() const {
 void Reinforcement::play(Players::Player &player, Deck &deck) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
     std::cout << "Playing reinforcement card..." << std::endl;
-    std::string cardType {"advance"};
+    std::string cardType {"advance"}; //i dont think we need this
 //    player.issueOrder(cardType);
+    player.reinforcementPool = player.reinforcementPool +5;
+
+
     auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
     deck.cards.push_back(*it);
     if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
@@ -217,10 +224,13 @@ std::string Blockade::getType() const {
     return this->type;
 }
 
-void Blockade::play(Players::Player &player, Deck &deck) {
+void Blockade::play(Players::Player &player, Deck &deck, Graph::Territory *target) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
     std::cout << "Playing blockade card..." << std::endl;
 //    player.issueOrder(this->getType());
+// created and order blockade
+    Orders::Blockade* blockade = new Orders::Blockade(&player,target);
+    player.orders->add(blockade);
     auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
     deck.cards.push_back(*it);
     if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
@@ -253,10 +263,12 @@ std::string Airlift::getType() const {
     return this->type;
 }
 
-void Airlift::play(Players::Player &player, Deck &deck) {
+void Airlift::play(Players::Player &player, Deck &deck, Graph::Territory *source,Graph::Territory *target, int armies) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
     std::cout << "Playing airlift card..." << std::endl;
 //    player.issueOrder(this->getType());
+    Orders::Airlift* airLift = new Orders::Airlift(&player,source,target,armies);
+    player.orders->add(airLift);
     auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
     deck.cards.push_back(*it);
     if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);
@@ -289,11 +301,13 @@ std::string Diplomacy::getType() const {
     return this->type;
 }
 
-void Diplomacy::play(Players::Player &player, Deck &deck) {
+void Diplomacy::play(Players::Player &player, Players::Player &target, Deck &deck) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
     std::cout << "Playing diplomacy card..." << std::endl;
     std::string cardType {"negotiate"};
+    Orders::Negotiate* negotiate = new Orders::Negotiate(&player, &target);
 //    player.issueOrder(cardType);
+
     auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(), this); // find the current card inside the player's hand
     deck.cards.push_back(*it);
     if (it == player.hand->cards.end()) player.hand->cards.erase(it-1);

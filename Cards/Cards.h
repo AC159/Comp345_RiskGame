@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "../Map/Map.h"
 
 // Forward declare the Player class
 namespace Players {
@@ -31,7 +32,6 @@ class Cards::Card {
 public:
     friend std::ostream& operator<<(std::ostream &out, const Card &card);
     virtual std::string getType() const = 0;
-    virtual void play(Players::Player &player, Deck &deck) = 0;
     virtual Card* clone() = 0;
     virtual ~Card();
     static void cardsDriver();
@@ -50,7 +50,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Players::Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck, Graph::Territory *target, Graph::Map *map) ;
 
     ~Bomb() override;
 
@@ -69,7 +69,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Players::Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck);
 
     ~Reinforcement() override;
 };
@@ -87,7 +87,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Players::Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck, Graph::Territory *target);
 
     ~Blockade() override;
 };
@@ -105,7 +105,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Players::Player &player, Deck &deck) override;
+    void play(Players::Player &player, Deck &deck,Graph::Territory *source, Graph::Territory *target, int armies);
 
     ~Airlift() override;
 };
@@ -123,7 +123,7 @@ public:
 
     Card* clone() override;
     std::string getType() const override;
-    void play(Players::Player &player, Deck &deck) override;
+    void play(Players::Player &player,Players::Player &target, Deck &deck);
 
     ~Diplomacy() override;
 };
