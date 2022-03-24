@@ -69,7 +69,8 @@ void Cards::Card::cardsDriver() {
     *p->hand = *hand;
     while (!p->hand->cards.empty()) {
         Card *card = p->hand->cards.at(0);
-        card->play(*p, deck2);
+        card->getType();
+        //card->play(*p, deck2);
     }
 
     delete p;
