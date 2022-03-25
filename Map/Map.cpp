@@ -73,6 +73,16 @@ vector<Territory *> Territory::adjacentEnemyTerritories(const vector<Edge *> &ma
     return adjacentEnemyTerritories;
 }
 
+// returns a string of the territory's name and its current owner
+std::string Territory::nameAndOwner() const {
+    return name + " is owned by " + owner->getName() + "\n";
+}
+
+// returns a string of the territory's name and its current armies
+std::string Territory::nameAndArmies() const {
+    return name + " has " + to_string(numberOfArmies) + " armies\n";
+}
+
 // memory de-allocation of territory's owner should be handled externally
 Territory::~Territory() = default;
 

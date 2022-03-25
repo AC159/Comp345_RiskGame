@@ -186,7 +186,7 @@ void Player::issueOrder(const vector<Edge *> &mapEdges) {
 }
 
 // accessor method for name
-string Player::getName() {
+string Player::getName() const {
     return name;
 }
 
@@ -250,4 +250,15 @@ void Player::removeCard(Cards::Card &card) {
 void Player::displayOrders() {
     cout << name << "'s orders:" << endl;
     cout << "\t" << *orders;
+}
+
+// returns the list contents of cannotAttack
+string Player::cannotAttackString() const {
+    string contents = name + "'s 'cannotAttack' list size = " + to_string(cannotAttack.size()) + " contents = {";
+    string delimiter;
+    for (const auto &playerName: cannotAttack) {
+        contents += delimiter + playerName;
+        delimiter = ", ";
+    }
+    return contents += "}\n";
 }

@@ -42,6 +42,8 @@ public:
     friend std::ostream& operator<<(std::ostream &out, const Territory &territory); // overloaded stream insertion operator
     void transferOwnership(Players::Player *newOwner);
     std::vector<Territory *> adjacentEnemyTerritories(const std::vector<Edge *>& mapEdges);
+    [[nodiscard]] std::string nameAndOwner() const;
+    [[nodiscard]] std::string nameAndArmies() const;
 
     ~Territory();
 

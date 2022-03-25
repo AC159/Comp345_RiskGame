@@ -44,6 +44,8 @@ public:
 
     [[nodiscard]] virtual Order* clone() const = 0;
     virtual std::ostream & write(std::ostream &out) const = 0;
+    [[nodiscard]] virtual std::string toString() const = 0;
+    virtual void displayStats(bool beforeExecution) const = 0;
     bool hasNegotiation(Players::Player* player1, Players::Player* player2);
 
 protected:
@@ -72,6 +74,8 @@ public:
 
     [[nodiscard]] Deploy * clone() const override;
     std::ostream & write(std::ostream &out) const override;
+    [[nodiscard]] std::string toString() const override;
+    void displayStats(bool beforeExecution) const override;
 };
 
 /* An advance order tells a number of army units from a source territory to transfer to or to attack a target adjacent
@@ -97,6 +101,8 @@ public:
 
     [[nodiscard]] Advance * clone() const override;
     std::ostream & write(std::ostream &out) const override;
+    [[nodiscard]] std::string toString() const override;
+    void displayStats(bool beforeExecution) const override;
 };
 
 /* A bomb order removes half of the armies from a territory belonging to an enemy.
@@ -120,6 +126,8 @@ public:
 
     [[nodiscard]] Bomb * clone() const override;
     std::ostream & write(std::ostream &out) const override;
+    [[nodiscard]] std::string toString() const override;
+    void displayStats(bool beforeExecution) const override;
 };
 
 /* A blockade order doubles the number of armies on a territory belonging to the issuer and transfers the ownership of
@@ -142,6 +150,8 @@ public:
 
     [[nodiscard]] Blockade * clone() const override;
     std::ostream & write(std::ostream &out) const override;
+    [[nodiscard]] std::string toString() const override;
+    void displayStats(bool beforeExecution) const override;
 };
 
 /* An airlift order tells a number of armies taken from a source territory to be moved to a target territory.
@@ -166,6 +176,8 @@ public:
 
     [[nodiscard]] Airlift * clone() const override;
     std::ostream & write(std::ostream &out) const override;
+    [[nodiscard]] std::string toString() const override;
+    void displayStats(bool beforeExecution) const override;
 };
 
 /* A negotiating order results in an enemy player and the player issuing the order to be unable to attack each other's
@@ -188,6 +200,8 @@ public:
 
     [[nodiscard]] Negotiate * clone() const override;
     std::ostream & write(std::ostream &out) const override;
+    [[nodiscard]] std::string toString() const override;
+    void displayStats(bool beforeExecution) const override;
 };
 
 // Represents a sequential list of orders with basic functionalities

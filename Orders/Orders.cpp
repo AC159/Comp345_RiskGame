@@ -117,7 +117,24 @@ Deploy *Deploy::clone() const {
 
 // helper for the stream insertion operator to function as a virtual
 std::ostream &Deploy::write(ostream &out) const {
-    return target == nullptr ? out << "Deploy" : out << "Deploy " << armies << " to " << target->name;
+    return out << toString();
+}
+
+// returns a string representation of the order
+std::string Deploy::toString() const {
+    return target == nullptr ? "Deploy" : "Deploy " + to_string(armies) + " to " + target->name;
+}
+
+// prints the current state of the territory affected by the order
+void Deploy::displayStats(bool beforeExecution) const {
+    string title;
+    if (beforeExecution) {
+        title = "Stats before execution > ";
+        cout << "Validation info        > " << target->nameAndOwner();
+    } else {
+        title = "Stats after execution  < ";
+    }
+    cout << title << target->nameAndArmies();
 }
 
 // ====================== Advance class ======================
@@ -233,8 +250,28 @@ Advance *Advance::clone() const {
 
 // helper for the stream insertion operator to function as a virtual
 std::ostream &Advance::write(ostream &out) const {
-    return target == nullptr ?
-           out << "Advance" : out << armies << " from " << source->name << " will attack/transfer " << target->name;
+    return out << toString();
+}
+
+// returns a string representation of the order
+std::string Advance::toString() const {
+    return target == nullptr || source == nullptr ?
+           "Advance" : to_string(armies) + " from " + source->name + " will attack/transfer " + target->name;
+}
+
+// prints the current state of the territories affected by the order
+void Advance::displayStats(bool beforeExecution) const {
+    string title, arrow;
+    if (beforeExecution) {
+        title = "\nStats before execution > ", arrow = "                       > ";
+        cout << "Validation info        > " << source->nameAndOwner() << arrow << target->name << " is "
+             << (map->edgeExists(source, target) ? "" : "not ") << "adjacent to " << source->name;
+    } else {
+        title = "Stats after execution  < ", arrow = "                       < ";
+    }
+    cout << title << source->nameAndArmies() << arrow << target->nameAndArmies() << arrow << target->nameAndOwner()
+         << arrow << issuer->getName() << (issuer->receivesCard ? " receives" : " does not receive")
+         << " a card at the end of the turn\n";
 }
 
 // ====================== Bomb class ======================
@@ -323,7 +360,32 @@ Bomb *Bomb::clone() const {
 
 // helper for the stream insertion operator to function as a virtual
 std::ostream &Bomb::write(ostream &out) const {
-    return target == nullptr ? out << "Bomb" : out << "Bomb " << target->name;
+    return out << toString();
+}
+
+// returns a string representation of the order
+std::string Bomb::toString() const {
+    return target == nullptr ? "Bomb" : "Bomb " + target->name;
+}
+
+// prints the current state of the territory affected by the order
+void Bomb::displayStats(bool beforeExecution) const {
+    string title, arrow;
+    if (beforeExecution) {
+        title = "\nStats before execution > ", arrow = "                       > ";
+        auto it = find_if(map->edges.begin(), map->edges.end(),
+                          [this](Graph::Edge *e) { return e->source == target && e->destination->owner == issuer; });
+        cout << "Validation info        > " << target->nameAndOwner() << arrow << target->name;
+        if (it == map->edges.end()) {
+            cout << " doesn't neighbor any territories owned by " << target->owner->getName();
+        } else {
+            cout << " neighbors " << (*it)->destination->name << " which is owned by "
+                 << (*it)->destination->owner->getName();
+        }
+    } else {
+        title = "Stats after execution  < ";
+    }
+    cout << title << target->nameAndArmies();
 }
 
 // ====================== Blockade class ======================
@@ -366,29 +428,27 @@ ostream &Orders::operator<<(ostream &out, const Blockade &blockade) {
 
 // is valid if the target territory is owned by the issuing player
 bool Blockade::validate() {
-    if (target->owner != this->issuer) {
-        cout << "INVALID ORDER: cannot create blockade on a territory you do not own" << endl;
-        return false;
+    if (issuer == nullptr || target == nullptr) { // prevent runtime errors
+        orderEffect = "at least one of the data members have not been properly initialized";
+    } else if (target->owner != this->issuer) {
+        orderEffect = target->name + " is not owned by " + issuer->getName();
+    } else {
+        return true;
     }
-
-    cout << "Validated a Blockade order." << endl;
-    return true;
+    orderEffect = "Blockade canceled — " + orderEffect;
+    return false;
 }
 
 // if valid, the number of armies on the target territory are doubled and transferred to the neutral player
 void Blockade::execute() {
-    if (this->validate()) {
-        this->orderEffect = "Executed a Blockade Order: " + issuer->getName() + " blockades " + target->name;
-        cout << this->orderEffect << endl;
+    if (validate()) {
+        orderEffect = toString();
         target->numberOfArmies *= 2;
         target->transferOwnership(Players::Player::neutralPlayer);
-
-        notify(*this);
-    } else {
-        this->orderEffect = "An invalid Blockade order could not be executed";
-        cout << this->orderEffect << endl;
-        notify(*this);
     }
+    orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
+    cout << orderEffect << endl;
+    notify(*this);
 }
 
 // dynamically returns a clone of the calling class
@@ -396,9 +456,25 @@ Blockade *Blockade::clone() const {
     return new Blockade(*this);
 }
 
-// helper for the stream insertion operator to function as a virtual
+// helper for the stream insertion operator to function dynamically
 std::ostream &Blockade::write(ostream &out) const {
-    return target == nullptr ? out << "Blockade" : out << "Blockade " << target->name;
+    return out << toString();
+}
+
+// returns a string representation of the order
+std::string Blockade::toString() const {
+    return target == nullptr ? "Blockade" : "Blockade " + target->name;
+}
+
+// prints the current state of the territory affected by the order
+void Blockade::displayStats(bool beforeExecution) const {
+    string title, arrow;
+    if (beforeExecution) {
+        title = "Stats before execution > ", arrow = "                       > ";
+    } else {
+        title = "Stats after execution  < ", arrow = "                       < ";
+    }
+    cout << title << target->nameAndArmies() << arrow << target->nameAndOwner();
 }
 
 // ====================== Airlift class ======================
@@ -447,28 +523,31 @@ ostream &Orders::operator<<(ostream &out, const Airlift &airlift) {
 
 // is valid if both the source and target territories belong to the issuer and the source has sufficient armies
 bool Airlift::validate() {
-    if (source != nullptr && target != nullptr &&
-        source->owner == issuer && target->owner == issuer && source->numberOfArmies >= armies) {
+    if (issuer == nullptr || target == nullptr || armies < 1) { // prevent runtime errors
+        orderEffect = "at least one of the data members have not been properly initialized";
+    } else if (source->owner != issuer) {
+        orderEffect = source->name + " is not owned by " + issuer->getName();
+    } else if (target->owner != issuer) {
+        orderEffect = target->name + " is not owned by " + issuer->getName();
+    } else if (source->numberOfArmies < armies) {
+        orderEffect = source->name + " has insufficient armies";
+    } else {
         return true;
     }
+    orderEffect = "Airlift canceled — " + orderEffect;
     return false;
 }
 
 // if the order is valid, the selected number of armies are moved from the source to the target territories
 void Airlift::execute() {
-    if (this->validate()) {
-        this->orderEffect =
-                "Executed Airlift order: " + issuer->getName() + " airlifts " + to_string(armies) + " armies from " +
-                source->name + " to " + target->name;
-        cout << this->orderEffect << endl;
+    if (validate()) {
+        orderEffect = toString();
         source->numberOfArmies -= armies;
         target->numberOfArmies += armies;
-        notify(*this);
-    } else {
-        this->orderEffect = "An invalid Airlift order could not be executed";
-        cout << this->orderEffect << endl;
-        notify(*this);
     }
+    orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
+    cout << orderEffect << endl;
+    notify(*this);
 }
 
 // dynamically returns a clone of the calling class
@@ -476,10 +555,27 @@ Airlift *Airlift::clone() const {
     return new Airlift(*this);
 }
 
-// helper for the stream insertion operator to function as a virtual
+// helper for the stream insertion operator to function dynamically
 std::ostream &Airlift::write(ostream &out) const {
-    return target == nullptr ? out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name
-                                                      << " to " << target->name;
+    return out << toString();
+}
+
+// returns a string representation of the order
+std::string Airlift::toString() const {
+    return target == nullptr || source == nullptr ?
+           "Airlift" : "Airlift " + to_string(armies) + " armies from " + source->name + " to " + target->name;
+}
+
+// prints the current state of the territories affected by the order
+void Airlift::displayStats(bool beforeExecution) const {
+    string title, arrow;
+    if (beforeExecution) {
+        title = "Stats before execution > ", arrow = "                       > ";
+        cout << "Validation info        > " << source->nameAndOwner() << arrow << target->nameAndOwner();
+    } else {
+        title = "Stats after execution  < ", arrow = "                       < ";
+    }
+    cout << title << source->nameAndArmies() << arrow << target->nameAndArmies();
 }
 
 // ====================== Negotiate class ======================
@@ -557,7 +653,23 @@ Negotiate *Negotiate::clone() const {
 
 // helper for the stream insertion operator to function as a virtual
 std::ostream &Negotiate::write(ostream &out) const {
-    return target == nullptr ? out << "Negotiate" : out << "Negotiate with " << target->getName();
+    return out << toString();
+}
+
+// returns a string representation of the order
+std::string Negotiate::toString() const {
+    return target == nullptr ? "Negotiate" : "Negotiate with " + target->getName();
+}
+
+// prints the current contents of the issuer's and target's 'cannotAttack' lists
+void Negotiate::displayStats(bool beforeExecution) const {
+    string title, arrow;
+    if (beforeExecution) {
+        title = "Stats before execution > ", arrow = "                       > ";
+    } else {
+        title = "Stats after execution  < ", arrow = "                       < ";
+    }
+    cout << title << issuer->cannotAttackString() << arrow << target->cannotAttackString();
 }
 
 // ====================== OrdersList class ======================
@@ -581,7 +693,7 @@ OrdersList::~OrdersList() {
 // returns a string to be output to the log file when notified
 std::string OrdersList::stringToLog() const {
     Order *order = this->orders.back();
-    return order->issuer->getName() + " has added a new " + order->type + " order to the list of orders";
+    return order->issuer->getName() + " has added \"" + order->toString() + "\" to their list of orders";
 }
 
 // creates true deep copy via the assignment operator

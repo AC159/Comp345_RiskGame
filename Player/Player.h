@@ -49,7 +49,7 @@ class Players::Player {
         void issueOrder(const std::vector<Graph::Edge *> &mapEdges);
 
         // accessor method for name
-        std::string getName();
+        [[nodiscard]] std::string getName() const;
 
         // display player's territories
         void displayTerritories();
@@ -71,6 +71,9 @@ class Players::Player {
 
         // display player's orders
         void displayOrders();
+
+        // returns the list contents of cannotAttack
+        [[nodiscard]] std::string cannotAttackString() const;
 };
 
 
