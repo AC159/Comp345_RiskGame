@@ -344,8 +344,11 @@ bool GameEngine::executeOrdersPhase() {
                 //save the targeted territory's owner to check if they should be eliminated afterwards
                 auto targetPlayerIt = playersList.end();
                 if (topOrder->type == "advance") {
-                    targetPlayerIt = std::find(playersList.begin(), playersList.end(),
-                                               (dynamic_cast<Orders::Advance *>(topOrder))->target->owner);
+                    Orders::Advance &advanceOrder = (dynamic_cast<Orders::Advance &>(*topOrder));
+                    if (advanceOrder.target != nullptr) { // avoid runtime error
+                        targetPlayerIt = std::find(playersList.begin(), playersList.end(),
+                                                   advanceOrder.target->owner);
+                    }
                 }
 
                 cout << player->getName() << " executed: ";
