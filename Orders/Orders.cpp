@@ -96,19 +96,17 @@ bool Deploy::validate() {
 }
 
 // if valid, the number of armies are taken from the player's reinforcement pool and added to their target territory
-bool Deploy::execute() {
+void Deploy::execute() {
     if (this->validate()) {
         this->orderEffect = "Deploy " + to_string(armies) + " to " + target->name;
         cout << this->orderEffect << endl;
         issuer->reinforcementPool -= armies;
         target->numberOfArmies += armies;
         notify(*this);
-        return true;
     } else {
         this->orderEffect = "An invalid Deploy order could not be executed";
         cout << this->orderEffect << endl;
         notify(*this);
-        return false;
     }
 }
 
@@ -182,7 +180,7 @@ bool Advance::validate() {
 
 /* only performs action if the order is valid: if the target territory belongs to the issuer, the armies are
  * transferred there; otherwise the armies attack the target territory*/
-bool Advance::execute() {
+void Advance::execute() {
     if (validate()) {
         if (source->owner == target->owner) { // perform simple army transfer
             this->orderEffect = to_string(armies) + " transferred to " + target->name + " from " + source->name;
@@ -194,7 +192,7 @@ bool Advance::execute() {
                 this->orderEffect = "INVALID ADVANCE ORDER: cannot advance on target player's territory; negotiation in effect";
                 cout << this->orderEffect << endl;
                 notify(*this);
-                return false;
+                return;
             }
 
             int defendersKilled = static_cast<int>(round(armies * 0.6));
@@ -221,12 +219,10 @@ bool Advance::execute() {
             }
         }
         notify(*this);
-        return true;
     } else {
         this->orderEffect = "An invalid Advance order could not be executed";
         cout << this->orderEffect << endl;
         notify(*this);
-        return false;
     }
 }
 
@@ -306,19 +302,17 @@ bool Bomb::validate() {
 }
 
 // if valid, half of the armies are removed from the target territory
-bool Bomb::execute() {
+void Bomb::execute() {
     if (this->validate()) {
         this->orderEffect = "Executed a Bomb Order: " + issuer->getName() + " bombs " + target->name;
         cout << this->orderEffect << endl;
         target->numberOfArmies /= 2;
 
         notify(*this);
-        return true;
     } else {
         this->orderEffect = "An invalid Bomb order could not be executed";
         cout << this->orderEffect << endl;
         notify(*this);
-        return false;
     }
 }
 
@@ -382,7 +376,7 @@ bool Blockade::validate() {
 }
 
 // if valid, the number of armies on the target territory are doubled and transferred to the neutral player
-bool Blockade::execute() {
+void Blockade::execute() {
     if (this->validate()) {
         this->orderEffect = "Executed a Blockade Order: " + issuer->getName() + " blockades " + target->name;
         cout << this->orderEffect << endl;
@@ -390,12 +384,10 @@ bool Blockade::execute() {
         target->transferOwnership(Players::Player::neutralPlayer);
 
         notify(*this);
-        return true;
     } else {
         this->orderEffect = "An invalid Blockade order could not be executed";
         cout << this->orderEffect << endl;
         notify(*this);
-        return false;
     }
 }
 
@@ -463,7 +455,7 @@ bool Airlift::validate() {
 }
 
 // if the order is valid, the selected number of armies are moved from the source to the target territories
-bool Airlift::execute() {
+void Airlift::execute() {
     if (this->validate()) {
         this->orderEffect =
                 "Executed Airlift order: " + issuer->getName() + " airlifts " + to_string(armies) + " armies from " +
@@ -472,12 +464,10 @@ bool Airlift::execute() {
         source->numberOfArmies -= armies;
         target->numberOfArmies += armies;
         notify(*this);
-        return true;
     } else {
         this->orderEffect = "An invalid Airlift order could not be executed";
         cout << this->orderEffect << endl;
         notify(*this);
-        return false;
     }
 }
 
@@ -545,7 +535,7 @@ bool Negotiate::validate() {
 }
 
 // if valid, prevents all attacks between the issuer and the target player for the remainder of the turn
-bool Negotiate::execute() {
+void Negotiate::execute() {
     if (this->validate()) {
         issuer->cannotAttack.push_back(target->getName());
         target->cannotAttack.push_back(issuer->getName());
@@ -553,12 +543,10 @@ bool Negotiate::execute() {
         this->orderEffect = "Executed a Negotiate Order";
         cout << this->orderEffect << endl;
         notify(*this);
-        return true;
     } else {
         this->orderEffect = "An invalid Negotiate order could not be executed";
         cout << this->orderEffect << endl;
         notify(*this);
-        return false;
     }
 }
 

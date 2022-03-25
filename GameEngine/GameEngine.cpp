@@ -352,7 +352,7 @@ bool GameEngine::executeOrdersPhase() {
                 }
 
                 cout << player->getName() << " executed: ";
-                bool executed = topOrder->execute();
+                topOrder->execute();
 
                 //player won if they own all territories
                 if (player->territories.size() == mapLoader->map->territories.size()) {
@@ -360,21 +360,9 @@ bool GameEngine::executeOrdersPhase() {
                     return true;
                 }
 
-                //if card execution failed, put the card back in the player's hand and remove it from the deck
-                //~should this be in execute method??
-                if (!executed && topOrder->type != "deploy" && topOrder->type != "advance") {
-                    auto card0 = std::find_if(deck->cards.rbegin(), deck->cards.rend(),
-                                 [topOrder](Cards::Card *card) { return card->getType() == topOrder->type; });
-
-                    if (card0 != deck->cards.rend()) {
-                        player->hand->cards.push_back(*card0);
-                        cout << " → " << (*card0)->getType() << " card was returned to " << player->getName() << endl;
-                        deck->cards.erase(next(card0).base());
-                    }
-                }
-
                 //player is eliminated if their last territory was taken
-                if (executed && targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()) {
+                if (targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()
+                    && targetPlayerIt != it) {
                     cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
                     delete *targetPlayerIt;
                     playersList.erase(targetPlayerIt);

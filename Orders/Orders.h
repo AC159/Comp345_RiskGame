@@ -39,7 +39,7 @@ public:
     friend std::ostream & operator<<(std::ostream &out, const Order &order);
 
     virtual bool validate() = 0;
-    virtual bool execute() = 0;
+    virtual void execute() = 0;
     [[nodiscard]] std::string stringToLog() const override = 0;
 
     [[nodiscard]] virtual Order* clone() const = 0;
@@ -68,7 +68,7 @@ public:
 
     [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
-    bool execute() override;
+    void execute() override;
 
     [[nodiscard]] Deploy * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -93,7 +93,7 @@ public:
 
     [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
-    bool execute() override;
+    void execute() override;
 
     [[nodiscard]] Advance * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -116,7 +116,7 @@ public:
 
     [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
-    bool execute() override;
+    void execute() override;
 
     [[nodiscard]] Bomb * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -138,7 +138,7 @@ public:
 
     [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
-    bool execute() override;
+    void execute() override;
 
     [[nodiscard]] Blockade * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -162,7 +162,7 @@ public:
 
     [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
-    bool execute() override;
+    void execute() override;
 
     [[nodiscard]] Airlift * clone() const override;
     std::ostream & write(std::ostream &out) const override;
@@ -184,7 +184,7 @@ public:
 
     [[nodiscard]] std::string stringToLog() const override;
     bool validate() override;
-    bool execute() override;
+    void execute() override;
 
     [[nodiscard]] Negotiate * clone() const override;
     std::ostream & write(std::ostream &out) const override;
