@@ -89,25 +89,29 @@ ostream &Orders::operator<<(ostream &out, const Deploy &deploy) {
 /* is valid if the target territory belongs to the player that issued the order
  * and if this player has sufficient armies in his reinforcement pool*/
 bool Deploy::validate() {
-    if (issuer != nullptr && target != nullptr && target->owner == issuer && armies <= issuer->reinforcementPool) {
+    if (issuer == nullptr || target == nullptr || armies < 1) { // prevent runtime errors
+        orderEffect = "at least one of the data members have not been properly initialized";
+    } else if (target->owner != issuer) {
+        orderEffect = target->name + " is not owned by " + issuer->getName();
+    } else if (armies > issuer->reinforcementPool) {
+        orderEffect = issuer->getName() + " has insufficient armies";
+    } else {
         return true;
     }
+    orderEffect = "Deploy canceled — " + orderEffect;
     return false;
 }
 
 // if valid, the number of armies are taken from the player's reinforcement pool and added to their target territory
 void Deploy::execute() {
-    if (this->validate()) {
-        this->orderEffect = "Deploy " + to_string(armies) + " to " + target->name;
-        cout << this->orderEffect << endl;
+    if (validate()) {
+        orderEffect = toString();
         issuer->reinforcementPool -= armies;
         target->numberOfArmies += armies;
-        notify(*this);
-    } else {
-        this->orderEffect = "An invalid Deploy order could not be executed";
-        cout << this->orderEffect << endl;
-        notify(*this);
     }
+    orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
+    cout << orderEffect << endl;
+    notify(*this);
 }
 
 // dynamically returns a clone of the calling class
@@ -115,7 +119,7 @@ Deploy *Deploy::clone() const {
     return new Deploy(*this);
 }
 
-// helper for the stream insertion operator to function as a virtual
+// helper for the stream insertion operator to function dynamically
 std::ostream &Deploy::write(ostream &out) const {
     return out << toString();
 }
@@ -188,10 +192,20 @@ ostream &Orders::operator<<(ostream &out, const Advance &advance) {
 /* is valid if the source territory has sufficient armies & belongs to the issuing player, if the target territory
  * neighbors the source, and if the target's owner isn't negotiating with the issuer */
 bool Advance::validate() {
-    if (source != nullptr && source->owner == issuer && source->numberOfArmies >= armies && armies > 0 &&
-        map->edgeExists(source, target)) {
+    if (issuer == nullptr || map == nullptr || target == nullptr || armies < 1) { // prevent runtime errors
+        orderEffect = "at least one of the data members have not been properly initialized";
+    } else if (hasNegotiation(issuer, target->owner)) {
+        orderEffect = "peace is enforced between " + issuer->getName() + " and " + target->owner->getName();
+    } else if (source->owner != issuer) {
+        orderEffect = source->name + " is not owned by " + issuer->getName();
+    } else if (source->numberOfArmies < armies) {
+        orderEffect = source->name + " has insufficient armies";
+    } else if (!map->edgeExists(source, target)) {
+        orderEffect = target->name + " does not neighbor " + source->name;
+    } else {
         return true;
     }
+    orderEffect = "Advance canceled — " + orderEffect;
     return false;
 }
 
@@ -200,31 +214,21 @@ bool Advance::validate() {
 void Advance::execute() {
     if (validate()) {
         if (source->owner == target->owner) { // perform simple army transfer
-            this->orderEffect = to_string(armies) + " transferred to " + target->name + " from " + source->name;
-            cout << this->orderEffect << endl;
+            orderEffect = to_string(armies) + " transferred to " + target->name + " from " + source->name;
             source->numberOfArmies -= armies;
             target->numberOfArmies += armies;
         } else { // initiate an attack
-            if (hasNegotiation(issuer, target->owner)) {
-                this->orderEffect = "INVALID ADVANCE ORDER: cannot advance on target player's territory; negotiation in effect";
-                cout << this->orderEffect << endl;
-                notify(*this);
-                return;
-            }
-
             int defendersKilled = static_cast<int>(round(armies * 0.6));
             int attackersKilled = static_cast<int>(round(target->numberOfArmies * 0.7));
 
             if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { // failed to conquer
-                this->orderEffect = to_string(armies) + " failed to take " + target->name + " from " + source->name;
-                cout << this->orderEffect << endl;
+                orderEffect = to_string(armies) + " failed to take " + target->name + " from " + source->name;
 
                 // update territories' armies
                 target->numberOfArmies -= defendersKilled;
                 source->numberOfArmies -= armies < attackersKilled ? armies : attackersKilled;
             } else { // territory successfully conquered
-                this->orderEffect = to_string(armies) + " captured " + target->name + " from " + source->name;
-                cout << this->orderEffect << endl;
+                orderEffect = to_string(armies) + " captured " + target->name + " from " + source->name;
                 target->transferOwnership(issuer); // issuer now owns the territory
 
                 // update territories' armies
@@ -235,12 +239,10 @@ void Advance::execute() {
                 issuer->receivesCard = true;
             }
         }
-        notify(*this);
-    } else {
-        this->orderEffect = "An invalid Advance order could not be executed";
-        cout << this->orderEffect << endl;
-        notify(*this);
     }
+    orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
+    cout << orderEffect << endl;
+    notify(*this);
 }
 
 // dynamically returns a clone of the calling class
@@ -248,7 +250,7 @@ Advance *Advance::clone() const {
     return new Advance(*this);
 }
 
-// helper for the stream insertion operator to function as a virtual
+// helper for the stream insertion operator to function dynamically
 std::ostream &Advance::write(ostream &out) const {
     return out << toString();
 }
@@ -305,6 +307,7 @@ Bomb &Bomb::operator=(const Bomb &bomb) {
     if (this != &bomb) {
         this->issuer = bomb.issuer;
         this->target = bomb.target;
+        this->map = bomb.map;
     }
     return *this;
 }
@@ -316,41 +319,42 @@ ostream &Orders::operator<<(ostream &out, const Bomb &bomb) {
 
 // is valid if the target territory is not owned by the issuer and is adjacent to at least one of issuer's territories
 bool Bomb::validate() {
+    if (issuer == nullptr || map == nullptr || target == nullptr) { // prevent runtime errors
+        orderEffect = "Bomb canceled — at least one of the data members have not been properly initialized";
+        return false;
+    }
+
     if (hasNegotiation(issuer, target->owner)) {
-        cout << "INVALID ORDER: cannot bomb target player's territory; negotiation in effect" << endl;
+        orderEffect = "Bomb canceled — peace is enforced between " + issuer->getName() + " and " +
+                      target->owner->getName();
         return false;
     }
 
     // checking if the target territory belongs to the issuing player
     if (this->issuer == target->owner) {
-        cout << "INVALID ORDER: cannot bomb your own territory" << endl;;
+        orderEffect = "Bomb canceled — " + issuer->getName() + " owns " + target->name;
         return false;
     }
 
     // loop to check if the target territory is adjacent to any of the issuing player's territories
-    for (auto it = issuer->territories.begin();
-         it != issuer->territories.end(); it++) {
-        if (this->map->edgeExists(it->second, target))
+    for (auto &territory: issuer->territories) {
+        if (this->map->edgeExists(territory.second, target))
             return true;
     }
-
-    cout << "INVALID ORDER: territory is not adjacent to any of your territories" << endl;
+    orderEffect = "Bomb canceled — " + target->name + " is not adjacent to any of " + issuer->getName() +
+                  "'s territories";
     return false;
 }
 
 // if valid, half of the armies are removed from the target territory
 void Bomb::execute() {
-    if (this->validate()) {
-        this->orderEffect = "Executed a Bomb Order: " + issuer->getName() + " bombs " + target->name;
-        cout << this->orderEffect << endl;
+    if (validate()) {
+        orderEffect = toString();
         target->numberOfArmies /= 2;
-
-        notify(*this);
-    } else {
-        this->orderEffect = "An invalid Bomb order could not be executed";
-        cout << this->orderEffect << endl;
-        notify(*this);
     }
+    orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
+    cout << orderEffect << endl;
+    notify(*this);
 }
 
 // dynamically returns a clone of the calling class
@@ -358,7 +362,7 @@ Bomb *Bomb::clone() const {
     return new Bomb(*this);
 }
 
-// helper for the stream insertion operator to function as a virtual
+// helper for the stream insertion operator to function dynamically
 std::ostream &Bomb::write(ostream &out) const {
     return out << toString();
 }
@@ -618,32 +622,28 @@ ostream &Orders::operator<<(ostream &out, const Negotiate &negotiate) {
 
 // is valid if the target player is neither neutral nor the issuing player
 bool Negotiate::validate() {
-    if (issuer == target) {
-        cout << "INVALID ORDER: cannot negotiate with yourself" << endl;
-        return false;
-    } else if (target->getName() == "neutral") {
-        cout << "INVALID ORDER: cannot negotiate with neutral player" << endl;
-        return false;
+    if (issuer == nullptr || target == nullptr) { // prevent runtime errors
+        orderEffect = "at least one of the data members have not been properly initialized";
+    } else if (issuer == target || target->getName() == "neutral") {
+        orderEffect = "the target player is not an enemy";
+    } else {
+        return true;
     }
-
-    cout << "Validated a Negotiate order." << endl;
-    return true;
+    orderEffect += "Negotiate canceled — ";
+    return false;
 }
 
 // if valid, prevents all attacks between the issuer and the target player for the remainder of the turn
 void Negotiate::execute() {
-    if (this->validate()) {
+    if (validate()) {
+        orderEffect = toString();
         issuer->cannotAttack.push_back(target->getName());
         target->cannotAttack.push_back(issuer->getName());
-
-        this->orderEffect = "Executed a Negotiate Order";
-        cout << this->orderEffect << endl;
-        notify(*this);
-    } else {
-        this->orderEffect = "An invalid Negotiate order could not be executed";
-        cout << this->orderEffect << endl;
-        notify(*this);
     }
+    orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
+    cout << orderEffect << endl;
+    notify(*this);
+
 }
 
 // dynamically returns a clone of the calling class
@@ -651,7 +651,7 @@ Negotiate *Negotiate::clone() const {
     return new Negotiate(*this);
 }
 
-// helper for the stream insertion operator to function as a virtual
+// helper for the stream insertion operator to function dynamically
 std::ostream &Negotiate::write(ostream &out) const {
     return out << toString();
 }

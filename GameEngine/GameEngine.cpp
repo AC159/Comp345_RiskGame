@@ -351,7 +351,6 @@ bool GameEngine::executeOrdersPhase() {
                     }
                 }
 
-                cout << player->getName() << " executed: ";
                 topOrder->execute();
 
                 //player won if they own all territories
