@@ -241,12 +241,11 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
         }
     }
 
-    // ----- issuing advance orders to defend -----
+    // ----- issuing advance orders to attack -----
     //TODO: Implement logic to issue advance orders using toAttack()
     //      (Clear the to-do for refactoring the player.toAttack() method before this)
 
-    // ----- issuing advance orders to attack -----
-    //TODO: Implement logic to issue advance orders using toDefend() DONE?
+    // ----- issuing advance orders to defend -----
     cout<< "======== issueAdvanceOrders using toDefend()========"<<endl;
     vector<Territory*> friendlyTerritories= toDefend(mapEdges).begin()->second->adjacentFriendlyTerritories(mapEdges);
     string toDefendTerritory = toDefend(mapEdges).begin()->second->name;
