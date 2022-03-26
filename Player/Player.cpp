@@ -180,26 +180,19 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
     }
 
     // ----- issuing order by playing a card -----
-    hand->cards.push_back(new Cards::Airlift());
-    hand->cards.push_back(new Cards::Diplomacy());
-    hand->cards.push_back(new Cards::Reinforcement());
-    hand->cards.push_back(new Cards::Reinforcement());
-    hand->cards.push_back(new Cards::Blockade());
-    hand->cards.push_back(new Cards::Bomb());
-
-
     //creating a set of card types in the player's hand
     vector<string> cardTypeVector;
 
     //check for negotiate card and add it to the beginning of the vectorTypeList
-    for (auto card:hand->cards)
+    for (auto card: hand->cards)
         if (card->getType() == "reinforcement")
             cardTypeVector.push_back(card->getType());
 
     //check for all card types in user's hand (except for reinforcement) and add those types to the cardTypeVector
-    for (auto card:hand->cards)
-       if(find_if(cardTypeVector.begin(), cardTypeVector.end(), [card](std::string c){return card->getType() == c;}) == cardTypeVector.end())
-           cardTypeVector.push_back(card->getType());
+    for (auto card: hand->cards)
+        if (find_if(cardTypeVector.begin(), cardTypeVector.end(),
+                    [card](std::string c) { return card->getType() == c; }) == cardTypeVector.end())
+            cardTypeVector.push_back(card->getType());
 
     //loop to play one card of each type from the player's hand
     for (auto type: cardTypeVector) {
@@ -242,8 +235,30 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
     }
 
     // ----- issuing advance orders to defend -----
-    //TODO: Implement logic to issue advance orders using toAttack()
-    //      (Clear the to-do for refactoring the player.toAttack() method before this)
+    multimap<int, Territory *> territoriesToAttack = toAttack(mapEdges);
+
+    vector<Territory *> thisPlayerAdjacentTerritories; //stores player's territories adjacent to the enemy territory to be attacked
+    //loop to get all player territories adjacent to the enemy territory to be attacked
+    for (auto it: territoriesToAttack.begin()->second->adjacentEnemyTerritories(mapEdges)) {
+        cout << ">> " << it->name << endl;
+        if (it->owner == this)
+            thisPlayerAdjacentTerritories.push_back(it);
+    }
+
+    if (thisPlayerAdjacentTerritories.size() > 0) {//check that the player has adjacent territories before proceeding with advance order creation logic
+        Territory *playerAttackingTerritory = thisPlayerAdjacentTerritories.at(0);
+        int numberOfAttackingTerritoryArmies = thisPlayerAdjacentTerritories.at(0)->numberOfArmies;
+
+        //loop to get the adjacent territory with the highest number of armies
+        for (int i = 0; i < thisPlayerAdjacentTerritories.size(); i++)
+            if(thisPlayerAdjacentTerritories.at(i)->numberOfArmies > numberOfAttackingTerritoryArmies){
+                playerAttackingTerritory = thisPlayerAdjacentTerritories.at(i);
+                numberOfAttackingTerritoryArmies = thisPlayerAdjacentTerritories.at(i)->numberOfArmies;
+            }
+
+        //create new advance order to attack adjacent enemy territory and add it to the player's orders list
+        orders->add(new Orders::Advance(this, map, playerAttackingTerritory, territoriesToAttack.begin()->second, playerAttackingTerritory->numberOfArmies));
+    }
 
     // ----- issuing advance orders to attack -----
     //TODO: Implement logic to issue advance orders using toDefend()
