@@ -4,9 +4,6 @@
 
 using namespace Cards;
 
-
-// TODO: Refactor each card's play method to create an order without calling issueOrder()
-
 // ======================== Deck class ========================
 
 Deck::Deck() = default;

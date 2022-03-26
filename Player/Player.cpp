@@ -184,7 +184,7 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
     hand->cards.push_back(new Cards::Diplomacy());
     hand->cards.push_back(new Cards::Reinforcement());
     hand->cards.push_back(new Cards::Reinforcement());
-    hand->cards.push_back(new Cards::Blockade());
+    //hand->cards.push_back(new Cards::Blockade());
     hand->cards.push_back(new Cards::Bomb());
 
 
@@ -246,7 +246,23 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
     //      (Clear the to-do for refactoring the player.toAttack() method before this)
 
     // ----- issuing advance orders to attack -----
-    //TODO: Implement logic to issue advance orders using toDefend()
+    //TODO: Implement logic to issue advance orders using toDefend() DONE?
+    cout<< "======== issueAdvanceOrders using toDefend()========"<<endl;
+    vector<Territory*>friendlyTerritories= toDefend(mapEdges).begin()->second->adjacentFriendlyTerritories(mapEdges);
+    string toDefendTerritory = toDefend(mapEdges).begin()->second->name;
+    cout<< "Priority territory to defend: "<< toDefendTerritory<<endl;
+    cout<<"I AM PRINTING ADJACENT TERRITORIES"<<endl;
+    for(Territory* t : friendlyTerritories){
+        if(t->name != toDefendTerritory) //to remove priority territory from the list
+        cout<< t->name <<" "<<t->numberOfArmies<<endl;
+    }
+    //taking half of armies of the lowest priority territory
+   int armiesToGive= friendlyTerritories.back()->numberOfArmies * 0.5;
+    cout<<"armies to give: "<<armiesToGive<<endl;
+
+    //add armies taken from the lowest priority to defend and give it to the highest priority
+  toDefend(mapEdges).begin()->second->numberOfArmies += armiesToGive;
+          cout<<"new army amount for the territory to defend "<< toDefend(mapEdges).begin()->second->numberOfArmies<<endl;
 }
 
 // accessor method for name
