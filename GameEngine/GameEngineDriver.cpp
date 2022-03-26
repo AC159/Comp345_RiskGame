@@ -106,4 +106,10 @@ void GameEngine::gamePlayDriver() {
     for (pair<int, Territory *> territory: game.playersList.at(0)->toDefend(game.mapLoader->map->edges))
         cout << territory.first << " " << territory.second->name << "; number of armies="
              << territory.second->numberOfArmies << endl;
+
+    cout << ">> toDefend territory list for " << game.playersList.at(1)->getName() << ":" << endl;
+    for (pair<int, Territory *> territory: game.playersList.at(1)->toDefend(game.mapLoader->map->edges))
+        cout << territory.first << " " << territory.second->name << "; number of armies="
+             << territory.second->numberOfArmies << endl;
+
 }
