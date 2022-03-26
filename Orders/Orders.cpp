@@ -263,7 +263,8 @@ Bomb::Bomb() : Order("bomb"), target(nullptr) {
  * @param issuer the player whose turn it is
  * @param target the territory to bomb (must be adjacent to one of issuer's territories & have diff owner for validity)
  */
-Bomb::Bomb(Players::Player *issuer, Graph::Territory *target, Graph::Map *map) : Order(issuer, "bomb"), target(target), map(map) {}
+Bomb::Bomb(Players::Player *issuer, Graph::Territory *target, Graph::Map *map) : Order(issuer, "bomb"), target(target),
+                                                                                 map(map) {}
 
 //copy constructor creates shallow copy due to circular dependency
 Bomb::Bomb(const Bomb &bomb) : Order(bomb) {
@@ -314,6 +315,7 @@ bool Bomb::validate() {
         return false;
     }
 
+    //TODO: this loop is not working properly; edgeExists returns false for some reason
     //loop to check if the target territory is adjacent to any of the issuing player's territories
     for (auto it = issuer->territories.begin();
          it != issuer->territories.end(); it++) {
@@ -332,7 +334,7 @@ bool Bomb::validate() {
 //performs the order action if it's valid - action is arbitrary for now
 bool Bomb::execute() {
     if (this->validate()) {
-        this->orderEffect = "Executed a Bomb Order: "+  issuer->getName() + " bombs " + target->name;
+        this->orderEffect = "Executed a Bomb Order: " + issuer->getName() + " bombs " + target->name;
         cout << this->orderEffect << endl;
         target->numberOfArmies /= 2;
 
@@ -516,7 +518,9 @@ bool Airlift::validate() {
 //if the order is valid, the selected number of armies are moved from the source to the target territories
 bool Airlift::execute() {
     if (this->validate()) {
-        this->orderEffect = "Executed Airlift order: " + issuer->getName() + " airlifts " + to_string(armies) + " armies from " + source->name + " to " + target->name;
+        this->orderEffect =
+                "Executed Airlift order: " + issuer->getName() + " airlifts " + to_string(armies) + " armies from " +
+                source->name + " to " + target->name;
         cout << this->orderEffect << endl;
         source->numberOfArmies -= armies;
         target->numberOfArmies += armies;
@@ -537,7 +541,8 @@ Airlift *Airlift::clone() const {
 
 //helper for the stream insertion operator to function as a virtual
 std::ostream &Airlift::write(ostream &out) const {
-    return target == nullptr ? out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name << " to " << target->name;
+    return target == nullptr ? out << "Airlift" : out << "Airlift " << armies << " armies from " << source->name
+                                                      << " to " << target->name;
 }
 
 // ====================== Negotiate class ======================

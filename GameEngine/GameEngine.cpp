@@ -293,7 +293,7 @@ void GameEngine::issueOrdersPhase() {
     issueOrdersStateChange();
 
     for (auto player: playersList) {
-        player->issueOrder(mapLoader->map->edges);
+        player->issueOrder(mapLoader->map->edges, deck, mapLoader->map);
     }
 }
 
