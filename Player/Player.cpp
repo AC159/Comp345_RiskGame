@@ -235,31 +235,34 @@ void Player::issueOrder(Cards::Deck *deck, Graph::Map *map) {
 
     // ----- issuing advance orders to attack -----
     multimap<int, Territory *> territoriesToAttack = toAttack(mapEdges);
-
-    vector<Territory *> thisPlayerAdjacentTerritories; //stores player's territories adjacent to the enemy territory to be attacked
-    //loop to get all player territories adjacent to the enemy territory to be attacked
-    for (auto it: territoriesToAttack.begin()->second->adjacentEnemyTerritories(mapEdges)) {
-        if (it->owner == this)
-            thisPlayerAdjacentTerritories.push_back(it);
-    }
-
-    if (!thisPlayerAdjacentTerritories.empty()) {//check that the player has adjacent territories before proceeding with advance order creation logic
-        Territory *playerAttackingTerritory = thisPlayerAdjacentTerritories.at(0);
-        int numberOfAttackingTerritoryArmies = thisPlayerAdjacentTerritories.at(0)->numberOfArmies;
-
-        //loop to get the adjacent territory with the highest number of armies
-        for (auto & adjacentTerritory : thisPlayerAdjacentTerritories)
-            if(adjacentTerritory->numberOfArmies > numberOfAttackingTerritoryArmies){
-                playerAttackingTerritory = adjacentTerritory;
-                numberOfAttackingTerritoryArmies = adjacentTerritory->numberOfArmies;
-            }
-        if (deployedTerritoriesArmies.contains(playerAttackingTerritory)) {
-            numberOfAttackingTerritoryArmies = deployedTerritoriesArmies.at(playerAttackingTerritory);
+    for (const auto &pair: territoriesToAttack){
+        auto territoryToAttack = pair.second;
+        vector<Territory *> thisPlayerAdjacentTerritories; //stores player's territories adjacent to the enemy territory to be attacked
+        //loop to get all player territories adjacent to the enemy territory to be attacked
+        for (auto it: territoryToAttack->adjacentEnemyTerritories(mapEdges)) {
+            if (it->owner == this)
+                thisPlayerAdjacentTerritories.push_back(it);
         }
 
-        //create new advance order to attack adjacent enemy territory and add it to the player's orders list
-        orders->add(new Orders::Advance(this, map, playerAttackingTerritory, territoriesToAttack.begin()->second, numberOfAttackingTerritoryArmies));
-        cout << " (issued using toAttack)\n";
+        if (!thisPlayerAdjacentTerritories.empty()) {//check that the player has adjacent territories before proceeding with advance order creation logic
+            Territory *playerAttackingTerritory = thisPlayerAdjacentTerritories.at(0);
+            int numberOfAttackingTerritoryArmies = thisPlayerAdjacentTerritories.at(0)->numberOfArmies;
+
+            //loop to get the adjacent territory with the highest number of armies
+            for (auto &adjacentTerritory: thisPlayerAdjacentTerritories)
+                if (adjacentTerritory->numberOfArmies > numberOfAttackingTerritoryArmies) {
+                    playerAttackingTerritory = adjacentTerritory;
+                    numberOfAttackingTerritoryArmies = adjacentTerritory->numberOfArmies;
+                }
+            if (deployedTerritoriesArmies.contains(playerAttackingTerritory)) {
+                numberOfAttackingTerritoryArmies = deployedTerritoriesArmies.at(playerAttackingTerritory);
+            }
+
+            //create new advance order to attack adjacent enemy territory and add it to the player's orders list
+            orders->add(new Orders::Advance(this, map, playerAttackingTerritory, territoryToAttack,
+                                            numberOfAttackingTerritoryArmies));
+            cout << " (issued using toAttack)\n";
+        }
     }
 
     // ----- issuing advance orders to defend -----
