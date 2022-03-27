@@ -199,10 +199,10 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
         for (int i = 0; i < hand->cards.size(); i++) {
             if (hand->cards.at(i)->getType() == type) {
                 if (type == "airlift") {
-                    Territory *hasBiggestArmy;
+                    Territory *hasBiggestArmy = nullptr;
                     int noOfArmies = 0;
                     for (auto territory: territories)
-                        if (territory.second->numberOfArmies > noOfArmies) {
+                        if (territory.second->numberOfArmies >= noOfArmies) {
                             hasBiggestArmy = territory.second;
                             noOfArmies = territory.second->numberOfArmies;
                         }
@@ -220,10 +220,10 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
                                                                             defend.begin()->second);
                 } else if (type == "diplomacy") {
                     vector<Territory *> adjacent = defend.begin()->second->adjacentEnemyTerritories(mapEdges);
-                    Territory *hasBiggestArmy;
+                    Territory *hasBiggestArmy = nullptr;
                     int noOfArmies = 0;
                     for (auto territory: adjacent)
-                        if (territory->numberOfArmies > noOfArmies) {
+                        if (territory->numberOfArmies >= noOfArmies) {
                             hasBiggestArmy = territory;
                             noOfArmies = territory->numberOfArmies;
                         }
