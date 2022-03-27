@@ -334,6 +334,7 @@ void GameEngine::issueOrdersStateChange() {
     GameEngine::changeState("issue orders");
 }
 
+// issue all players' orders for the turn
 void GameEngine::issueOrdersPhase() {
     issueOrdersStateChange();
 
@@ -348,7 +349,8 @@ void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
 
-//returns true if a player won during the turn
+/* executes all issued orders in round-robin fashion accross the players, prioritizing deploy orders
+ * returns true if a player won during the turn*/
 bool GameEngine::executeOrdersPhase() {
     executeOrdersStateChange();
 
