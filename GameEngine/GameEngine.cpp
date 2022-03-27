@@ -259,7 +259,7 @@ void GameEngine::mainGameLoop() {
     int turnCount = 0;
     while(!playerWon) {
         turnCount++;
-        if (turnCount == 100) {
+        if (turnCount == 500) {
             cout << "* ERROR:  Too many turns. Main game loop terminated to avoid infinite loop. *\n" << endl;
             break;
         }
