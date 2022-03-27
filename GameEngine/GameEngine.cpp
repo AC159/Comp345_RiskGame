@@ -280,23 +280,51 @@ void GameEngine::assignReinforcementStateChange() {
 void GameEngine::reinforcementPhase() {
     assignReinforcementStateChange();
 
+    bool firstTurn = std::all_of(playersList.begin(), playersList.end(),
+                                 [](Players::Player *p) { return p->reinforcementPool == 50; });
+
     for (auto player: playersList) {
-        int baseRate = static_cast<int>(player->territories.size() / 3);
-        int totalBonus = 0;
-        for (auto continent : mapLoader->map->continents) {
-            //find if player owns any whole continent and honor bonus reinforcements accordingly
-            int bonus = continent->bonusValue;
+        int territoriesRate = static_cast<int>(player->territories.size() / 3);
+        int continentsBonus = 0;
+        vector<string> continentsOwned;
+        for (const auto &continent: mapLoader->map->continents) {
+            // find if player owns any whole continent and honor bonus reinforcements accordingly
+            bool ownsContinent = true;
             for (auto continentTerritory: continent->territories) {
                 if (!player->territories.contains(continentTerritory->countryNumber)) {
-                    bonus = 0;
+                    ownsContinent = false;
                     break;
                 }
             }
-            totalBonus += bonus;
+            if (ownsContinent) {
+                continentsBonus += continent->bonusValue;
+                continentsOwned.push_back(continent->name);
+            }
         }
 
-        //the minimum reinforcements a player receives is 3
-        player->reinforcementPool = baseRate + totalBonus > 3 ? baseRate + totalBonus : 3;
+        // add total armies for the turn
+        player->reinforcementPool += territoriesRate + continentsBonus;
+        int minimumBonus = 3 - player->reinforcementPool;
+        if (minimumBonus > 0) {
+            player->reinforcementPool += minimumBonus; // the minimum reinforcements a player receives is 3
+        }
+
+        // display summary
+        cout << player->getName() << " has a total of " << player->reinforcementPool << " armies this turn:\n";
+        if (firstTurn) {
+            cout << "\t• 50 armies from the initial bonus\n";
+        }
+        cout << "\t• " << territoriesRate << " armies from owning " << player->territories.size() << " territories\n"
+             << "\t• " << continentsBonus << " armies from owning " << continentsOwned.size() << " continents";
+        string delimiter = ": ";
+        for (const auto &continentName: continentsOwned) {
+            cout << delimiter << continentName;
+            delimiter = ", ";
+        }
+        cout << endl;
+        if (minimumBonus > 0) {
+            cout << "\t• " << minimumBonus << " bonus armies to meet the minimum of 3 armies per turn\n";
+        }
     }
 }
 
