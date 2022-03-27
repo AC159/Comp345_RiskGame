@@ -72,11 +72,12 @@ vector<Territory *> Territory::adjacentEnemyTerritories(const vector<Edge *> &ma
     }
     return adjacentEnemyTerritories;
 }
+
 // returns all territories that are both adjacent to this territory and have same owner
 vector<Territory *> Territory::adjacentFriendlyTerritories(const vector<Edge *> &mapEdges) {
     vector<Territory *> adjacentFriendlyTerritories;
     for (const auto &edge : mapEdges) {
-        if ((edge->source == this && edge->destination->owner == owner && edge->destination !=this)|| (edge->destination == this && edge->source->owner == owner && edge->destination == this)) {
+        if ((edge->source == this && edge->destination->owner == owner)) {
             adjacentFriendlyTerritories.push_back(edge->destination);
         }
     }
