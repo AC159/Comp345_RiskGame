@@ -629,7 +629,7 @@ bool Negotiate::validate() {
     } else {
         return true;
     }
-    orderEffect += "Negotiate canceled — ";
+    orderEffect = "Negotiate canceled — " + orderEffect;
     return false;
 }
 
