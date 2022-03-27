@@ -257,11 +257,12 @@ void Player::issueOrder(Cards::Deck *deck, Graph::Map *map) {
             if (deployedTerritoriesArmies.contains(playerAttackingTerritory)) {
                 numberOfAttackingTerritoryArmies = deployedTerritoriesArmies.at(playerAttackingTerritory);
             }
-
-            //create new advance order to attack adjacent enemy territory and add it to the player's orders list
-            orders->add(new Orders::Advance(this, map, playerAttackingTerritory, territoryToAttack,
-                                            numberOfAttackingTerritoryArmies));
-            cout << " (issued using toAttack)\n";
+            if (numberOfAttackingTerritoryArmies != 0) {
+                //create new advance order to attack adjacent enemy territory and add it to the player's orders list
+                orders->add(new Orders::Advance(this, map, playerAttackingTerritory, territoryToAttack,
+                                                numberOfAttackingTerritoryArmies));
+                cout << " (issued using toAttack)\n";
+            }
         }
     }
 
