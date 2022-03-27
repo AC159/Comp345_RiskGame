@@ -192,16 +192,18 @@ ostream &Orders::operator<<(ostream &out, const Advance &advance) {
 /* is valid if the source territory has sufficient armies & belongs to the issuing player, if the target territory
  * neighbors the source, and if the target's owner isn't negotiating with the issuer */
 bool Advance::validate() {
-    if (issuer == nullptr || map == nullptr || source == nullptr || target == nullptr || armies < 1) { // prevent errors
+    if (issuer == nullptr || map == nullptr || source == nullptr || target == nullptr) { // prevent runtime errors
         orderEffect = "at least one of the data members have not been properly initialized";
     } else if (hasNegotiation(issuer, target->owner)) {
         orderEffect = "peace is enforced between " + issuer->getName() + " and " + target->owner->getName();
     } else if (source->owner != issuer) {
         orderEffect = source->name + " is not owned by " + issuer->getName();
-    } else if (source->numberOfArmies < armies) {
-        orderEffect = source->name + " has insufficient armies";
     } else if (!map->edgeExists(source, target)) {
         orderEffect = target->name + " does not neighbor " + source->name;
+    } else if (armies <= 0) {
+        orderEffect = "cannot issue an attack or transfer of " + to_string(armies) + " armies";
+    } else if (source->numberOfArmies == 0) {
+        orderEffect = source->name + " has no armies left";
     } else {
         return true;
     }
@@ -213,6 +215,11 @@ bool Advance::validate() {
  * transferred there; otherwise the armies attack the target territory*/
 void Advance::execute() {
     if (validate()) {
+        /* as per Warzone rules, use all available armies in the case where armies have decreased to an insufficient
+         * amount during the turn */
+        if (armies > source->numberOfArmies) {
+            armies = source->numberOfArmies;
+        }
         if (source->owner == target->owner) { // perform simple army transfer
             orderEffect = to_string(armies) + " transferred to " + target->name + " from " + source->name;
             source->numberOfArmies -= armies;
@@ -490,7 +497,7 @@ Airlift::Airlift() : Order(nullptr, "airlift"), source(nullptr), target(nullptr)
  * @param issuer the player whose turn it is
  * @param source the territory where the armies will be taken from (must belong to issuer for validity)
  * @param target the territory where the armies will be transferred to (must belong to issuer for validity)
- * @param armies the number of armies to transfer (must be available in source for validity)
+ * @param armies the number of armies to transfer
  */
 Airlift::Airlift(Players::Player *issuer, Graph::Territory *source, Graph::Territory *target, int armies)
         : Order(issuer, "airlift"), source(source), target(target), armies(armies) {}
@@ -525,16 +532,18 @@ ostream &Orders::operator<<(ostream &out, const Airlift &airlift) {
     return airlift.write(out);
 }
 
-// is valid if both the source and target territories belong to the issuer and the source has sufficient armies
+// is valid if both the source and target territories belong to the issuer and the armies are not 0
 bool Airlift::validate() {
-    if (issuer == nullptr || source == nullptr || target == nullptr || armies < 1) { // prevent runtime errors
+    if (issuer == nullptr || source == nullptr || target == nullptr) { // prevent runtime errors
         orderEffect = "at least one of the data members have not been properly initialized";
     } else if (source->owner != issuer) {
         orderEffect = source->name + " is not owned by " + issuer->getName();
     } else if (target->owner != issuer) {
         orderEffect = target->name + " is not owned by " + issuer->getName();
-    } else if (source->numberOfArmies < armies) {
-        orderEffect = source->name + " has insufficient armies";
+    } else if (armies <= 0) {
+        orderEffect = "cannot issue an airlift of " + to_string(armies) + " armies";
+    } else if (source->numberOfArmies == 0) {
+        orderEffect = source->name + " has no armies left";
     } else {
         return true;
     }
@@ -544,6 +553,11 @@ bool Airlift::validate() {
 
 // if the order is valid, the selected number of armies are moved from the source to the target territories
 void Airlift::execute() {
+    /* as per Warzone rules, use all available armies in the case where armies have decreased to an insufficient
+     * amount during the turn */
+    if (armies > source->numberOfArmies) {
+        armies = source->numberOfArmies;
+    }
     if (validate()) {
         orderEffect = toString();
         source->numberOfArmies -= armies;
