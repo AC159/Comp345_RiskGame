@@ -192,7 +192,7 @@ ostream &Orders::operator<<(ostream &out, const Advance &advance) {
 /* is valid if the source territory has sufficient armies & belongs to the issuing player, if the target territory
  * neighbors the source, and if the target's owner isn't negotiating with the issuer */
 bool Advance::validate() {
-    if (issuer == nullptr || map == nullptr || target == nullptr || armies < 1) { // prevent runtime errors
+    if (issuer == nullptr || map == nullptr || source == nullptr || target == nullptr || armies < 1) { // prevent errors
         orderEffect = "at least one of the data members have not been properly initialized";
     } else if (hasNegotiation(issuer, target->owner)) {
         orderEffect = "peace is enforced between " + issuer->getName() + " and " + target->owner->getName();
@@ -527,7 +527,7 @@ ostream &Orders::operator<<(ostream &out, const Airlift &airlift) {
 
 // is valid if both the source and target territories belong to the issuer and the source has sufficient armies
 bool Airlift::validate() {
-    if (issuer == nullptr || target == nullptr || armies < 1) { // prevent runtime errors
+    if (issuer == nullptr || source == nullptr || target == nullptr || armies < 1) { // prevent runtime errors
         orderEffect = "at least one of the data members have not been properly initialized";
     } else if (source->owner != issuer) {
         orderEffect = source->name + " is not owned by " + issuer->getName();
