@@ -152,7 +152,8 @@ multimap<int, Territory *> Player::toAttack(const vector<Edge *> &edges) {
 }
 
 // creates all orders for the player's turn and places them in the player's list of orders
-void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph::Map *map) {
+void Player::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+    vector<Edge *> &mapEdges = map->edges;
     std::multimap<int, Territory *, std::greater<>> defend = toDefend(mapEdges);
 
     // ----- issuing all deployment orders -----
@@ -163,6 +164,7 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
     double multiplier = reinforcementPool / totalDefendingArmies < 1 ? 1 : reinforcementPool / totalDefendingArmies;
 
     int totalArmiesDeployed = 0;
+    std::map<Territory *, int> deployedTerritoriesArmies; //values hold the territory armies after deployment execution
     for (const auto &pair: defend) {
         int remainingArmies = reinforcementPool - totalArmiesDeployed;
         if (remainingArmies == 0) {
@@ -175,6 +177,8 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
             armiesDeployed = static_cast<int>(pair.first * multiplier);
         }
         orders->add(new Orders::Deploy(this, pair.second, armiesDeployed));
+        cout << endl;
+        deployedTerritoriesArmies.insert(std::pair(pair.second, pair.second->numberOfArmies + armiesDeployed));
         totalArmiesDeployed += armiesDeployed;
     }
 
@@ -182,7 +186,7 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
     //creating a set of card types in the player's hand
     vector<string> cardTypeVector;
 
-    //check for negotiate card and add it to the beginning of the vectorTypeList
+    //check for reinforcement card and add it to the beginning of the vectorTypeList
     for (auto card: hand->cards)
         if (card->getType() == "reinforcement")
             cardTypeVector.push_back(card->getType());
@@ -190,13 +194,13 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
     //check for all card types in user's hand (except for reinforcement) and add those types to the cardTypeVector
     for (auto card: hand->cards)
         if (find_if(cardTypeVector.begin(), cardTypeVector.end(),
-                    [card](std::string c) { return card->getType() == c; }) == cardTypeVector.end())
+                    [card](const std::string &c) { return card->getType() == c; }) == cardTypeVector.end())
             cardTypeVector.push_back(card->getType());
 
     //loop to play one card of each type from the player's hand
-    for (auto type: cardTypeVector) {
-        for (int i = 0; i < hand->cards.size(); i++) {
-            if (hand->cards.at(i)->getType() == type) {
+    for (const auto &type: cardTypeVector) {
+        for (auto &card: hand->cards) {
+            if (card->getType() == type) {
                 if (type == "airlift") {
                     Territory *hasBiggestArmy = nullptr;
                     int noOfArmies = 0;
@@ -205,28 +209,24 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
                             hasBiggestArmy = territory.second;
                             noOfArmies = territory.second->numberOfArmies;
                         }
-                    static_cast<Cards::Airlift *>(hand->cards.at(i))->play(this, deck, hasBiggestArmy,
-                                                                           defend.begin()->second,
-                                                                           hasBiggestArmy->numberOfArmies /
-                                                                           2);
+                    dynamic_cast<Cards::Airlift *>(card)->play(this, deck, hasBiggestArmy, defend.begin()->second,
+                                                               hasBiggestArmy->numberOfArmies / 2);
                 } else if (type == "bomb") {
-                    static_cast<Cards::Bomb *>(hand->cards.at(i))->play(this, deck, toAttack(mapEdges).begin()->second,
-                                                                        map);
+                    dynamic_cast<Cards::Bomb *>(card)->play(this, deck, toAttack(mapEdges).begin()->second, map);
                 } else if (type == "reinforcement") {
-                    static_cast<Cards::Reinforcement *>(hand->cards.at(i))->play(this, deck, defend.begin()->second);
+                    dynamic_cast<Cards::Reinforcement *>(card)->play(this, deck, defend.begin()->second);
                 } else if (type == "blockade") {
-                    static_cast<Cards::Blockade *>(hand->cards.at(i))->play(this, deck,
-                                                                            defend.begin()->second);
+                    dynamic_cast<Cards::Blockade *>(card)->play(this, deck, defend.begin()->second);
                 } else if (type == "diplomacy") {
                     vector<Territory *> adjacent = defend.begin()->second->adjacentEnemyTerritories(mapEdges);
                     Territory *hasBiggestArmy = nullptr;
                     int noOfArmies = 0;
                     for (auto territory: adjacent)
-                        if (territory->numberOfArmies >= noOfArmies) {
+                        if (territory->numberOfArmies >= noOfArmies && territory->owner != this) {
                             hasBiggestArmy = territory;
                             noOfArmies = territory->numberOfArmies;
                         }
-                    static_cast<Cards::Diplomacy *>(hand->cards.at(i))->play(this, hasBiggestArmy->owner, deck);
+                    dynamic_cast<Cards::Diplomacy *>(card)->play(this, hasBiggestArmy->owner, deck);
                 }
                 break;
             }
@@ -243,33 +243,42 @@ void Player::issueOrder(const vector<Edge *> &mapEdges, Cards::Deck *deck, Graph
             thisPlayerAdjacentTerritories.push_back(it);
     }
 
-    if (thisPlayerAdjacentTerritories.size() > 0) {//check that the player has adjacent territories before proceeding with advance order creation logic
+    if (!thisPlayerAdjacentTerritories.empty()) {//check that the player has adjacent territories before proceeding with advance order creation logic
         Territory *playerAttackingTerritory = thisPlayerAdjacentTerritories.at(0);
         int numberOfAttackingTerritoryArmies = thisPlayerAdjacentTerritories.at(0)->numberOfArmies;
 
         //loop to get the adjacent territory with the highest number of armies
-        for (int i = 0; i < thisPlayerAdjacentTerritories.size(); i++)
-            if(thisPlayerAdjacentTerritories.at(i)->numberOfArmies > numberOfAttackingTerritoryArmies){
-                playerAttackingTerritory = thisPlayerAdjacentTerritories.at(i);
-                numberOfAttackingTerritoryArmies = thisPlayerAdjacentTerritories.at(i)->numberOfArmies;
+        for (auto & adjacentTerritory : thisPlayerAdjacentTerritories)
+            if(adjacentTerritory->numberOfArmies > numberOfAttackingTerritoryArmies){
+                playerAttackingTerritory = adjacentTerritory;
+                numberOfAttackingTerritoryArmies = adjacentTerritory->numberOfArmies;
             }
+        if (deployedTerritoriesArmies.contains(playerAttackingTerritory)) {
+            numberOfAttackingTerritoryArmies = deployedTerritoriesArmies.at(playerAttackingTerritory);
+        }
 
         //create new advance order to attack adjacent enemy territory and add it to the player's orders list
-        orders->add(new Orders::Advance(this, map, playerAttackingTerritory, territoriesToAttack.begin()->second, playerAttackingTerritory->numberOfArmies));
+        orders->add(new Orders::Advance(this, map, playerAttackingTerritory, territoriesToAttack.begin()->second, numberOfAttackingTerritoryArmies));
+        cout << " (issued using toAttack)\n";
     }
 
     // ----- issuing advance orders to defend -----
     vector<Territory *> friendlyTerritories = toDefend(mapEdges).begin()->second->adjacentFriendlyTerritories(mapEdges);
     Territory *toDefendTerritory = toDefend(mapEdges).begin()->second;
 
-    int armiesToGive =0;
+    int armiesToGive = 0;
     //taking half of armies of the lowest priority territory
-   if(!friendlyTerritories.empty() ) {//no adjacent territories
-       armiesToGive = friendlyTerritories.back()->numberOfArmies * 0.5;
-       //add armies taken from the lowest priority to defend and give it to the highest priority
-       orders->add(new Orders::Advance(this, map, friendlyTerritories.back(), toDefend(mapEdges).begin()->second, armiesToGive));
-   }
+    if (!friendlyTerritories.empty()) {//no adjacent territories
+        armiesToGive = static_cast<int>(friendlyTerritories.back()->numberOfArmies * 0.5);
+        if (armiesToGive < 1) {
+            armiesToGive = 1;
+        }
 
+        //add armies taken from the lowest priority to defend and give it to the highest priority
+        orders->add(new Orders::Advance(this, map, friendlyTerritories.back(), toDefend(mapEdges).begin()->second,
+                                        armiesToGive));
+        cout << " (issued using toDefend)\n";
+    }
 }
 
 // accessor method for name

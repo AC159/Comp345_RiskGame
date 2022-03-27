@@ -49,7 +49,7 @@ public:
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges);
 
     //creates an order object and adds it to the player's list of orders
-    void issueOrder(const std::vector<Graph::Edge *> &mapEdges, Cards::Deck *deck, Graph::Map *map);
+    void issueOrder(Cards::Deck *deck, Graph::Map *map);
 
     // accessor method for name
     [[nodiscard]] std::string getName() const;

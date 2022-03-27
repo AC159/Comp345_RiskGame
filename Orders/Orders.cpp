@@ -771,8 +771,7 @@ void OrdersList::remove(int index) {
 // adds an element to the back of the list
 void OrdersList::add(Order *const newOrder) {
     if (newOrder != nullptr && newOrder->issuer != nullptr) {
-        cout << newOrder->issuer->getName() << " issued: " << *newOrder
-             << (newOrder->type == "advance" || newOrder->type == "deploy" ? "\n" : "");
+        cout << newOrder->issuer->getName() << " issued: " << *newOrder;
     }
     orders.push_back(newOrder);
     notify(*this);

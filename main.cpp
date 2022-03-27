@@ -45,5 +45,6 @@ int main() {
             cout << "ERROR: Invalid input!" << endl;
     } while (userInput != "6");
 
+    delete Players::Player::neutralPlayer;
     return 0;
 }

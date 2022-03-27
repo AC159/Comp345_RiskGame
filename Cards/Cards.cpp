@@ -181,10 +181,11 @@ std::string Reinforcement::getType() const {
 
 void Reinforcement::play(Players::Player *player, Deck *deck, Graph::Territory *target) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-    std::cout << "Playing reinforcement card...";
+
 
     player->reinforcementPool = player->reinforcementPool + 5;
     player->orders->add(new Orders::Deploy(player, target, 5));
+    std::cout << " (issued by playing a reinforcement card)\n";
 
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
                         this); // find the current card inside the player's hand
