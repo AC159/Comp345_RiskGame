@@ -160,11 +160,9 @@ Card *Bomb::clone() {
 
 void Bomb::play(Players::Player *player, Deck *deck, Graph::Territory *target, Graph::Map *map) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-    std::cout << "Playing bomb card..." << std::endl;
-//    player.issueOrder(this->getType());
-// create the order
-    Orders::Bomb *bomb = new Orders::Bomb(player, target, map);
+    auto *bomb = new Orders::Bomb(player, target, map);
     player->orders->add(bomb);
+    std::cout << " (issued by playing a bomb card)" << std::endl;
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
                         this); // find the current card inside the player's hand
     deck->cards.push_back(*it);
@@ -197,12 +195,10 @@ std::string Reinforcement::getType() const {
 
 void Reinforcement::play(Players::Player *player, Deck *deck, Graph::Territory *target) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-    std::cout << "Playing reinforcement card..." << std::endl;
-    std::string cardType{"advance"}; //i dont think we need this
-//    player.issueOrder(cardType);
+    std::cout << "Playing reinforcement card...";
+
     player->reinforcementPool = player->reinforcementPool + 5;
     player->orders->add(new Orders::Deploy(player, target, 5));
-
 
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
                         this); // find the current card inside the player's hand
@@ -252,12 +248,10 @@ std::string Blockade::getType() const {
 //}
 
 void Blockade::play(Players::Player *player, Deck *deck, Graph::Territory *target) {
-    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-    std::cout << "Playing blockade card..." << std::endl;
-//    player.issueOrder(this->getType());
-// created and order blockade
-    Orders::Blockade *blockade = new Orders::Blockade(player, target);
+    // issue a blockade order and remove that card from the player's hand of cards and put it back into the deck
+    auto *blockade = new Orders::Blockade(player, target);
     player->orders->add(blockade);
+    std::cout << " (issued by playing a blockade card)" << std::endl;
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
                         this); // find the current card inside the player's hand
     deck->cards.push_back(*it);
@@ -307,10 +301,9 @@ std::string Airlift::getType() const {
 void
 Airlift::play(Players::Player *player, Deck *deck, Graph::Territory *source, Graph::Territory *target, int armies) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-    std::cout << "Playing airlift card..." << std::endl;
-//    player.issueOrder(this->getType());
-    Orders::Airlift *airLift = new Orders::Airlift(player, source, target, armies);
+    auto *airLift = new Orders::Airlift(player, source, target, armies);
     player->orders->add(airLift);
+    std::cout << " (issued by playing an airlift card)" << std::endl;
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
                         this); // find the current card inside the player's hand
     deck->cards.push_back(*it);
@@ -364,12 +357,9 @@ std::string Diplomacy::getType() const {
 
 void Diplomacy::play(Players::Player *player, Players::Player *target, Deck *deck) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-    std::cout << "Playing diplomacy card..." << std::endl;
-    std::string cardType{"negotiate"};
-    Orders::Negotiate *negotiate = new Orders::Negotiate(player, target);
+    auto *negotiate = new Orders::Negotiate(player, target);
     player->orders->add(negotiate);
-    //    player.issueOrder(cardType);
-
+    std::cout << " (issued by playing a diplomacy card)" << std::endl;
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
                         this); // find the current card inside the player's hand
     deck->cards.push_back(*it);
