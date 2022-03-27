@@ -1,0 +1,6 @@
+loadmap map
+validatemap
+addplayer player1
+gamestart
+replay
+quit
