@@ -70,7 +70,7 @@ void Cards::Card::cardsDriver() {
     while (!p->hand->cards.empty()) {
         Card *card = p->hand->cards.at(0);
         card->getType();
-        //card->play(*p, deck2);
+        //play card...(signature changed)
     }
 
     delete p;

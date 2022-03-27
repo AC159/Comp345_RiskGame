@@ -45,8 +45,6 @@ public:
 
     virtual std::string getType() const = 0;
 
-//    virtual void play(Players::Player &player, Deck &deck) = 0;
-
     virtual Card *clone() = 0;
 
     virtual ~Card();
@@ -69,8 +67,6 @@ public:
     Card *clone() override;
 
     std::string getType() const override;
-
-//    void play(Players::Player &player, Deck &deck) override;
 
     void play(Players::Player* player, Deck* deck, Graph::Territory *target, Graph::Map *map);
 
@@ -115,8 +111,6 @@ public:
 
     std::string getType() const override;
 
-//    void play(Players::Player &player, Deck &deck) override;
-
     void play(Players::Player *player, Deck *deck, Graph::Territory *target);
 
     ~Blockade() override;
@@ -138,8 +132,6 @@ public:
 
     std::string getType() const override;
 
-//    void play(Players::Player &player, Deck &deck) override;
-
     void play(Players::Player *player, Deck *deck, Graph::Territory *source, Graph::Territory *target, int armies);
 
     ~Airlift() override;
@@ -160,8 +152,6 @@ public:
     Card *clone() override;
 
     std::string getType() const override;
-
-//    void play(Players::Player &player, Deck &deck) override;
 
     void play(Players::Player *player, Players::Player *target, Deck *deck);
 

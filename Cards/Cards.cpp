@@ -145,19 +145,6 @@ Card *Bomb::clone() {
     return new Bomb(*this);
 }
 
-//void Bomb::play(Players::Player &player, Deck &deck) {
-//    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-//    std::cout << "Playing bomb card..." << std::endl;
-////    player.issueOrder(this->getType());
-//    Orders::Bomb *bomb = new Orders::Bomb();
-//    player.orders->add(bomb);
-//    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(),
-//                        this); // find the current card inside the player's hand
-//    deck.cards.push_back(*it);
-//    if (it == player.hand->cards.end()) player.hand->cards.erase(it - 1);
-//    else player.hand->cards.erase(it);
-//}
-
 void Bomb::play(Players::Player *player, Deck *deck, Graph::Territory *target, Graph::Map *map) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
     auto *bomb = new Orders::Bomb(player, target, map);
@@ -233,20 +220,6 @@ std::string Blockade::getType() const {
     return this->type;
 }
 
-//void Blockade::play(Players::Player &player, Deck &deck) {
-//    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-//    std::cout << "Playing blockade card..." << std::endl;
-////    player.issueOrder(this->getType());
-//// created and order blockade
-//    Orders::Blockade *blockade = new Orders::Blockade();
-//    player.orders->add(blockade);
-//    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(),
-//                        this); // find the current card inside the player's hand
-//    deck.cards.push_back(*it);
-//    if (it == player.hand->cards.end()) player.hand->cards.erase(it - 1);
-//    else player.hand->cards.erase(it);
-//}
-
 void Blockade::play(Players::Player *player, Deck *deck, Graph::Territory *target) {
     // issue a blockade order and remove that card from the player's hand of cards and put it back into the deck
     auto *blockade = new Orders::Blockade(player, target);
@@ -284,19 +257,6 @@ Airlift &Airlift::operator=(const Airlift &airlift) {
 std::string Airlift::getType() const {
     return this->type;
 }
-
-//void Airlift::play(Players::Player &player, Deck &deck) {
-//    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-//    std::cout << "Playing airlift card..." << std::endl;
-////    player.issueOrder(this->getType());
-//    Orders::Airlift *airLift = new Orders::Airlift();
-//    player.orders->add(airLift);
-//    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(),
-//                        this); // find the current card inside the player's hand
-//    deck.cards.push_back(*it);
-//    if (it == player.hand->cards.end()) player.hand->cards.erase(it - 1);
-//    else player.hand->cards.erase(it);
-//}
 
 void
 Airlift::play(Players::Player *player, Deck *deck, Graph::Territory *source, Graph::Territory *target, int armies) {
@@ -336,24 +296,6 @@ Diplomacy &Diplomacy::operator=(const Diplomacy &diplomacy) {
 std::string Diplomacy::getType() const {
     return this->type;
 }
-
-//void Diplomacy::play(Players::Player &player, Deck &deck) {
-//    // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
-//    std::cout << "Playing diplomacy card..." << std::endl;
-////    std::string cardType{"negotiate"};
-//
-//    Orders::Negotiate *negotiate = new Orders::Negotiate();
-//    player.orders->add(negotiate);
-//
-////    player.issueOrder(cardType);
-//
-//    auto it = std::find(player.hand->cards.begin(), player.hand->cards.end(),
-//                        this); // find the current card inside the player's hand
-//    deck.cards.push_back(*it);
-//    if (it == player.hand->cards.end()) player.hand->cards.erase(it - 1);
-//    else player.hand->cards.erase(it);
-//}
-
 
 void Diplomacy::play(Players::Player *player, Players::Player *target, Deck *deck) {
     // issue and order based on the card type and remove that card from the player's hand of cards and put it back into the deck
