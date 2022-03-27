@@ -115,7 +115,7 @@ void Orders::ordersDriver() {
     {
         cout << "Testing Negotiate execution..." << endl;
         cout << "-----------------------------" << endl;
-
+        testOrder(new Negotiate(&p1, &p1));
         testOrder(new Negotiate(&p1, &p2));
 
         //attempting to bomb a player with negotiation in effect
