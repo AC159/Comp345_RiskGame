@@ -42,11 +42,10 @@ std::ostream &Cards::operator<<(std::ostream &out, const Deck &deck) {
 
 Card *Deck::draw() {
     // randomly draw a card from the deck, remove it from the deck and return a pointer to that card
-    int nbrOfCards = this->cards.size() - 1;
-    int random = std::experimental::randint(0, nbrOfCards);
-    Card *c = this->cards.at(random);
-    if (random != nbrOfCards) this->cards.erase(this->cards.begin() + random);
-    else this->cards.erase(this->cards.begin() - 1);
+    int lastCardIndex = this->cards.size() - 1;
+    int randomCardIndex = std::experimental::randint(0, lastCardIndex);
+    Card *c = this->cards.at(randomCardIndex);
+    this->cards.erase(this->cards.begin() + randomCardIndex);
     return c;
 }
 
