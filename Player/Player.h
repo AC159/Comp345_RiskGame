@@ -12,69 +12,71 @@
 // Declare Players namespace for the Player class
 namespace Players {
     class Player;
-    std::ostream& operator<<(std::ostream& out, const Player& player);
+
+    std::ostream &operator<<(std::ostream &out, const Player &player);
 }
 
 // Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
 class Players::Player {
-    private:
-        std::string name; // name of player
+private:
+    std::string name; // name of player
 
-    public:
-        std::map<int, Graph::Territory*> territories; // collection of territories
-        Cards::Hand *hand; // collection of cards
-        Orders::OrdersList *orders; // list of orders
-        int reinforcementPool; //the armies currently available for deployment
-        bool receivesCard; //returns whether player has conquered territory and should receive card at the end of turn
-        static Player* neutralPlayer;
-        std::vector<std::string> cannotAttack; //list of players the player cannot attack due to diplomacy card; TODO: needs to be cleared every turn
+public:
+    std::map<int, Graph::Territory *> territories; // collection of territories
+    Cards::Hand *hand; // collection of cards
+    Orders::OrdersList *orders; // list of orders
+    int reinforcementPool; //the armies currently available for deployment
+    bool receivesCard; //returns whether player has conquered territory and should receive card at the end of turn
+    static Player *neutralPlayer;
+    std::vector<std::string> cannotAttack; //list of players the player cannot attack due to diplomacy card
 
-        Player();   // default constructor
-        Player(std::string newName);
-        Player(const Player &player);   // copy constructor
-        ~Player(); // destructor
-        static void playerDriver();
+    Player();   // default constructor
+    Player(std::string newName);
 
-        // assignment operator
-        Player& operator=(const Player &player); 
-        // ostream operator
-        friend std::ostream& operator<<(std::ostream& out, const Player& player);
+    Player(const Player &player);   // copy constructor
+    ~Player(); // destructor
 
-        //returns a list of territories to be defended
-        std::map<int, Graph::Territory*> toDefend();
+    // assignment operator
+    Player &operator=(const Player &player);
 
-        //returns a list of territories to be attacked
-        std::map<int, Graph::Territory*> toAttack(std::list<Graph::Edge*> &edges);
+    // ostream operator
+    friend std::ostream &operator<<(std::ostream &out, const Player &player);
 
-        //creates an order object and adds it to the player's list of orders
-        void issueOrder(const std::string& orderType) const; // orderType: deploy, advance, bomb, blockade, airlift, negotiate
+    //returns a list of territories to be defended in order of priority
+    std::multimap<int, Graph::Territory *, std::greater<>> toDefend(const std::vector<Graph::Edge *> &mapEdges);
 
-        // accessor method for name
-        std::string getName();
+    //returns a list of territories to be attacked in order of priority
+    std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges);
 
-        // mutator method for name
-        void setName(std::string newName);
+    //creates an order object and adds it to the player's list of orders
+    void issueOrder(Cards::Deck *deck, Graph::Map *map);
 
-        // display player's territories
-        void displayTerritories();
+    // accessor method for name
+    [[nodiscard]] std::string getName() const;
 
-        // add a territory
-        void addTerritory(Graph::Territory &territory);
+    // display player's territories
+    void displayTerritories();
 
-        // remove a territory
-        void removeTerritory(Graph::Territory &territory);
+    // add a territory
+    void addTerritory(Graph::Territory &territory);
 
-        // display player's cards
-        void displayCards();
+    // remove a territory
+    void removeTerritory(Graph::Territory &territory);
 
-        // add card
-        void addCard(Cards::Card &card);
+    // display player's cards
+    void displayCards();
 
-        // remove card
-        void removeCard(Cards::Card &card);
+    // add card
+    void addCard(Cards::Card &card);
 
-        // display player's orders
-        void displayOrders();
+    // remove card
+    void removeCard(Cards::Card &card);
+
+    // display player's orders
+    void displayOrders();
+
+    // returns the list contents of cannotAttack
+    [[nodiscard]] std::string cannotAttackString() const;
 };
 
 

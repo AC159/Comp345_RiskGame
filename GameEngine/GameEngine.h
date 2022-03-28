@@ -24,7 +24,8 @@ public:
     string stringToLog() const override;
     GameEngine& operator=(const GameEngine &gameEngine);
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
-    static void gameEngineDriver();
+    static void gameStartupDriver();
+    static void gamePlayDriver();
 
     //added for implementation of As2 part1
     string getState() const;
@@ -44,17 +45,20 @@ public:
     void playersAddedStateChange();
     void addPlayer();
 
+//==== main game loop: reinforcement, order issuing & execution phases ====
+    void mainGameLoop();
+
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();
-    void validateAssignReinforcementCommand();
+    void reinforcementPhase();
 
 //============= issue orders state =================
     void issueOrdersStateChange();
-    void validateIssueOrdersCommand();
+    void issueOrdersPhase();
 
 //============= execute orders state =================
     void executeOrdersStateChange();
-    int validateExecuteOrdersCommand();
+    bool executeOrdersPhase();
 
 //============= win state =================
     void winStateChange();
@@ -64,8 +68,7 @@ private:
     string state;
 
     void changeState(string state); //state to change current stated and output current state
-    void createAndAddOrder(int commandNumber); //issue orders state
-    void executeOrders(); //execute orders state
+    bool ordersRemain(); //helper for the order execution phase
 };
 
 

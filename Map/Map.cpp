@@ -51,22 +51,50 @@ ostream& Graph::operator<<(ostream &out, const Territory &territory) {
     return out;
 }
 
-//updates this territory's owner and the owner's list of territories accordingly
+// updates this territory's owner and the old and new owners' list of territories accordingly
 void Territory::transferOwnership(Players::Player *newOwner) {
-    if (owner != nullptr && newOwner != nullptr) {
+    if (owner != nullptr) {
         owner->removeTerritory(*this);
-        owner = newOwner;
-        newOwner->addTerritory(*this);
-    } else if (owner == nullptr && newOwner != nullptr) {
-        owner = newOwner;
-        newOwner->addTerritory(*this);
-    } else if (owner != nullptr && newOwner == nullptr) {
-        owner->removeTerritory(*this);
-        owner = newOwner;
     }
+    if (newOwner != nullptr) {
+        newOwner->addTerritory(*this);
+    }
+    owner = newOwner;
 }
 
-//memory de-allocation of territory's owner should be handled externally
+// returns all territories that are both adjacent to this territory and have a different owner
+vector<Territory *> Territory::adjacentEnemyTerritories(const vector<Edge *> &mapEdges) {
+    vector<Territory *> adjacentEnemyTerritories;
+    for (const auto &edge : mapEdges) {
+        if (edge->source == this && edge->destination->owner != owner) {
+            adjacentEnemyTerritories.push_back(edge->destination);
+        }
+    }
+    return adjacentEnemyTerritories;
+}
+
+// returns all territories that are both adjacent to this territory and have same owner
+vector<Territory *> Territory::adjacentFriendlyTerritories(const vector<Edge *> &mapEdges) {
+    vector<Territory *> adjacentFriendlyTerritories;
+    for (const auto &edge : mapEdges) {
+        if ((edge->source == this && edge->destination->owner == owner)) {
+            adjacentFriendlyTerritories.push_back(edge->destination);
+        }
+    }
+    return adjacentFriendlyTerritories;
+}
+
+// returns a string of the territory's name and its current owner
+std::string Territory::nameAndOwner() const {
+    return name + " is owned by " + owner->getName() + "\n";
+}
+
+// returns a string of the territory's name and its current armies
+std::string Territory::nameAndArmies() const {
+    return name + " has " + to_string(numberOfArmies) + " armies\n";
+}
+
+// memory de-allocation of territory's owner should be handled externally
 Territory::~Territory() = default;
 
 // ================= Edge Class =====================

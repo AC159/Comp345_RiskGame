@@ -10,9 +10,6 @@
 #define PLATFORM "unix"
 #endif
 
-// todo: list of orders should be specific to a single player
-Orders::OrdersList *ordersList = new Orders::OrdersList();
-
 string GameEngine::getState() const {
     return this->state;
 }
@@ -248,12 +245,28 @@ void GameEngine::addPlayer() {
             command.saveEffect(effect);
             continue;
         } else {
-            Players::Player *p = new Players::Player(
-                    command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
+            auto *p = new Players::Player(command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
             this->playersList.push_back((p));
             count++;
             command.saveEffect("playersadded");
         }
+    }
+}
+
+//==== main game loop: reinforcement, order issuing & execution phases ====
+void GameEngine::mainGameLoop() {
+    bool playerWon = false;
+    int turnCount = 0;
+    while(!playerWon) {
+        turnCount++;
+        if (turnCount == 500) {
+            cout << "* ERROR:  Too many turns. Main game loop terminated to avoid infinite loop. *\n" << endl;
+            break;
+        }
+        cout << " —▶ TURN " << turnCount << endl;
+        reinforcementPhase();
+        issueOrdersPhase();
+        playerWon = executeOrdersPhase(); //player win and player eliminations are determined in the execution phase
     }
 }
 
@@ -263,15 +276,56 @@ void GameEngine::assignReinforcementStateChange() {
     GameEngine::changeState("assign reinforcement");
 }
 
-//method to check user input in the assign reinforcement state and perform related logic
-void GameEngine::validateAssignReinforcementCommand() {
-    cout << "Command list:\n1. issueorder" << endl;
-    cout << "Please enter command number:";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1") {
-        cout << "Invalid selection. Please enter command number:";
-        cin >> userInput;
+// fill all players' reinforcement pools for the turn according to the territories they own
+void GameEngine::reinforcementPhase() {
+    bool firstTurn = std::all_of(playersList.begin(), playersList.end(),
+                                 [](Players::Player *p) { return p->reinforcementPool == 50; });
+    if (!firstTurn) {
+        assignReinforcementStateChange();
+    }
+
+    for (auto player: playersList) {
+        int territoriesRate = static_cast<int>(player->territories.size() / 3);
+        int continentsBonus = 0;
+        vector<string> continentsOwned;
+        for (const auto &continent: mapLoader->map->continents) {
+            // find if player owns any whole continent and honor bonus reinforcements accordingly
+            bool ownsContinent = true;
+            for (auto continentTerritory: continent->territories) {
+                if (!player->territories.contains(continentTerritory->countryNumber)) {
+                    ownsContinent = false;
+                    break;
+                }
+            }
+            if (ownsContinent) {
+                continentsBonus += continent->bonusValue;
+                continentsOwned.push_back(continent->name);
+            }
+        }
+
+        // add total armies for the turn
+        player->reinforcementPool += territoriesRate + continentsBonus;
+        int minimumBonus = 3 - player->reinforcementPool;
+        if (minimumBonus > 0) {
+            player->reinforcementPool += minimumBonus; // the minimum reinforcements a player receives is 3
+        }
+
+        // display summary
+        cout << player->getName() << " has a total of " << player->reinforcementPool << " armies this turn:\n";
+        if (firstTurn) {
+            cout << "\t• 50 armies from the initial bonus\n";
+        }
+        cout << "\t• " << territoriesRate << " armies from owning " << player->territories.size() << " territories\n"
+             << "\t• " << continentsBonus << " armies from owning " << continentsOwned.size() << " continents";
+        string delimiter = ": ";
+        for (const auto &continentName: continentsOwned) {
+            cout << delimiter << continentName;
+            delimiter = ", ";
+        }
+        cout << endl;
+        if (minimumBonus > 0) {
+            cout << "\t• " << minimumBonus << " bonus armies to meet the minimum of 3 armies per turn\n";
+        }
     }
 }
 
@@ -281,56 +335,12 @@ void GameEngine::issueOrdersStateChange() {
     GameEngine::changeState("issue orders");
 }
 
-//method to create orders and add them to an order list
-void GameEngine::createAndAddOrder(int commandNumber) {
-    switch (commandNumber) {
-        case 1:
-            cout << "Adding 'deploy' order to order list..." << endl;
-            ordersList->add(new Orders::Deploy);
-            break;
-        case 2:
-            cout << "Adding 'advance' order to order list..." << endl;
-            ordersList->add(new Orders::Advance);
-            break;
-        case 3:
-            cout << "Adding 'bomb' order to order list..." << endl;
-            ordersList->add(new Orders::Bomb);
-            break;
-        case 4:
-            cout << "Adding 'blockade' order to order list..." << endl;
-            ordersList->add(new Orders::Blockade);
-            break;
-        case 5:
-            cout << "Adding 'airlift' order to order list..." << endl;
-            ordersList->add(new Orders::Airlift);
-            break;
-        case 6:
-            cout << "Adding 'negotiate' order to order list..." << endl;
-            ordersList->add(new Orders::Negotiate);
-            break;
-    }
-}
+// issue all players' orders for the turn
+void GameEngine::issueOrdersPhase() {
+    issueOrdersStateChange();
 
-//method to check user input in the issue orders state and perform related logic
-void GameEngine::validateIssueOrdersCommand() {
-    cout << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
-         << endl;
-    cout << "Please enter command number:";
-    int userInput;
-    cin >> userInput;
-
-    while (userInput != 7) {
-        if (userInput < 1 || userInput > 7) {
-            cout << "Invalid selection. Please enter command number:" << endl;
-            cin >> userInput;
-        } else {
-            GameEngine::createAndAddOrder(userInput);
-            cout
-                    << "Command list:\n1. deploy\n2. advance\n3. bomb\n4. blockade\n5. airlift\n6. negotiate\n7. endissueorders"
-                    << endl;
-            cout << "Please enter command number:";
-            cin >> userInput;
-        }
+    for (auto player: playersList) {
+        player->issueOrder(deck, mapLoader->map);
     }
 }
 
@@ -340,40 +350,82 @@ void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
 
-//method to execute orders in the order list
-void GameEngine::executeOrders() {
-    for (size_t i = 0; i < ordersList->length(); i++) {
-        ordersList->element(i)->execute();
-        ordersList->remove(i);
-        i--;
-    }
-}
+/* executes all issued orders in round-robin fashion accross the players, prioritizing deploy orders
+ * returns true if a player won during the turn*/
+bool GameEngine::executeOrdersPhase() {
+    executeOrdersStateChange();
 
-//method to check user input in the execute orders state and perform related logic
-int GameEngine::validateExecuteOrdersCommand() {
-    cout << "Command list:\n1. execorder\n2. win" << endl;
-    cout << "Please enter command number:";
-    int userInput;
-    cin >> userInput;
+    int skipStrike = 0; //the number of non-deploy orders skipped in a row
+    int numOfPlayers = static_cast<int>(playersList.size());
+    bool doneDeploying = false;
 
-    while (userInput != 1 && userInput != 2) {
-        cout << "Invalid selection. Please enter command number:" << endl;
-        cin >> userInput;
-    }
+    while (ordersRemain()) {
+        for (const auto &player: playersList) {
+            Orders::Order *topOrder = player->orders->element(0);
 
-    if (userInput == 1) {
-        GameEngine::executeOrders();
-        cout << "Command list:\n1. endexecorder\n2. win" << endl;
-        cout << "Please enter command number:";
-        cin >> userInput;
+            //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
+            if (skipStrike == numOfPlayers) {
+                doneDeploying = true;
+            }
 
-        while (userInput != 1 && userInput != 2) {
-            cout << "Invalid selection. Please enter command number:" << endl;
-            cin >> userInput;
+            if (player->orders->length() != 0 && (doneDeploying || topOrder->type == "deploy")) {
+                skipStrike = 0;
+
+                //save the targeted territory's owner to check if they should be eliminated afterwards
+                auto targetPlayerIt = playersList.end();
+                if (topOrder->type == "advance") {
+                    Orders::Advance &advanceOrder = (dynamic_cast<Orders::Advance &>(*topOrder));
+                    if (advanceOrder.target != nullptr) { // avoid runtime error
+                        targetPlayerIt = std::find(playersList.begin(), playersList.end(),
+                                                   advanceOrder.target->owner);
+                    }
+                }
+
+                topOrder->execute();
+
+                //player won if they own all territories
+                if (player->territories.size() == mapLoader->map->territories.size()) {
+                    cout << player->getName() << " won!" << endl;
+                    return true;
+                }
+
+                //player is eliminated if their last territory was taken
+                if (targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()
+                    && *targetPlayerIt != player) {
+                    cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
+                    delete *targetPlayerIt;
+                    playersList.erase(targetPlayerIt);
+                }
+
+                player->orders->remove(0);
+            } else {
+                skipStrike++;
+            }
         }
     }
 
-    return userInput;
+    for (const auto &player : playersList) {
+        player->cannotAttack.clear(); //reset each player's negotiation list at the end of the turn
+
+        if (player->receivesCard) {
+            //give card to all players who conquered a territory this turn
+            Cards::Card *awardedCard = deck->draw();
+            player->hand->cards.push_back(awardedCard);
+            cout << player->getName() << " received a " << awardedCard->getType() << " card" << endl;
+            player->receivesCard = false;
+        }
+    }
+    cout << endl;
+    return false;
+}
+
+// returns whether any of the players have orders left in their order list
+bool GameEngine::ordersRemain() {
+    if (std::all_of(playersList.begin(), playersList.end(),
+                    [](Players::Player *p){ return p->orders->length() == 0; })) {
+        return false;
+    }
+    return true;
 }
 
 //=============win state =================
@@ -383,33 +435,8 @@ void GameEngine::winStateChange() {
     cout << "Congratulations! You are the winner of this game!" << endl;
 }
 
-//method to check user input in the win state and perform related logic
-int GameEngine::validateWinCommand() {
-    cout << "Command list:\n1. play\n2. end" << endl;
-    cout << "Please enter command number:";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1" && userInput != "2") {
-        cout << "Invalid selection. Please enter command number:";
-        cin >> userInput;
-    }
-    //deleting objects in heap
-    if (userInput == "1") {
-        delete mapLoader->map;
-        mapLoader->map = new Graph::Map;
-
-        for (auto &i: playersList) {
-            delete i;
-        }
-        playersList.clear();
-    }
-
-    return stoi(userInput);
-}
-
 //GameEngine class destructor
 GameEngine::~GameEngine() {
-//    delete ordersList;
     delete mapLoader;
     mapLoader = nullptr;
     delete processor;
@@ -419,4 +446,3 @@ GameEngine::~GameEngine() {
     }
     playersList.clear();
 }
-
