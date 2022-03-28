@@ -278,10 +278,11 @@ void GameEngine::assignReinforcementStateChange() {
 
 // fill all players' reinforcement pools for the turn according to the territories they own
 void GameEngine::reinforcementPhase() {
-    assignReinforcementStateChange();
-
     bool firstTurn = std::all_of(playersList.begin(), playersList.end(),
                                  [](Players::Player *p) { return p->reinforcementPool == 50; });
+    if (!firstTurn) {
+        assignReinforcementStateChange();
+    }
 
     for (auto player: playersList) {
         int territoriesRate = static_cast<int>(player->territories.size() / 3);

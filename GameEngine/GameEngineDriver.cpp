@@ -7,9 +7,22 @@ void GameEngine::gameStartupDriver() {
     delete gameEngine;
 }
 
-// demonstrates part 3 (reinforcement, issuing orders, and order execution phases) in addition to part 2
+// demonstrates part 3 (reinforcement, issuing orders, order execution and win phases) in addition to part 2
 void GameEngine::gamePlayDriver() {
-    GameEngine game;
-    game.startupPhase();
-    game.mainGameLoop();
+    string userInput;
+    do {
+        GameEngine game;
+        game.startupPhase();
+        game.mainGameLoop();
+        game.winStateChange();
+        cout << "Use the 'replay' command to play again or the 'quit' command to exit" << endl;
+        Command command = game.processor->getCommand();
+        userInput = command.command;
+        while (!game.processor->validate(userInput, game)) {
+            cout << "Invalid command! Please try again." << endl;
+            command = game.processor->getCommand();
+            userInput = command.command;
+        }
+    } while (userInput == "replay");
+    cout << endl;
 }
