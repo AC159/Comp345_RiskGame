@@ -360,7 +360,8 @@ bool GameEngine::executeOrdersPhase() {
     bool doneDeploying = false;
 
     while (ordersRemain()) {
-        for (const auto &player: playersList) {
+        for (auto it = playersList.begin(); it < playersList.end(); it++) {
+            Players::Player *player = *it;
             Orders::Order *topOrder = player->orders->element(0);
 
             //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
@@ -391,7 +392,7 @@ bool GameEngine::executeOrdersPhase() {
 
                 //player is eliminated if their last territory was taken
                 if (targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()
-                    && *targetPlayerIt != player) {
+                    && targetPlayerIt != it) {
                     cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
                     delete *targetPlayerIt;
                     playersList.erase(targetPlayerIt);
