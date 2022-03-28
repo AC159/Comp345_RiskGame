@@ -48,8 +48,6 @@ public:
     virtual Card *clone() = 0;
 
     virtual ~Card();
-
-    static void cardsDriver();
 };
 
 

@@ -22,7 +22,6 @@ Deck &Deck::operator=(const Deck &deck) {
     // Deallocate all the memory associated with this Deck of cards
     for (const Card *card: this->cards) {
         delete card;
-        card = nullptr;
     }
     this->cards.clear();
 
@@ -66,7 +65,6 @@ void Deck::fillDeckWithCards() {
 Deck::~Deck() {
     for (const Card *card: cards) {
         delete card;
-        card = nullptr;
     }
 }
 
@@ -87,7 +85,6 @@ Hand &Hand::operator=(const Hand &hand) {
     // Deallocate all the memory associated with this Hand of cards
     for (const Card *card: this->cards) {
         delete card;
-        card = nullptr;
     }
     this->cards.clear();
     for (Card *card: hand.cards) {
@@ -107,7 +104,6 @@ std::ostream &Cards::operator<<(std::ostream &out, const Hand &hand) {
 Hand::~Hand() {
     for (const Card *card: this->cards) {
         delete card;
-        card = nullptr;
     }
 }
 

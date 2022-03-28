@@ -435,30 +435,6 @@ void GameEngine::winStateChange() {
     cout << "Congratulations! You are the winner of this game!" << endl;
 }
 
-//method to check user input in the win state and perform related logic
-int GameEngine::validateWinCommand() {
-    cout << "Command list:\n1. play\n2. end" << endl;
-    cout << "Please enter command number:";
-    string userInput;
-    cin >> userInput;
-    while (userInput != "1" && userInput != "2") {
-        cout << "Invalid selection. Please enter command number:";
-        cin >> userInput;
-    }
-    //deleting objects in heap
-    if (userInput == "1") {
-        delete mapLoader->map;
-        mapLoader->map = new Graph::Map;
-
-        for (auto &i: playersList) {
-            delete i;
-        }
-        playersList.clear();
-    }
-
-    return stoi(userInput);
-}
-
 //GameEngine class destructor
 GameEngine::~GameEngine() {
     delete mapLoader;
