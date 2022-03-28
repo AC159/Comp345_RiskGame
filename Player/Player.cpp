@@ -215,7 +215,7 @@ void Player::issueOrder(Cards::Deck *deck, Graph::Map *map) {
                     dynamic_cast<Cards::Bomb *>(card)->play(this, deck, toAttack(mapEdges).begin()->second, map);
                 } else if (type == "reinforcement") {
                     dynamic_cast<Cards::Reinforcement *>(card)->play(this, deck, defend.begin()->second);
-                } else if (type == "blockade") {
+                } else if (type == "blockade" && territories.size() != 1) { // avoid self-elimination
                     dynamic_cast<Cards::Blockade *>(card)->play(this, deck, defend.begin()->second);
                 } else if (type == "diplomacy") {
                     vector<Territory *> adjacent = defend.begin()->second->adjacentEnemyTerritories(mapEdges);
