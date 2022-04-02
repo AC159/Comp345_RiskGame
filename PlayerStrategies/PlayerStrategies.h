@@ -23,18 +23,18 @@ public:
 };
 
 
-class Benevolent : public PlayerStrategies {
+class BenevolentPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *, std::greater<>> toDefend(const std::vector<Graph::Edge *> &mapEdges);
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges);
     void issueOrder(Cards::Deck *deck, Graph::Map *map);
 
-    Benevolent& operator=(const Benevolent &b);
-    friend std::ostream& operator<<(std::ostream &out, const Benevolent &b);
+    BenevolentPlayerStrategy& operator=(const BenevolentPlayerStrategy &b);
+    friend std::ostream& operator<<(std::ostream &out, const BenevolentPlayerStrategy &b);
 
-    Benevolent(Players::Player *p);
-    Benevolent(const Benevolent &b);
-    ~Benevolent() override;
+    BenevolentPlayerStrategy(Players::Player *p);
+    BenevolentPlayerStrategy(const BenevolentPlayerStrategy &b);
+    ~BenevolentPlayerStrategy() override;
 };
 
 #endif //COMP345RISKGAME_PLAYERSTRATEGIES_H
