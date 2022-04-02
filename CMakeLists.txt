@@ -12,5 +12,5 @@ add_executable(
         Cards/Cards.cpp Cards/Cards.h
         main.cpp
         CommandProcessor/CommandProcessing.cpp CommandProcessor/CommandProcessing.h CommandProcessor/CommandProcessingDriver.cpp
-        Logging/LoggingObserver.cpp Logging/LoggingObserver.h
-        Logging/LoggingDriver.cpp)
+        Logging/LoggingObserver.cpp Logging/LoggingObserver.h Logging/LoggingDriver.cpp
+        PlayerStrategies/PlayerStrategies.cpp PlayerStrategies/PlayerStrategies.h)
