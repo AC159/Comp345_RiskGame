@@ -90,26 +90,27 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
     // Create Advance orders on the territories returned by the toAttack() method
 
     // Get the list of territories owned by the current player that have no enemy neighbors
-    std::vector<Graph::Territory *> noEnemyNeighbors;
-    for (const auto pair : this->player->territories) {
-        if (pair.second->TerritoryWithNoEnemyNeighbors(map->edges)) noEnemyNeighbors.push_back(pair.second);
-    }
+    std::vector<Graph::Territory *> friendlyTerritories;
 
     // Only create Advance orders if the player has territories with no enemy neighbors.
-    if (!noEnemyNeighbors.empty()) {
-        for (auto &pair : toAttack) {
+    for (auto &pair : toAttack) {
 
-            // pick a territory from the list of territories with no enemy neighbors to take armies from
-            int index = std::experimental::randint(0, (int) noEnemyNeighbors.size()-1);
+        friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
+        if (!friendlyTerritories.empty()) {
+            // sort these territories based on the number of armies in each of them
+            // this function uses the overloaded operator < in the Territory class
+            std::sort(friendlyTerritories.begin(), friendlyTerritories.end());
+
+            int index = (int) friendlyTerritories.size() - 1;
 
             // generate a value between 0 and 1 exclusive
             randomMultiplier = ((double) rand() / (RAND_MAX));
 
-            int armiesToAdvance = floor(noEnemyNeighbors.at(index)->numberOfArmies * randomMultiplier);
+            int armiesToAdvance = floor(friendlyTerritories.at(index)->numberOfArmies * randomMultiplier);
             if (armiesToAdvance < 1) armiesToAdvance = 1;
-            if (noEnemyNeighbors.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
+            if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
 
-            this->player->orders->add(new Orders::Advance(this->player, map, noEnemyNeighbors.at(index), pair.second, armiesToAdvance));
+            this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
         }
     }
 
@@ -132,7 +133,10 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
         } else if (type == "diplomacy") {
             // Play the diplomacy card on the largest enemy territory
             std::vector<Graph::Territory *> enemyTerritories = toDefend.begin()->second->adjacentEnemyTerritories(map->edges);
-            std::sort(enemyTerritories.begin(), enemyTerritories.end()); // sort territories in ascending order based on the number of armies
+
+            // sort these territories based on the number of armies in each of them
+            // this function uses the overloaded operator < in the Territory class
+            std::sort(enemyTerritories.begin(), enemyTerritories.end());
             dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
         }
     }

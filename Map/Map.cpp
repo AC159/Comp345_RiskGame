@@ -88,15 +88,6 @@ vector<Territory *> Territory::adjacentFriendlyTerritories(const vector<Edge *> 
     return adjacentFriendlyTerritories;
 }
 
-// returns a boolean value indicating if this territory has any enemy neighbors
-bool Territory::TerritoryWithNoEnemyNeighbors(const std::vector<Edge *> &mapEdges) {
-    bool noEnemyNeighbors = true;
-    for (const auto &edge : mapEdges) {
-        if (edge->source == this && edge->destination->owner != this->owner) return false;
-    }
-    return noEnemyNeighbors;
-}
-
 // returns a string of the territory's name and its current owner
 std::string Territory::nameAndOwner() const {
     return name + " is owned by " + owner->getName() + "\n";

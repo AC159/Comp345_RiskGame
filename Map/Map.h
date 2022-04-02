@@ -44,7 +44,6 @@ public:
     void transferOwnership(Players::Player *newOwner);
     std::vector<Territory *> adjacentEnemyTerritories(const std::vector<Edge *>& mapEdges);
     std::vector<Territory *> adjacentFriendlyTerritories(const std::vector<Edge *> &mapEdges);
-    bool TerritoryWithNoEnemyNeighbors(const std::vector<Edge *> &mapEdges);
     [[nodiscard]] std::string nameAndOwner() const;
     [[nodiscard]] std::string nameAndArmies() const;
 
