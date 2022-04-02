@@ -16,7 +16,9 @@ BenevolentPlayerStrategy::BenevolentPlayerStrategy(Players::Player *p) : PlayerS
 BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy &b) : PlayerStrategies(b.player) {}
 
 BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy &b) {
+    if (this == &b) return *this;
     this->player = b.player;
+    return *this;
 }
 
 std::ostream &operator<<(std::ostream &out, const BenevolentPlayerStrategy &b) {
@@ -112,31 +114,27 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
     }
 
     // Create an order from a card
-    int randomIndex = std::experimental::randint(0, (int) this->player->hand->cards.size()-1);
-    Cards::Card *card = this->player->hand->cards.at(randomIndex);
+    if (!this->player->hand->cards.empty()) {
+        int randomIndex = std::experimental::randint(0, (int) this->player->hand->cards.size()-1);
+        Cards::Card *card = this->player->hand->cards.at(randomIndex);
 
-    // The benevolent player will not issue bomb orders since his goal is to protect his weakest territories
-    // airlift orders only make sense if the player owns more than 1 territory
-    while (card->getType() == "bomb" || (card->getType() == "airlift" && this->player->territories.size() <= 1)) {
-        randomIndex = std::experimental::randint(0, (int) this->player->hand->cards.size()-1);
-        card = this->player->hand->cards.at(randomIndex);
-    }
-
-    std::string type = card->getType();
-    // Play the card based on its type
-    if (type == "reinforcement") {
-        // play the reinforcement card on the first territory of the toDefend list
-        dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, toDefend.begin()->second);
-    } else if (type == "blockade") {
-        dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second);
-    } else if (type == "airlift") {
-        Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
-        dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
-    } else if (type == "diplomacy") {
-        // Play the diplomacy card on the largest enemy territory
-        std::vector<Graph::Territory *> enemyTerritories = toDefend.begin()->second->adjacentEnemyTerritories(map->edges);
-        std::sort(enemyTerritories.begin(), enemyTerritories.end()); // sort territories in ascending order based on the number of armies
-        dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
+        // The benevolent player will not issue bomb orders since his goal is to protect his weakest territories
+        std::string type = card->getType();
+        // Play the card based on its type
+        if (type == "reinforcement") {
+            // play the reinforcement card on the first territory of the toDefend list
+            dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, toDefend.begin()->second);
+        } else if (type == "blockade") {
+            dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second);
+        } else if (type == "airlift" && this->player->territories.size() <= 1) { // airlift orders only make sense if the player owns more than 1 territory
+            Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
+            dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
+        } else if (type == "diplomacy") {
+            // Play the diplomacy card on the largest enemy territory
+            std::vector<Graph::Territory *> enemyTerritories = toDefend.begin()->second->adjacentEnemyTerritories(map->edges);
+            std::sort(enemyTerritories.begin(), enemyTerritories.end()); // sort territories in ascending order based on the number of armies
+            dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
+        }
     }
 
 }

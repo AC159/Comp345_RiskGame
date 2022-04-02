@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <utility>
 #include <experimental/random>
+#include "../PlayerStrategies/PlayerStrategies.h"
 
 
 #ifdef _WIN32 // any windows system
@@ -245,7 +246,23 @@ void GameEngine::addPlayer() {
             command.saveEffect(effect);
             continue;
         } else {
+            string choice;
+            while (true) {
+                cout << "What kind of player would you like to be? " << endl;
+                cout << "1. Benevolent player" << endl;
+                // todo: add other player strategies
+                cout << "Enter choice: ";
+                cin >> choice;
+                if (choice == "1") break;
+                else cout << "Invalid input! Please enter a valid choice." << endl;
+            }
+            cin.ignore();
             auto *p = new Players::Player(command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
+            PlayerStrategies *ps;
+
+            if (choice == "1") ps = new BenevolentPlayerStrategy(p);
+
+            p->ps = ps; // assign player strategy to player
             this->playersList.push_back((p));
             count++;
             command.saveEffect("playersadded");
@@ -350,7 +367,7 @@ void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
 
-/* executes all issued orders in round-robin fashion accross the players, prioritizing deploy orders
+/* executes all issued orders in round-robin fashion across the players, prioritizing deploy orders
  * returns true if a player won during the turn*/
 bool GameEngine::executeOrdersPhase() {
     executeOrdersStateChange();

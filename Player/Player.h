@@ -9,19 +9,23 @@
 #include "../Orders/Orders.h"
 #include "../Cards/Cards.h"
 
+// forward declare PlayerStrategies class
+class PlayerStrategies;
+
+
 // Declare Players namespace for the Player class
 namespace Players {
     class Player;
-
     std::ostream &operator<<(std::ostream &out, const Player &player);
 }
 
 // Represents a single player which owns a collection of territories, a hand of cards and a list of orders.
 class Players::Player {
 private:
-    std::string name; // name of player
+    std::string name;
 
 public:
+    PlayerStrategies *ps;
     std::map<int, Graph::Territory *> territories; // collection of territories
     Cards::Hand *hand; // collection of cards
     Orders::OrdersList *orders; // list of orders
@@ -43,13 +47,13 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const Player &player);
 
     //returns a list of territories to be defended in order of priority
-    std::multimap<int, Graph::Territory *, std::greater<>> toDefend(const std::vector<Graph::Edge *> &mapEdges);
+    std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) const;
 
     //returns a list of territories to be attacked in order of priority
-    std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges);
+    std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) const;
 
     //creates an order object and adds it to the player's list of orders
-    void issueOrder(Cards::Deck *deck, Graph::Map *map);
+    void issueOrder(Cards::Deck *deck, Graph::Map *map) const;
 
     // accessor method for name
     [[nodiscard]] std::string getName() const;
