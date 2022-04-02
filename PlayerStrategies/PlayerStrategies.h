@@ -10,6 +10,7 @@
 #include "../Player/Player.h"
 #include <experimental/random>
 
+void PlayerStrategiesDriver();
 
 class PlayerStrategies {
 public:

@@ -8,9 +8,9 @@ add_executable(
         GameEngine/GameEngine.cpp GameEngine/GameEngine.h GameEngine/GameEngineDriver.cpp
         Map/Map.cpp Map/Map.h
         Player/Player.cpp Player/Player.h
-        Orders/Orders.cpp Orders/Orders.h Orders/OrdersDriver.cpp
+        Orders/Orders.cpp Orders/Orders.h
         Cards/Cards.cpp Cards/Cards.h
         main.cpp
-        CommandProcessor/CommandProcessing.cpp CommandProcessor/CommandProcessing.h CommandProcessor/CommandProcessingDriver.cpp
-        Logging/LoggingObserver.cpp Logging/LoggingObserver.h Logging/LoggingDriver.cpp
-        PlayerStrategies/PlayerStrategies.cpp PlayerStrategies/PlayerStrategies.h)
+        CommandProcessor/CommandProcessing.cpp CommandProcessor/CommandProcessing.h
+        Logging/LoggingObserver.cpp Logging/LoggingObserver.h
+        PlayerStrategies/PlayerStrategies.cpp PlayerStrategies/PlayerStrategies.h PlayerStrategies/PlayerStrategiesDriver.cpp)

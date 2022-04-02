@@ -15,7 +15,6 @@ namespace Orders {
     class Airlift;
     class Negotiate;
     class OrdersList;
-    void ordersDriver();
     std::ostream & operator<<(std::ostream &out, const Order &order);
     std::ostream & operator<<(std::ostream &out, const Deploy &deploy);
     std::ostream & operator<<(std::ostream &out, const Advance &advance);
