@@ -153,8 +153,18 @@ CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy &cheate
 
 CheaterPlayerStrategy::~CheaterPlayerStrategy() = default;
 
+/**
+ * @params mapEdges list of Edge objects present in the map
+ * @returns map of territories owned by this player to be defended ordered by priority
+ *
+ * The keys of the multimap consist of the number of armies in each territory ordered in ascending order
+ * */
 std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges) {
-
+    std::multimap<int, Graph::Territory *> territoriesToDefend;
+    for (auto pair : this->player->territories) {
+        territoriesToDefend.insert(std::pair<int, Graph::Territory*> (pair.second->numberOfArmies, pair.second));
+    }
+    return territoriesToDefend;
 }
 
 std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
