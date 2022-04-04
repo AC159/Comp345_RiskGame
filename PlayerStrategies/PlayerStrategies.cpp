@@ -167,8 +167,21 @@ std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toDefend(const std
     return territoriesToDefend;
 }
 
+/**
+ * @params edges list of Edge objects present in the map
+ * @returns list of adjacent enemy territories to be conquered by this player. The cheater player will conquer all these territories.
+ * */
 std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
-
+    std::multimap<int, Graph::Territory *> territories;
+    std::vector<Graph::Territory *> enemyTerritories;
+    // Get all adjacent enemy territories
+    for (auto pair : this->player->territories) {
+        enemyTerritories = pair.second->adjacentEnemyTerritories(edges);
+        for (auto *t : enemyTerritories) {
+            territories.insert(std::pair<int, Graph::Territory *>(t->numberOfArmies, t));
+        }
+    }
+    return territories;
 }
 
 void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
