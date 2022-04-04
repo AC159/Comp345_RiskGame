@@ -144,3 +144,34 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
 }
 
 BenevolentPlayerStrategy::~BenevolentPlayerStrategy() = default;
+
+// ================== Cheater Player Strategy Implementation ==================
+
+CheaterPlayerStrategy::CheaterPlayerStrategy(Players::Player *p) : PlayerStrategies(p) {}
+
+CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy &cheater) : PlayerStrategies(cheater.player) {}
+
+CheaterPlayerStrategy::~CheaterPlayerStrategy() = default;
+
+std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges) {
+
+}
+
+std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
+
+}
+
+void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+
+}
+
+CheaterPlayerStrategy &CheaterPlayerStrategy::operator=(const CheaterPlayerStrategy &cheater) {
+    if (this == &cheater) return *this;
+    this->player = cheater.player;
+    return *this;
+}
+
+std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater) {
+    out << "Player " << cheater.player->getName() << " is playing the cheater player strategy" << std::endl;
+    return out;
+}
