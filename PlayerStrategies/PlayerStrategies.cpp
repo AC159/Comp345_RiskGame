@@ -88,11 +88,10 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
-
     // Get the list of territories owned by the current player that have no enemy neighbors
     std::vector<Graph::Territory *> friendlyTerritories;
 
-    // Only create Advance orders if the player has territories with no enemy neighbors.
+    // Create Advance orders
     for (auto &pair : toAttack) {
 
         friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
@@ -127,7 +126,7 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
             dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, toDefend.begin()->second);
         } else if (type == "blockade") {
             dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second);
-        } else if (type == "airlift" && this->player->territories.size() <= 1) { // airlift orders only make sense if the player owns more than 1 territory
+        } else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
             Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
             dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
         } else if (type == "diplomacy") {
@@ -185,6 +184,81 @@ std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std
 }
 
 void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+
+    std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
+    std::multimap<int, Graph::Territory *> toDefend = this->toDefend(map->edges);
+
+    double randomMultiplier;
+    // Create Deploy orders on the territories returned by the toDefend() method
+    int armiesDeployed = 0;
+    for (auto &pair : toDefend) {
+        // generate a value between 0 and 1 exclusive
+        randomMultiplier = ((double) rand() / (RAND_MAX));
+
+        int armiesToDeploy = floor((this->player->reinforcementPool - armiesDeployed) * randomMultiplier);
+        if (armiesToDeploy < 1) armiesToDeploy = 1;
+
+        if (armiesDeployed >= this->player->reinforcementPool) break;
+
+        this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
+        armiesDeployed = armiesDeployed + armiesToDeploy;
+    }
+
+    // Create Advance orders on the territories returned by the toAttack() method
+    // Get the list of territories owned by the current player that have no enemy neighbors
+    std::vector<Graph::Territory *> friendlyTerritories;
+
+    // create Advance orders
+    for (auto &pair : toAttack) {
+
+        friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
+        if (!friendlyTerritories.empty()) {
+            // sort these territories based on the number of armies in each of them
+            // this function uses the overloaded operator < in the Territory class
+            std::sort(friendlyTerritories.begin(), friendlyTerritories.end());
+
+            int index = (int) friendlyTerritories.size() - 1;
+
+            // generate a value between 0 and 1 exclusive
+            randomMultiplier = ((double) rand() / (RAND_MAX));
+
+            // From the friendly territory that is adjacent to the current one, take a random amount of armies to transfer
+            int armiesToAdvance = floor(friendlyTerritories.at(index)->numberOfArmies * randomMultiplier);
+            if (armiesToAdvance < 1) armiesToAdvance = 1;
+            if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
+
+            this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
+        }
+    }
+
+    // Create an order from a card
+    if (!this->player->hand->cards.empty()) {
+        int randomIndex = std::experimental::randint(0, (int) this->player->hand->cards.size()-1);
+        Cards::Card *card = this->player->hand->cards.at(randomIndex);
+
+        std::string type = card->getType();
+        // Play the card based on its type
+        if (type == "reinforcement") {
+            // play the reinforcement card on the first territory of the toDefend list
+            dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, toDefend.begin()->second);
+        } else if (type == "blockade") {
+            dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second);
+        } else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
+            Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
+            dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
+        } else if (type == "bomb") {
+            // todo: does it makes sense for the cheater player to make bomb orders since he already conquers all adjacent enemy territories anyways?
+//            dynamic_cast<Cards::Bomb *>(card)->play(this->player, target, map);
+        } else if (type == "diplomacy") {
+            // Play the diplomacy card on the largest enemy territory
+            std::vector<Graph::Territory *> enemyTerritories = toDefend.begin()->second->adjacentEnemyTerritories(map->edges);
+
+            // sort these territories based on the number of armies in each of them
+            // this function uses the overloaded operator < in the Territory class
+            std::sort(enemyTerritories.begin(), enemyTerritories.end());
+            dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
+        }
+    }
 
 }
 
