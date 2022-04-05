@@ -2,7 +2,6 @@
 #include <list>
 #include <map>
 #include <utility>
-#include <numeric>
 #include "Player.h"
 #include "../PlayerStrategies/PlayerStrategies.h"
 

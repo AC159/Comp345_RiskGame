@@ -250,10 +250,11 @@ void GameEngine::addPlayer() {
             while (true) {
                 cout << "What kind of player would you like to be? " << endl;
                 cout << "1. Benevolent player" << endl;
+                cout << "2. Cheater player" << endl;
                 // todo: add other player strategies
                 cout << "Enter choice: ";
                 cin >> choice;
-                if (choice == "1") break;
+                if (choice == "1" || choice == "2") break;
                 else cout << "Invalid input! Please enter a valid choice." << endl;
             }
             cin.ignore();
@@ -261,6 +262,7 @@ void GameEngine::addPlayer() {
             PlayerStrategies *ps;
 
             if (choice == "1") ps = new BenevolentPlayerStrategy(p);
+            else if (choice == "2") ps = new CheaterPlayerStrategy(p);
 
             p->ps = ps; // assign player strategy to player
             this->playersList.push_back((p));

@@ -1,19 +1,29 @@
 #include "PlayerStrategies.h"
+#include <utility>
+
+// initialize static variables of the PlayerStrategies class
+const std::string PlayerStrategies::BENEVOLENT_TYPE = "benevolent";
+const std::string PlayerStrategies::CHEATER_TYPE = "cheater";
+const std::string PlayerStrategies::HUMAN_TYPE = "human";
+const std::string PlayerStrategies::AGGRESSIVE_TYPE = "aggressive";
+const std::string PlayerStrategies::NEUTRAL_TYPE = "neutral";
 
 
-PlayerStrategies::PlayerStrategies(Players::Player *p) {
+PlayerStrategies::PlayerStrategies(Players::Player *p, std::string strategyType) {
     this->player = p;
+    this->strategyType = std::move(strategyType);
 }
 
 PlayerStrategies::PlayerStrategies(const PlayerStrategies &ps) {
     this->player = ps.player;
+    this->strategyType = ps.strategyType;
 }
 
 PlayerStrategies::~PlayerStrategies() = default;
 
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(Players::Player *p) : PlayerStrategies(p) {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::BENEVOLENT_TYPE) {}
 
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy &b) : PlayerStrategies(b.player) {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy &b) : PlayerStrategies(b.player, PlayerStrategies::BENEVOLENT_TYPE) {}
 
 BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy &b) {
     if (this == &b) return *this;
@@ -45,7 +55,8 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toDefend(const 
 
 /**
  * @params edges list of Edge objects present in the map
- * @returns list of territories to be attacked by this player in priority. The benevolent player will issue Advance orders on these territories
+ * @returns list of territories owned by the benevolent player to be "attacked" by this player in priority.
+ * The benevolent player will issue Advance orders on these territories.
  * */
 std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
     std::multimap<int, Graph::Territory *> territoriesToAttack;
@@ -146,9 +157,9 @@ BenevolentPlayerStrategy::~BenevolentPlayerStrategy() = default;
 
 // ================== Cheater Player Strategy Implementation ==================
 
-CheaterPlayerStrategy::CheaterPlayerStrategy(Players::Player *p) : PlayerStrategies(p) {}
+CheaterPlayerStrategy::CheaterPlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::CHEATER_TYPE) {}
 
-CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy &cheater) : PlayerStrategies(cheater.player) {}
+CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy &cheater) : PlayerStrategies(cheater.player, PlayerStrategies::CHEATER_TYPE) {}
 
 CheaterPlayerStrategy::~CheaterPlayerStrategy() = default;
 
@@ -211,7 +222,9 @@ void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
     // create Advance orders
     for (auto &pair : toAttack) {
 
-        friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
+        // this will return the territories owned by the current player that are adjacent to the territory to be attacked
+        friendlyTerritories = pair.second->adjacentEnemyTerritories(map->edges);
+
         if (!friendlyTerritories.empty()) {
             // sort these territories based on the number of armies in each of them
             // this function uses the overloaded operator < in the Territory class
@@ -222,7 +235,7 @@ void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
             // generate a value between 0 and 1 exclusive
             randomMultiplier = ((double) rand() / (RAND_MAX));
 
-            // From the friendly territory that is adjacent to the current one, take a random amount of armies to transfer
+            // From the friendly territory that is adjacent to the current enemy territory to be attacked, take a random amount of armies to transfer
             int armiesToAdvance = floor(friendlyTerritories.at(index)->numberOfArmies * randomMultiplier);
             if (armiesToAdvance < 1) armiesToAdvance = 1;
             if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
@@ -246,17 +259,16 @@ void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
         } else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
             Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
             dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
-        } else if (type == "bomb") {
-            // todo: does it makes sense for the cheater player to make bomb orders since he already conquers all adjacent enemy territories anyways?
-//            dynamic_cast<Cards::Bomb *>(card)->play(this->player, target, map);
         } else if (type == "diplomacy") {
             // Play the diplomacy card on the largest enemy territory
             std::vector<Graph::Territory *> enemyTerritories = toDefend.begin()->second->adjacentEnemyTerritories(map->edges);
 
-            // sort these territories based on the number of armies in each of them
-            // this function uses the overloaded operator < in the Territory class
-            std::sort(enemyTerritories.begin(), enemyTerritories.end());
-            dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
+            if (!enemyTerritories.empty()) {
+                // sort these territories based on the number of armies in each of them
+                // this function uses the overloaded operator < in the Territory class
+                std::sort(enemyTerritories.begin(), enemyTerritories.end());
+                dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
+            }
         }
     }
 
