@@ -158,8 +158,8 @@ multimap<int, Territory *> Player::toAttack(const vector<Edge *> &edges) const {
 }
 
 // creates all orders for the player's turn and places them in the player's list of orders
-void Player::issueOrder(Cards::Deck *deck, Graph::Map *map) const {
-    return this->ps->issueOrder(deck, map);
+void Player::issueOrder(const GameEngine &game) const {
+    return this->ps->issueOrder(game);
     // todo: remove this commented code once all the player strategies have been implemented
 //    vector<Edge *> &mapEdges = map->edges;
 //    std::multimap<int, Territory *, std::greater<>> defend = toDefend(mapEdges);

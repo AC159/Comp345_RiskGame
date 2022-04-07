@@ -17,7 +17,7 @@ public:
     Players::Player *player;
     virtual std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) = 0;
     virtual std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) = 0;
-    virtual void issueOrder(Cards::Deck *deck, Graph::Map *map) = 0;
+    virtual void issueOrder(const GameEngine &game) = 0;
 
     PlayerStrategies(const PlayerStrategies &ps);
     PlayerStrategies(Players::Player *p);
@@ -29,7 +29,7 @@ class BenevolentPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
-    void issueOrder(Cards::Deck *deck, Graph::Map *map) override;
+    void issueOrder(const GameEngine &game) override;
 
     BenevolentPlayerStrategy& operator=(const BenevolentPlayerStrategy &b);
     friend std::ostream& operator<<(std::ostream &out, const BenevolentPlayerStrategy &b);

@@ -64,7 +64,9 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
-void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
+    auto map = game.mapLoader->map;
+    auto deck = game.deck;
 
     std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
     std::multimap<int, Graph::Territory *> toDefend = this->toDefend(map->edges);

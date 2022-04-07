@@ -357,7 +357,7 @@ void GameEngine::issueOrdersPhase() {
     issueOrdersStateChange();
 
     for (auto player: playersList) {
-        player->issueOrder(deck, mapLoader->map);
+        player->issueOrder(*this);
     }
 }
 
