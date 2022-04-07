@@ -284,7 +284,8 @@ std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater
     out << "Player " << cheater.player->getName() << " is playing the cheater player strategy" << std::endl;
     return out;
 }
-
+//computer player that focuses on attack (deploys or advances armies on its strongest
+//country, then always advances to enemy territories until it cannot do so anymore).
 // ================== Aggressive Player Strategy Implementation ==================
 
 AggressivePlayerStrategy::AggressivePlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::AGGRESSIVE_TYPE) {}
@@ -304,14 +305,50 @@ std::ostream &operator<<(std::ostream &out, const AggressivePlayerStrategy &aggr
     return out;
 }
 
-std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges){
+std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges) {
     std::multimap<int,Graph::Territory *> territoriesToDefend;
     return territoriesToDefend;
 }
-std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) {
+std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
     std::multimap<int, Graph::Territory *> territoriesToAttack;
     return territoriesToAttack;
 }
-void issueOrder(Cards::Deck *deck, Graph::Map *map) {
+void AggressivePlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+
+}
+
+//computer player that never issues any order. If a Neutral player is attacked, it becomes an
+//Aggressive player.
+// ================== Neutral Player Strategy Implementation ==================
+NeutralPlayerStrategy::NeutralPlayerStrategy(Players::Player *p) : PlayerStrategies(p,PlayerStrategies::NEUTRAL_TYPE) {}
+
+NeutralPlayerStrategy::NeutralPlayerStrategy(const NeutralPlayerStrategy &neutral) : PlayerStrategies(neutral.player, PlayerStrategies::NEUTRAL_TYPE) {}
+
+NeutralPlayerStrategy::~NeutralPlayerStrategy() = default;
+
+NeutralPlayerStrategy& NeutralPlayerStrategy::operator=(const NeutralPlayerStrategy &neutral){
+    if(this ==&neutral) return *this;
+    this->player = neutral.player;
+    return *this;
+}
+
+std::ostream &operator<<(std::ostream &out, const NeutralPlayerStrategy &neutral) {
+    out << "Player " << neutral.player->getName() << " is playing the neutral player strategy" << std::endl;
+    return out;
+}
+
+std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges){
+    std::multimap<int,Graph::Territory *> territoriesToDefend;
+    //do nothing
+    return territoriesToDefend;
+}
+std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
+    std::multimap<int, Graph::Territory *> territoriesToAttack;
+    //do nothing
+    return territoriesToAttack;
+}
+void NeutralPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+    // don't issue orders
+
 
 }
