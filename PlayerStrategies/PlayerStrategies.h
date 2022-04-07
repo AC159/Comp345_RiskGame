@@ -61,4 +61,17 @@ public:
     ~CheaterPlayerStrategy() override;
 };
 
+class AggressivePlayerStrategy: public PlayerStrategies{
+    std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
+    std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
+    void issueOrder(Cards::Deck *deck, Graph::Map *map) override;
+
+    AggressivePlayerStrategy& operator=(const AggressivePlayerStrategy &aggressive);
+    friend std::ostream& operator<<(std::ostream &out, const AggressivePlayerStrategy &aggressive);
+
+    AggressivePlayerStrategy(Players::Player *p);
+    AggressivePlayerStrategy(const AggressivePlayerStrategy &aggressive);
+    ~AggressivePlayerStrategy() override;
+};
+
 #endif //COMP345RISKGAME_PLAYERSTRATEGIES_H

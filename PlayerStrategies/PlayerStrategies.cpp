@@ -284,3 +284,34 @@ std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater
     out << "Player " << cheater.player->getName() << " is playing the cheater player strategy" << std::endl;
     return out;
 }
+
+// ================== Aggressive Player Strategy Implementation ==================
+
+AggressivePlayerStrategy::AggressivePlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::AGGRESSIVE_TYPE) {}
+
+AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy &aggressive) : PlayerStrategies(aggressive.player,PlayerStrategies::AGGRESSIVE_TYPE){}
+
+AggressivePlayerStrategy::~AggressivePlayerStrategy() = default;
+
+AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy &aggressive) {
+    if (this ==&aggressive) return *this;
+    this->player =aggressive.player;
+    return *this;
+}
+
+std::ostream &operator<<(std::ostream &out, const AggressivePlayerStrategy &aggressive) {
+    out << "Player " << aggressive.player->getName() << " is playing the aggressive player strategy" << std::endl;
+    return out;
+}
+
+std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges){
+    std::multimap<int,Graph::Territory *> territoriesToDefend;
+    return territoriesToDefend;
+}
+std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) {
+    std::multimap<int, Graph::Territory *> territoriesToAttack;
+    return territoriesToAttack;
+}
+void issueOrder(Cards::Deck *deck, Graph::Map *map) {
+
+}
