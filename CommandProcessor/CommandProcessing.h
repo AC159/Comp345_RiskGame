@@ -40,7 +40,7 @@ public:
 
     string stringToLog() const;
     Command& getCommand();
-    bool validate(string userInput, const GameEngine &gameEngine);
+    bool validate(const string& readCommandInput, const GameEngine &gameEngine);
     static void commandProcessorDriver();
 private:
     virtual string readCommand();

@@ -26,6 +26,7 @@ public:
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
     static void gameStartupDriver();
     static void gamePlayDriver();
+    static void tournamentModeDriver();
 
     //added for implementation of As2 part1
     string getState() const;
@@ -63,6 +64,8 @@ public:
 //============= win state =================
     void winStateChange();
     int validateWinCommand();
+
+    void tournamentMode(Command& command);
 
 private:
     string state;

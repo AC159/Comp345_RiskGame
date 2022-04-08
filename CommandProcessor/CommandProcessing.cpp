@@ -113,13 +113,15 @@ void CommandProcessor::saveCommand(Command &command) {
 }
 
 // validate (1) user command (2) command is used in the correct state
-bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameEngine) {
+bool CommandProcessor::validate(const string& readCommandInput, const GameEngine &gameEngine) {
+    string temp = readCommandInput;
+
     vector<string> inputWords;
     currentState = gameEngine.getState();
     string userInputCommand, userInputSecondWord;
     istringstream parse(readCommandInput);
-    while (parse >> readCommandInput){
-        inputWords.push_back(readCommandInput);
+    while (parse >> temp){
+        inputWords.push_back(temp);
     }
     int vectorSize= inputWords.size();
     userInputCommand = inputWords.at(0);
@@ -136,6 +138,109 @@ bool CommandProcessor::validate(string readCommandInput, const GameEngine &gameE
             return true;
         }
     }
+    else if(vectorSize > 5){
+        if(currentState == "NULL" && inputWords.at(0) == "tournament" && inputWords.at(1) == "-M"){
+            int previousPos = 1; // position of the past '-'
+            string nextStr[3] = {"P", "G", "D"}; // next string in the tournament string
+            int index = 0; // index for nextStr[]
+
+            // check order of tournament commands
+            int i = 2;
+            for(i = 2; i < vectorSize; i++){
+                string temp = inputWords.at(i);
+                if(temp.substr(0, 1) == "-") {
+                    if(index < 3 && temp.substr(1, 2) == nextStr[index]){
+                        index++;
+                        previousPos = i;
+                    }
+                    else{
+                        cout << " Invalid tournament command." << endl;
+                        return false;
+                    }
+                }
+            }
+
+            // check number of maps
+            string lineBetween = readCommandInput.substr(readCommandInput.find("-M") + 2, readCommandInput.find("-P") - readCommandInput.find("-M") -2);
+            vector<string> wordsBetween;
+            istringstream parse2(lineBetween);
+            while(parse2 >> lineBetween){
+                wordsBetween.push_back(lineBetween);
+            }
+            int numberOfWordsBetween = wordsBetween.size();
+            if(numberOfWordsBetween < 1 || numberOfWordsBetween > 5){
+                cout << "Invalid number of maps." << endl;
+                return false;
+            }
+            wordsBetween.erase(wordsBetween.begin(), wordsBetween.end());
+
+            // check number of player strats
+            lineBetween = readCommandInput.substr(readCommandInput.find("-P") + 2, readCommandInput.find("-G") - readCommandInput.find("-P") - 2);
+            istringstream parse3(lineBetween);
+            while(parse3 >> lineBetween){
+                wordsBetween.push_back(lineBetween);
+            }
+            numberOfWordsBetween = wordsBetween.size();
+            if(numberOfWordsBetween < 1 || numberOfWordsBetween > 5){
+                cout << "Invalid number of player strategies." << endl;
+                return false;
+            }
+            wordsBetween.erase(wordsBetween.begin(), wordsBetween.end());
+
+            // check if number of games is a number and the range
+            lineBetween = readCommandInput.substr(readCommandInput.find("-G") + 2, readCommandInput.find("-D") - readCommandInput.find("-G") -2);
+            istringstream parse4(lineBetween);
+            while(parse4 >> lineBetween){
+                wordsBetween.push_back(lineBetween);
+            }
+            numberOfWordsBetween = wordsBetween.size();
+            if(numberOfWordsBetween != 1){
+                cout << "Invalid number of games string." << endl;
+                return false;
+            }
+            for(char const& c: wordsBetween.at(0)){
+                if(!std::isdigit(c)){
+                    cout << "Number of games is not a number." << endl;
+                    return false;
+                }
+            }
+            int noOfGames = std::stoi(wordsBetween.at(0));
+            if(noOfGames < 10 || noOfGames > 50){
+                cout << "Invalid number of games." << endl;
+                return false;
+            }
+            wordsBetween.erase(wordsBetween.begin(), wordsBetween.end());
+
+            // check if number of turns is a number and the range
+            lineBetween = readCommandInput.substr(readCommandInput.find("-D") + 2);
+            istringstream parse5(lineBetween);
+            while(parse5 >> lineBetween){
+                wordsBetween.push_back(lineBetween);
+            }
+            numberOfWordsBetween = wordsBetween.size();
+            if(numberOfWordsBetween != 1){
+                cout << "Invalid number of turns string." << endl;
+                return false;
+            }
+            for(char const& c: wordsBetween.at(0)){
+                if(!std::isdigit(c)){
+                    cout << "Number of turns is not a number." << endl;
+                    return false;
+                }
+            }
+            int maxNoOfTurns = std::stoi(wordsBetween.at(0));
+            if(maxNoOfTurns < 10 || maxNoOfTurns > 50){
+                cout << "Invalid max number of turns." << endl;
+                return false;
+            }
+            wordsBetween.erase(wordsBetween.begin(), wordsBetween.end());
+
+            if(index == 3){
+                return true;
+            }
+        }
+    }
+    cout << "Invalid command." << endl;
     return false;
 }
 

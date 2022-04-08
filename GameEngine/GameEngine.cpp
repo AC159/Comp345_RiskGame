@@ -19,6 +19,7 @@ GameEngine::GameEngine() {
     processor = new CommandProcessor();
     deck = new Cards::Deck();
     deck->fillDeckWithCards();
+    state = "NULL";
 }
 
 GameEngine::GameEngine(const GameEngine &game) {
@@ -434,6 +435,95 @@ bool GameEngine::ordersRemain() {
 void GameEngine::winStateChange() {
     GameEngine::changeState("win");
     cout << "Congratulations! You are the winner of this game!" << endl;
+}
+
+void GameEngine::tournamentMode(Command &command) {
+    string tournamentCommand = command.command;
+    vector<string> maps;
+    vector<string> playerStrategies;
+    int noOfGames;
+    int maxNoOfTurns;
+
+    // get maps from command
+    string lineBetween = tournamentCommand.substr(tournamentCommand.find("-M") + 2, tournamentCommand.find("-P") - tournamentCommand.find("-M") - 2);
+    cout << lineBetween << endl;
+    istringstream parse2(lineBetween);
+    while (parse2 >> lineBetween) {
+        maps.push_back(lineBetween);
+    }
+    int numberOfMaps = maps.size();
+
+    // get player strats from command
+    lineBetween = tournamentCommand.substr(tournamentCommand.find("-P") + 2, tournamentCommand.find("-G") - tournamentCommand.find("-P") - 2);
+    istringstream parse3(lineBetween);
+    while(parse3 >> lineBetween){
+        playerStrategies.push_back(lineBetween);
+    }
+    int numberOfStrategies = playerStrategies.size();
+
+    // get no of games from command
+    lineBetween = tournamentCommand.substr(tournamentCommand.find("-G") + 2, tournamentCommand.find("-D") - tournamentCommand.find("-G") -2);
+    noOfGames = std::stoi(lineBetween);
+
+    // get no of turns from command
+    lineBetween = tournamentCommand.substr(tournamentCommand.find("-D") + 2);
+    maxNoOfTurns = std::stoi(lineBetween);
+
+    cout << "*" << endl;
+    for(string m: maps)
+        cout << m << endl;
+    for(string ps: playerStrategies)
+        cout << ps << endl;
+    cout << noOfGames << endl;
+    cout << maxNoOfTurns << endl;
+    cout << "*" << endl;
+
+//    for(string m: maps){
+//        bool validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + m + "/" + m + ".map");
+//        if(validateFile){
+//            if(!mapLoader->map->validate())
+//                cout << "Invalid map." << endl;
+//        }
+//        else {
+//            cout << "Invalid map file." << endl;
+//        }
+//        delete mapLoader->map;
+//        mapLoader->map = new Graph::Map();
+//    }
+
+
+
+    for(string map: maps){
+        changeState("start");
+        if(!this->mapLoader->loadMap("../WarzoneMaps/" + map + "/" + map + ".map")){
+            cout << "Invalid map file." << endl;
+            return;
+        }
+
+        mapLoadedStateChange();
+        if(!mapLoader->map->validate()){
+            cout << "Invalid map." << endl;
+        }
+
+        mapValidatedStateChange();
+
+        playersAddedStateChange();
+        for(string player: playerStrategies){
+            Players::Player *p = new Players::Player();
+            this->playersList.push_back((p));
+        }
+
+        assignReinforcementStateChange();
+        mainGameLoop();
+        winStateChange();
+
+        delete mapLoader->map;
+        mapLoader->map = new Graph::Map();
+        for (Players::Player *p: playersList) {
+            delete p;
+        }
+        playersList.clear();
+    }
 }
 
 //GameEngine class destructor
