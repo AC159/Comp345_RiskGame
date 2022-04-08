@@ -56,7 +56,7 @@ ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
 // method to set and output current game state
 void GameEngine::changeState(string changedState) {
     this->state = std::move(changedState);
-    cout << "========== state = " << this->state << " ==========" << endl;
+    cout << "\n========== state = " << this->state << " ==========" << endl;
     notify(*this);
 }
 
@@ -251,10 +251,14 @@ void GameEngine::addPlayer() {
                 cout << "What kind of player would you like to be? " << endl;
                 cout << "1. Benevolent player" << endl;
                 cout << "2. Cheater player" << endl;
-                // todo: add other player strategies
+                cout << "3. Neutral player" << endl;
+                cout << "4. Aggressive player" << endl;
+                //TODO: impplement human player
+                cout << "5. Human player" << endl;
+
                 cout << "Enter choice: ";
                 cin >> choice;
-                if (choice == "1" || choice == "2") break;
+                if (choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5") break;
                 else cout << "Invalid input! Please enter a valid choice." << endl;
             }
             cin.ignore();
@@ -263,6 +267,9 @@ void GameEngine::addPlayer() {
 
             if (choice == "1") ps = new BenevolentPlayerStrategy(p);
             else if (choice == "2") ps = new CheaterPlayerStrategy(p);
+            else if (choice == "3") ps = new NeutralPlayerStrategy(p);
+            else if (choice == "4") ps = new AggressivePlayerStrategy(p);
+            //else if (choice == "5") ps = new HumanPlayerStrategy(p);
 
             p->ps = ps; // assign player strategy to player
             this->playersList.push_back((p));
@@ -345,6 +352,8 @@ void GameEngine::reinforcementPhase() {
         if (minimumBonus > 0) {
             cout << "\t• " << minimumBonus << " bonus armies to meet the minimum of 3 armies per turn\n";
         }
+        if(player->ps->strategyType =="neutral")
+        osize = player->territories.size();
     }
 }
 
@@ -374,6 +383,7 @@ void GameEngine::executeOrdersStateChange() {
 bool GameEngine::executeOrdersPhase() {
     executeOrdersStateChange();
 
+
     int skipStrike = 0; //the number of non-deploy orders skipped in a row
     int numOfPlayers = static_cast<int>(playersList.size());
     bool doneDeploying = false;
@@ -382,6 +392,22 @@ bool GameEngine::executeOrdersPhase() {
         for (auto it = playersList.begin(); it < playersList.end(); it++) {
             Players::Player *player = *it;
             Orders::Order *topOrder = player->orders->element(0);
+
+            // if attacked a neutral player becomes an aggressive player
+            if(player->ps->strategyType == "neutral"){
+                cout<<player->getName()<<" is the neutral player"<<endl;
+                //initial territory list
+                int tsize = player->territories.size();
+                cout<<"osize:"<<osize<<endl; //original territory size of neutral player
+                cout<<"territory size:"<<tsize<<endl;
+                //end territory list
+                if(osize!=tsize){
+                    PlayerStrategies *ps;
+                    cout<<"KAMEHAMEHAAAAAAAA"<<endl;
+                    player->ps = new AggressivePlayerStrategy(player);
+                    cout<<player->getName()<<" is now an "<<player->ps->strategyType<<" player arrggghh"<<endl;
+                }
+            }
 
             //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
             if (skipStrike == numOfPlayers) {

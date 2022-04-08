@@ -21,6 +21,8 @@ public:
     GameEngine(const GameEngine &gameEngine); //copy constructor
     ~GameEngine();
 
+    int osize;
+
     string stringToLog() const override;
     GameEngine& operator=(const GameEngine &gameEngine);
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);

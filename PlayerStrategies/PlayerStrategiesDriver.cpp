@@ -7,10 +7,10 @@ void PlayerStrategiesDriver() {
     auto *benevolentPlayer = new Players::Player("p1");
     auto *benevolentStrategy = new BenevolentPlayerStrategy(benevolentPlayer);
 
-    auto *aggressivePlayer = new Players::Player("p3");
+    auto *aggressivePlayer = new Players::Player("p2");
     auto *aggressiveStrategy = new AggressivePlayerStrategy(aggressivePlayer);
 
-    auto *neutralPlayer = new Players::Player("p4");
+    auto *neutralPlayer = new Players::Player("p3");
     auto *neutralStrategy = new NeutralPlayerStrategy(neutralPlayer);
 
     // Assign strategy to player
@@ -23,6 +23,7 @@ void PlayerStrategiesDriver() {
     auto *logObserver = new LogObserver();
     Subject::attach(logObserver);
     engine->startupPhase();
+
 
     engine->mainGameLoop();
     engine->winStateChange();

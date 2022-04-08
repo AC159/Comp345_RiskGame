@@ -339,16 +339,15 @@ std::ostream &operator<<(std::ostream &out, const NeutralPlayerStrategy &neutral
 
 std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges){
     std::multimap<int,Graph::Territory *> territoriesToDefend;
-    //do nothing
+    //returns an empty map because a neutral player doesnt issue orders
     return territoriesToDefend;
 }
 std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
     std::multimap<int, Graph::Territory *> territoriesToAttack;
-    //do nothing
+    //returns an empty map because a neutral player doesnt issue orders
     return territoriesToAttack;
 }
 void NeutralPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
-    // don't issue orders
-
-
+    // don't issue orders, play cards
+    std::cout<<this->player->getName()<<" is not issuing orders because this player is neutral"<<std::endl;
 }
