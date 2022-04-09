@@ -88,6 +88,18 @@ vector<Territory *> Territory::adjacentFriendlyTerritories(const vector<Edge *> 
     return adjacentFriendlyTerritories;
 }
 
+// returns all territories that are both adjacent to this territory and have the given owner
+std::vector<Territory *> Territory::adjacentTerritoriesOwnedBy(const Players::Player &p,
+                                                               const vector<Edge *> &mapEdges) {
+    vector<Territory *> adjacentTerritories;
+    for (const auto &edge : mapEdges) {
+        if ((edge->source == this && edge->destination->owner == &p)) {
+            adjacentTerritories.push_back(edge->destination);
+        }
+    }
+    return adjacentTerritories;
+}
+
 // returns a string of the territory's name and its current owner
 std::string Territory::nameAndOwner() const {
     return name + " is owned by " + owner->getName() + "\n";
