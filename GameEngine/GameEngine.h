@@ -21,7 +21,7 @@ public:
     GameEngine(const GameEngine &gameEngine); //copy constructor
     ~GameEngine();
 
-    int osize;
+    int osize; //used to determine when a neutral player becomes an agressive player
 
     string stringToLog() const override;
     GameEngine& operator=(const GameEngine &gameEngine);

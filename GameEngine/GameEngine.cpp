@@ -394,20 +394,20 @@ bool GameEngine::executeOrdersPhase() {
             Orders::Order *topOrder = player->orders->element(0);
 
             // if attacked a neutral player becomes an aggressive player
-            if(player->ps->strategyType == "neutral"){
-                cout<<player->getName()<<" is the neutral player"<<endl;
-                //initial territory list
-                int tsize = player->territories.size();
-                cout<<"osize:"<<osize<<endl; //original territory size of neutral player
-                cout<<"territory size:"<<tsize<<endl;
-                //end territory list
-                if(osize!=tsize){
-                    PlayerStrategies *ps;
-                    cout<<"KAMEHAMEHAAAAAAAA"<<endl;
-                    player->ps = new AggressivePlayerStrategy(player);
-                    cout<<player->getName()<<" is now an "<<player->ps->strategyType<<" player arrggghh"<<endl;
-                }
-            }
+//            if(player->ps->strategyType == "neutral"){
+//                cout<<player->getName()<<" is the neutral player"<<endl;
+//                //initial territory list
+//                int tsize = player->territories.size();
+//                cout<<"osize:"<<osize<<endl; //original territory size of neutral player
+//                cout<<"territory size:"<<tsize<<endl;
+//                //end territory list
+//                if(osize!=tsize){
+//                    PlayerStrategies *ps;
+//                    cout<<"KAMEHAMEHAAAAAAAA"<<endl;
+//                    player->ps = new AggressivePlayerStrategy(player);
+//                    cout<<player->getName()<<" is now an "<<player->ps->strategyType<<" player arrggghh"<<endl;
+//                }
+//            }
 
             //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
             if (skipStrike == numOfPlayers) {

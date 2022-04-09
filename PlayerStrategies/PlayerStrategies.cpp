@@ -314,6 +314,7 @@ std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 void AggressivePlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+    std::cout<<this->player->getName()<<" is aggressive arrgghhh, prepare to die"<<std::endl;
 
 }
 
@@ -349,5 +350,5 @@ std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toAttack(const std
 }
 void NeutralPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
     // don't issue orders, play cards
-    std::cout<<this->player->getName()<<" is not issuing orders because this player is neutral"<<std::endl;
+    std::cout<<"\n"<<this->player->getName()<<" is not issuing orders because this player is neutral"<<std::endl;
 }
