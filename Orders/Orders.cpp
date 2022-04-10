@@ -230,6 +230,15 @@ void Advance::execute() {
             int defendersKilled = static_cast<int>(round(armies * 0.6));
             int attackersKilled = static_cast<int>(round(target->numberOfArmies * 0.7));
 
+            //if the target is a neutral strategy player and is attacked, the target switches strategy and
+            //becomes an aggressive player
+           if(target->owner->ps->strategyType == "neutral"){
+            //PlayerStrategies *ps;
+            cout<<"KAMEHAMEHAAAAAAAA"<<endl;
+            target->owner->ps = new AggressivePlayerStrategy(target->owner);
+            cout<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player arrggghh"<<endl;
+           }
+
             if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { // failed to conquer
                 orderEffect = to_string(armies) + " failed to take " + target->name + " from " + source->name;
 
@@ -250,6 +259,16 @@ void Advance::execute() {
         }
     } else if (valid && this->issuer->ps->strategyType == PlayerStrategies::CHEATER_TYPE) {
         orderEffect = to_string(armies) + " captured " + target->name + " from " + source->name;
+
+        //if the target is a neutral strategy player and is attacked, the target switches strategy and
+        //becomes an aggressive player
+        if(target->owner->ps->strategyType == "neutral"){
+            //PlayerStrategies *ps;
+            cout<<"KAMEHAMEHAAAAAAAA"<<endl;
+            cout<< target->owner->getName()<<" was attacked by "<<source->owner->getName()<<" on territory: "<<target->name <<endl;
+            target->owner->ps = new AggressivePlayerStrategy(target->owner);
+            cout<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player arrggghh"<<endl;
+        }
 
         // The current player is a cheater and will therefore automatically conquer the adjacent enemy territory
         target->transferOwnership(issuer); // cheater player now owns the territory
@@ -373,6 +392,12 @@ void Bomb::execute() {
     if (validate()) {
         orderEffect = toString();
         target->numberOfArmies /= 2;
+    }
+    // bomb is considered an attack, if target is a neutral strategy player, then switch to aggressive strategy player
+    if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
+        cout<<"I JUST GOT BOMBED"<<endl;
+        target->owner->ps = new AggressivePlayerStrategy(target->owner);
+        cout<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player arrggghh"<<endl;
     }
     orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
     cout << orderEffect << endl;
@@ -786,7 +811,7 @@ void OrdersList::remove(int index) {
 // adds an element to the back of the list
 void OrdersList::add(Order *const newOrder) {
     if (newOrder != nullptr && newOrder->issuer != nullptr) {
-        cout << newOrder->issuer->getName() << " issued: " << *newOrder;
+        cout << newOrder->issuer->getName() << " issued: " << *newOrder <<endl;
     }
     orders.push_back(newOrder);
     notify(*this);

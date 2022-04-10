@@ -62,6 +62,34 @@ public:
     ~CheaterPlayerStrategy() override;
 };
 
+class AggressivePlayerStrategy: public PlayerStrategies{
+public:
+    std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
+    std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
+    void issueOrder(Cards::Deck *deck, Graph::Map *map) override;
+
+    AggressivePlayerStrategy& operator=(const AggressivePlayerStrategy &aggressive);
+    friend std::ostream& operator<<(std::ostream &out, const AggressivePlayerStrategy &aggressive);
+
+    AggressivePlayerStrategy(Players::Player *p);
+    AggressivePlayerStrategy(const AggressivePlayerStrategy &aggressive);
+    ~AggressivePlayerStrategy() override;
+};
+
+class NeutralPlayerStrategy: public PlayerStrategies{
+public:
+    std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
+    std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
+    void issueOrder(Cards::Deck *deck, Graph::Map *map) override;
+
+    NeutralPlayerStrategy& operator=(const NeutralPlayerStrategy &neutral);
+    friend std::ostream& operator<<(std::ostream &out, const NeutralPlayerStrategy &neutral);
+
+    NeutralPlayerStrategy(Players::Player *p);
+    NeutralPlayerStrategy(const NeutralPlayerStrategy &neutral);
+    ~NeutralPlayerStrategy() override;
+};
+
 // strategy allowing the player to make decisions through the console
 class HumanPlayerStrategy : public PlayerStrategies {
 public:
