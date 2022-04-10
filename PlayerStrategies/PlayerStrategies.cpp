@@ -199,8 +199,9 @@ std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std
     return territories;
 }
 
-void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
-
+void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
+    auto map = game.mapLoader->map;
+    auto deck = game.deck;
     std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
     std::multimap<int, Graph::Territory *> toDefend = this->toDefend(map->edges);
 

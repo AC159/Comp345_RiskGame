@@ -52,7 +52,7 @@ class CheaterPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
-    void issueOrder(Cards::Deck *deck, Graph::Map *map) override;
+    void issueOrder(const GameEngine &game) override;
 
     CheaterPlayerStrategy& operator=(const CheaterPlayerStrategy &cheater);
     friend std::ostream& operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater);
