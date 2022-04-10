@@ -12,8 +12,6 @@ const std::string PlayerStrategies::NEUTRAL_TYPE = "neutral";
 using namespace std;
 using namespace Graph;
 
-PlayerStrategies::PlayerStrategies(Players::Player *p) {
-
 PlayerStrategies::PlayerStrategies(Players::Player *p, std::string strategyType) {
     this->player = p;
     this->strategyType = std::move(strategyType);
@@ -293,10 +291,11 @@ std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater
 }
 
 //  ========================== Human Player Strategy class  ==========================
-HumanPlayerStrategy::HumanPlayerStrategy(Players::Player *p) : PlayerStrategies(p) {}
+HumanPlayerStrategy::HumanPlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::HUMAN_TYPE) {}
 
 // creates shallow copy (avoids cyclic dependency issues)
-[[maybe_unused]] HumanPlayerStrategy::HumanPlayerStrategy(const HumanPlayerStrategy &h) : PlayerStrategies(h.player) {}
+[[maybe_unused]] HumanPlayerStrategy::HumanPlayerStrategy(const HumanPlayerStrategy &h)
+        : PlayerStrategies(h.player, PlayerStrategies::HUMAN_TYPE) {}
 
 // dynamically allocated players should be deleted elsewhere
 HumanPlayerStrategy::~HumanPlayerStrategy() = default;
