@@ -16,12 +16,20 @@ void PlayerStrategiesDriver();
 class PlayerStrategies {
 public:
     Players::Player *player;
+    std::string strategyType;
+
+    static const std::string BENEVOLENT_TYPE;
+    static const std::string CHEATER_TYPE;
+    static const std::string HUMAN_TYPE;
+    static const std::string AGGRESSIVE_TYPE;
+    static const std::string NEUTRAL_TYPE;
+
     virtual std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) = 0;
     virtual std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) = 0;
     virtual void issueOrder(const GameEngine &game) = 0;
 
     PlayerStrategies(const PlayerStrategies &ps);
-    PlayerStrategies(Players::Player *p);
+    PlayerStrategies(Players::Player *p, std::string strategyType);
     virtual ~PlayerStrategies();
 };
 
@@ -38,6 +46,20 @@ public:
     BenevolentPlayerStrategy(Players::Player *p);
     BenevolentPlayerStrategy(const BenevolentPlayerStrategy &b);
     ~BenevolentPlayerStrategy() override;
+};
+
+class CheaterPlayerStrategy : public PlayerStrategies {
+public:
+    std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
+    std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
+    void issueOrder(Cards::Deck *deck, Graph::Map *map) override;
+
+    CheaterPlayerStrategy& operator=(const CheaterPlayerStrategy &cheater);
+    friend std::ostream& operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater);
+
+    CheaterPlayerStrategy(Players::Player *p);
+    CheaterPlayerStrategy(const CheaterPlayerStrategy &cheater);
+    ~CheaterPlayerStrategy() override;
 };
 
 // strategy allowing the player to make decisions through the console

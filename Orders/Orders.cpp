@@ -3,6 +3,7 @@
 #include <utility>
 #include "Orders.h"
 #include "../Player/Player.h"
+#include "../PlayerStrategies/PlayerStrategies.h"
 
 using namespace std;
 using namespace Orders;
@@ -214,7 +215,8 @@ bool Advance::validate() {
 /* only performs action if the order is valid: if the target territory belongs to the issuer, the armies are
  * transferred there; otherwise the armies attack the target territory*/
 void Advance::execute() {
-    if (validate()) {
+    bool valid = validate();
+    if (valid && this->issuer->ps->strategyType != PlayerStrategies::CHEATER_TYPE) {
         /* as per Warzone rules, use all available armies in the case where armies have decreased to an insufficient
          * amount during the turn */
         if (armies > source->numberOfArmies) {
@@ -246,7 +248,20 @@ void Advance::execute() {
                 issuer->receivesCard = true;
             }
         }
+    } else if (valid && this->issuer->ps->strategyType == PlayerStrategies::CHEATER_TYPE) {
+        orderEffect = to_string(armies) + " captured " + target->name + " from " + source->name;
+
+        // The current player is a cheater and will therefore automatically conquer the adjacent enemy territory
+        target->transferOwnership(issuer); // cheater player now owns the territory
+
+        // transfer armies of the cheater player
+        target->numberOfArmies = armies;
+        source->numberOfArmies -= armies;
+
+        // the conquering player receives a card as a reward at the end of the turn
+        issuer->receivesCard = true;
     }
+
     orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
     cout << orderEffect << endl;
     notify(*this);
