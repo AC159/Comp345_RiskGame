@@ -101,6 +101,7 @@ void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
 
         this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
         armiesDeployed = armiesDeployed + armiesToDeploy;
+        cout << endl;
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
@@ -126,6 +127,7 @@ void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
             if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
 
             this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
+            cout << endl;
         }
     }
 
@@ -219,6 +221,7 @@ void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
 
         this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
         armiesDeployed = armiesDeployed + armiesToDeploy;
+        cout << endl;
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
@@ -247,6 +250,7 @@ void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
             if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
 
             this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
+            cout << endl;
         }
     }
 
