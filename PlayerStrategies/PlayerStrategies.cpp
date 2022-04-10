@@ -383,7 +383,7 @@ string HumanPlayerStrategy::promptValidId(const multimap<int, Territory *> &terr
             "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
     string userInput = readCommand();
     while (!validateIdCommand(userInput, territories)) {
-        string userInput = readCommand();
+        userInput = readCommand();
     }
     return userInput;
 }
@@ -394,7 +394,7 @@ string HumanPlayerStrategy::promptValidId(const vector<Players::Player *> &playe
             "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
     string userInput = readCommand();
     while (!validateIdCommand(userInput, players.size())) {
-        string userInput = readCommand();
+        userInput = readCommand();
     }
     return userInput;
 }
@@ -471,7 +471,7 @@ multimap<int, Territory *> HumanPlayerStrategy::toAttack(const vector<Edge *> &e
 void HumanPlayerStrategy::issueOrder(const GameEngine &game) {
     auto map = game.mapLoader->map;
     auto edges = map->edges;
-    auto playerHand = player->hand->cards;
+    auto &playerHand = player->hand->cards;
     auto deck = game.deck;
     auto defendList = toDefend(edges);
     auto attackList = toAttack(edges);
@@ -525,6 +525,8 @@ void HumanPlayerStrategy::issueOrder(const GameEngine &game) {
             if (playerHand.empty()) continue; // player has no cards, return to main menu
 
             userInput = promptValidId(playerHand);
+            if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
+
             Cards::Card *card = playerHand[stoi(userInput)];
             string cardType = card->getType();
 

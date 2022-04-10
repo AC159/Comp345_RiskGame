@@ -335,7 +335,7 @@ void Player::displayCards() {
     }
     cout << name << "'s hand:" << endl;
     for (int i = 0; i < hand->cards.size(); i++) {
-        cout << "[" << i << "] " << hand->cards[i]->getType() << endl;
+        cout << " [" << i << "] " << hand->cards[i]->getType() << endl;
     }
 }
 
