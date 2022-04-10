@@ -329,6 +329,10 @@ void Player::removeTerritory(Territory &territory) {
 
 // display player's cards
 void Player::displayCards() {
+    if (hand->cards.empty()) {
+        cout << name << "'s hand is empty." << endl;
+        return;
+    }
     cout << name << "'s hand:" << endl;
     for (int i = 0; i < hand->cards.size(); i++) {
         cout << "[" << i << "] " << hand->cards[i]->getType() << endl;

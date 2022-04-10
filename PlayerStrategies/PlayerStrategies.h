@@ -9,6 +9,7 @@
 #include "../Cards/Cards.h"
 #include "../Player/Player.h"
 #include <experimental/random>
+using namespace Graph;
 
 void PlayerStrategiesDriver();
 
@@ -39,6 +40,7 @@ public:
     ~BenevolentPlayerStrategy() override;
 };
 
+// strategy allowing the player to make decisions through the console
 class HumanPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &edges) override;
@@ -49,12 +51,29 @@ public:
     friend std::ostream& operator<<(std::ostream &out, const HumanPlayerStrategy &h);
 
     explicit HumanPlayerStrategy(Players::Player *p);
-    HumanPlayerStrategy(const HumanPlayerStrategy &h);
+    [[maybe_unused]] HumanPlayerStrategy(const HumanPlayerStrategy &h);
     ~HumanPlayerStrategy() override;
 
 private:
-    static void printTerritories(const multimap<int, Graph::Territory *> &territories);
-    void printTerritoriesWithNeighbors(const vector<Graph::Edge *> &, const multimap<int, Graph::Territory *> &) const;
+    static void printTerritories(const multimap<int, Territory *> &territories);
+    void printTerritoriesWithNeighbors(const vector<Edge *> &, const multimap<int, Territory *> &) const;
+    void printPlayers(const vector<Players::Player *> &players);
+    [[nodiscard]] static string readCommand();
+    static int flagArgument(const string &command, const string &flag);
+    static bool validateDeployCommand(const string &command, const multimap<int, Territory *> &territories);
+    bool validateAdvanceCommand(const string &command, const multimap<int, Territory *> &t, const vector<Edge *> &e);
+    static bool validateAirliftCommand(string &command, const multimap<int, Territory *> &territories);
+    static bool validateIdCommand(const string &command, const multimap<int, Territory *> &territories);
+    static bool validateIdCommand(const string &command, size_t vectorSize);
+    static bool validateMenuCommand(const string &command);
+    static string promptValidDeploy(const multimap<int, Territory *> &territories);
+    string promptValidAdvance(const multimap<int, Territory *> &territories, const vector<Edge *> &edges);
+    static string promptValidAirlift(const multimap<int, Territory *> &territories);
+    static string promptValidId(const multimap<int, Territory *> &territories);
+    static string promptValidId(const vector<Players::Player *> &players);
+    static string promptValidId(const vector<Cards::Card *> &hand);
+    static string promptValidMenuCommand();
+    void issueAdvanceOrder(const string &command, const multimap<int, Territory *> &territories, Map *map);
 };
 
 #endif //COMP345RISKGAME_PLAYERSTRATEGIES_H
