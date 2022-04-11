@@ -365,6 +365,8 @@ void GameEngine::issueOrdersPhase() {
     issueOrdersStateChange();
 
     for (auto player: playersList) {
+        cout << "\n———→ " << player->getName() << "'s turn to issue orders using " << player->ps->strategyType
+             << " strategy\n";
         player->issueOrder(*this);
     }
 }

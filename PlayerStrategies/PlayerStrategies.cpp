@@ -760,8 +760,6 @@ void HumanPlayerStrategy::issueOrder(const GameEngine &game) {
     string userInput;
     bool firstIteration = true;
 
-    cout << "------ " << player->getName() << "'s turn to issue orders ------\n";
-
     // allow the user to issue only deploy orders until all reinforcements have been used
     while (armiesDeployed < player->reinforcementPool) {
         cout << "You have " << (player->reinforcementPool - armiesDeployed) << " left to deploy.\n";
