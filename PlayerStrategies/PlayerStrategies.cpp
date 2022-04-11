@@ -385,9 +385,9 @@ void AggressivePlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
 //                Graph::Territory *src = playerAdjacentTerritories.crbegin()->second;
 //                dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, playerAdjacentTerritories.crbegin()->second, src->numberOfArmies / 2);
 //            }
-        else if (type == "blockade") {
-                dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, playerAdjacentTerritories.crbegin()->second);
-            }
+//        else if (type == "blockade") {
+//                dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, playerAdjacentTerritories.crbegin()->second);
+//            }
         }
     }
 
