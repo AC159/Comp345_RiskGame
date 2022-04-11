@@ -8,10 +8,11 @@
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
 #include "../Cards/Cards.h"
+#include "../GameEngine/GameEngine.h"
 
-// forward declare PlayerStrategies class
+// forward declare needed classes
 class PlayerStrategies;
-
+class GameEngine;
 
 // Declare Players namespace for the Player class
 namespace Players {
@@ -53,7 +54,7 @@ public:
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) const;
 
     //creates an order object and adds it to the player's list of orders
-    void issueOrder(Cards::Deck *deck, Graph::Map *map) const;
+    void issueOrder(const GameEngine &game) const;
 
     // accessor method for name
     [[nodiscard]] std::string getName() const;

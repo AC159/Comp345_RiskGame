@@ -1,3 +1,4 @@
+#include <regex>
 #include "PlayerStrategies.h"
 #include <utility>
 
@@ -8,6 +9,8 @@ const std::string PlayerStrategies::HUMAN_TYPE = "human";
 const std::string PlayerStrategies::AGGRESSIVE_TYPE = "aggressive";
 const std::string PlayerStrategies::NEUTRAL_TYPE = "neutral";
 
+using namespace std;
+using namespace Graph;
 
 PlayerStrategies::PlayerStrategies(Players::Player *p, std::string strategyType) {
     this->player = p;
@@ -75,7 +78,9 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
-void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
+    auto map = game.mapLoader->map;
+    auto deck = game.deck;
 
     std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
     std::multimap<int, Graph::Territory *> toDefend = this->toDefend(map->edges);
@@ -96,6 +101,7 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
 
         this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
         armiesDeployed = armiesDeployed + armiesToDeploy;
+        cout << endl;
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
@@ -121,6 +127,7 @@ void BenevolentPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
             if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
 
             this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
+            cout << endl;
         }
     }
 
@@ -194,8 +201,9 @@ std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std
     return territories;
 }
 
-void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
-
+void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
+    auto map = game.mapLoader->map;
+    auto deck = game.deck;
     std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
     std::multimap<int, Graph::Territory *> toDefend = this->toDefend(map->edges);
 
@@ -213,6 +221,7 @@ void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
 
         this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
         armiesDeployed = armiesDeployed + armiesToDeploy;
+        cout << endl;
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
@@ -241,6 +250,7 @@ void CheaterPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
             if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
 
             this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
+            cout << endl;
         }
     }
 
@@ -391,9 +401,6 @@ void AggressivePlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
         }
     }
 
-
-}
-
 //computer player that never issues any order. If a Neutral player is attacked, it becomes an
 //Aggressive player.
 // ================== Neutral Player Strategy Implementation ==================
@@ -429,4 +436,424 @@ void NeutralPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
     this->player->toDefend(map->edges);
     this->player->toAttack(map->edges);
     std::cout<<this->player->getName()<<" is not issuing orders because this player is neutral"<<std::endl;
+}
+  
+//  ========================== Human Player Strategy class  ==========================
+HumanPlayerStrategy::HumanPlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::HUMAN_TYPE) {}
+
+// creates shallow copy (avoids cyclic dependency issues)
+[[maybe_unused]] HumanPlayerStrategy::HumanPlayerStrategy(const HumanPlayerStrategy &h)
+        : PlayerStrategies(h.player, PlayerStrategies::HUMAN_TYPE) {}
+
+// dynamically allocated players should be deleted elsewhere
+HumanPlayerStrategy::~HumanPlayerStrategy() = default;
+
+// creates shallow copy via assignment operator (avoids cyclic dependency issues)
+HumanPlayerStrategy &HumanPlayerStrategy::operator=(const HumanPlayerStrategy &h) {
+    this->player = h.player;
+    return *this;
+}
+
+// outputs the player's name and strategy via the stream insertion operator
+std::ostream &operator<<(std::ostream &out, const HumanPlayerStrategy &h) {
+    return out << "Player " << h.player->getName() << " is playing the human player strategy" << endl;
+}
+
+/**
+ * Displays all territories from the given container along with their id
+ * @param territories either toAttack or toDefend lists
+ */
+void HumanPlayerStrategy::printTerritories(const multimap<int, Territory *> &territories) {
+    for (const auto &pair: territories) {
+        cout << " [" << pair.first << "] " << pair.second->name << " — owned by " << pair.second->owner->getName()
+             << " and has " << pair.second->numberOfArmies << " armies\n";
+    }
+}
+
+/**
+ * Displays all territories in the container, and each of their neighbors that are owned by this object's player
+ * @param edges the gameplay map's edges
+ * @param territories either toAttack or toDefend lists
+ */
+void HumanPlayerStrategy::printTerritoriesWithNeighbors(const vector<Edge *> &edges,
+                                                        const multimap<int, Territory *> &territories) const {
+    for (const auto &pair: territories) {
+        cout << " [" << pair.first << "] " << pair.second->name << " — owned by " << pair.second->owner->getName()
+             << " and has " << pair.second->numberOfArmies << " armies\n\tAvailable sources for this territory:\n";
+        for (const auto &neighbor: pair.second->adjacentTerritoriesOwnedBy(*player, edges)) {
+            cout << "\t[" << neighbor->countryNumber << "] " << neighbor->name << " — owned by "
+                 << neighbor->owner->getName() << " and has " << neighbor->numberOfArmies << " armies\n";
+        }
+    }
+}
+
+// displays all players (with indices) in the list except this object's player
+void HumanPlayerStrategy::printPlayers(const vector<Players::Player *> &players) {
+    for (int i = 0; i < players.size(); i++) {
+        if (&player[i] != player) {
+            cout << " [" << i << "] " << players[i]->getName() << endl;
+        }
+    }
+}
+
+// prompts, reads and returns user input
+string HumanPlayerStrategy::readCommand() {
+    string readCommandInput;
+    cout << "Input command > ";
+    getline(cin, readCommandInput);
+    return readCommandInput;
+}
+
+/**
+ * @param command a user command in the valid format
+ * @param flag flag whose arguments to capture (should be "-t", "-a", or "-s")
+ * @return the number id that was entered in the command after the flag
+ */
+int HumanPlayerStrategy::flagArgument(const string &command, const string &flag) {
+    regex delimiter; // delimiter is set to ignore all text in between flag's argument
+    if (flag == "-t") {
+        delimiter.assign(R"(\s*((-s|-a)\s*[0-9]+\s*)*-t\s*)");
+    } else if (flag == "-s") {
+        delimiter.assign(R"(\s*((-t|-a)\s*[0-9]+\s*)*-s\s*)");
+    } else if (flag == "-a") {
+        delimiter.assign(R"(\s*((-s|-t)\s*[0-9]+\s*)*-a\s*)");
+    }
+    sregex_token_iterator it{command.begin(), command.end(), delimiter, -1}; //iterator to first element of split string
+    return stoi(*++it); //first element is empty, so it's skipped
+}
+
+/**
+ * Checks validity of deployment command & prints message if invalid
+ * @param command input given by the user during deployment phase
+ * @param territories toDefend list, to verify if target id is contained
+ * @return true if the command is valid in terms of format and target id
+ */
+bool HumanPlayerStrategy::validateDeployCommand(const string &command, const multimap<int, Territory *> &territories) {
+    if (!regex_match(command, regex(R"((?=.*t.*)(?=.*a.*)(\s*-[t|a]\s*[0-9]+){2}\s*)"))) { // flags can be in any order
+        cout << "Invalid format. Try again.\n";
+        return false;
+    }
+    if (!territories.contains(flagArgument(command, "-t"))) {
+        cout << "Invalid target id. Try again.\n";
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks validity of advance command & prints message if invalid
+ * @param command input given by the user during attack or defend phase
+ * @param territories toDefend or toAttack list, to verify if target id is contained
+ * @param edges the gameplay map's edges, to verify source id
+ * @return true if the command is valid in terms of format and target & source ids
+ */
+bool HumanPlayerStrategy::validateAdvanceCommand(const string &command, const multimap<int, Territory *> &territories,
+                                                 const vector<Edge *> &edges) {
+    if (command == "issueorder" || command == "issueorders end") {
+        return true;
+    } else if (!regex_match(command, regex(R"((?=.*t.*)(?=.*s.*)(?=.*a.*)(\s*-[t|a|s]\s*[0-9]+){3}\s*)"))) {
+        cout << "Invalid format. Try again.\n";
+        return false;
+    }
+    auto targetIt = territories.find(flagArgument(command, "-t"));
+    if (targetIt == territories.end()) {
+        cout << "Invalid target id. Try again.\n";
+        return false;
+    }
+    auto targetNeighbors = targetIt->second->adjacentTerritoriesOwnedBy(*player, edges);
+    auto sourceCountryNum = flagArgument(command, "-s");
+    auto sourceIt = find_if(targetNeighbors.begin(), targetNeighbors.end(),
+                            [sourceCountryNum](Territory *t) { return sourceCountryNum == t->countryNumber; });
+    if (sourceIt == targetNeighbors.end()) {
+        cout << "Invalid source id. Try again.\n";
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks validity of airlift command & prints message if invalid
+ * @param command input given by the user while playing airlift card
+ * @param territories toDefend list, to verify if target & source ids are contained
+ * @return true if the command is valid in terms of format and target & source ids
+ */
+bool HumanPlayerStrategy::validateAirliftCommand(string &command, const multimap<int, Territory *> &territories) {
+    if (command == "issueorder" || command == "issueorders end") {
+        return true;
+    } else if (!regex_match(command, regex(R"((?=.*t.*)(?=.*s.*)(?=.*a.*)(\s*-[t|a|s]\s*[0-9]+){3}\s*)"))) {
+        cout << "Invalid format. Try again.\n";
+        return false;
+    } else if (!territories.contains(flagArgument(command, "-t"))) {
+        cout << "Invalid target id. Try again.\n";
+        return false;
+    } else if (!territories.contains(flagArgument(command, "-s"))) {
+        cout << "Invalid source id. Try again.\n";
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks validity of bomb, blockade, and reinforcement commands & prints message if invalid
+ * @param command input given by the user while playing bomb, blockade, or reinforcement card
+ * @param territories toDefend or toAttack list, to verify if target id is contained
+ * @return true if the command is valid in terms of format and target id
+ */
+bool HumanPlayerStrategy::validateIdCommand(const string &command, const multimap<int, Territory *> &territories) {
+    if (!command.empty() && std::all_of(command.begin(), command.end(), ::isdigit) &&
+        territories.contains(stoi(command)) || command == "issueorder" || command == "issueorders end") {
+        return true;
+    }
+    cout << "Invalid id. Try again.\n";
+    return false;
+}
+
+/**
+ * Checks validity of diplomacy and card choosing commands & prints message if invalid
+ * @param command input given by the user while playing diplomacy card or choosing card
+ * @param vectorSize the size of the players list or cards list
+ * @return true if the command is valid in terms of format and chosen index
+ */
+bool HumanPlayerStrategy::validateIdCommand(const string &command, size_t vectorSize) {
+    if (!command.empty() && std::all_of(command.begin(), command.end(), ::isdigit) && stoi(command) < vectorSize ||
+        command == "issueorder" || command == "issueorders end") {
+        return true;
+    }
+    cout << "Invalid id. Try again.\n";
+    return false;
+}
+
+// checks validity of main menu commands & prints message if invalid
+bool HumanPlayerStrategy::validateMenuCommand(const string &command) {
+    if (command == "attack" || command == "defend" || command == "card" || command == "issueorders end") {
+        return true;
+    }
+    cout << "Invalid command. Try again.\n";
+    return false;
+}
+
+// prompts the user for input until they enter a valid command during deployment phase; returns the valid command
+string HumanPlayerStrategy::promptValidDeploy(const multimap<int, Territory *> &territories) {
+    cout << "Enter flags '-t <targetid>' and '-a <numberofarmies>' to issue a deploy order.\n";
+    string userInput = readCommand();
+    while (!validateDeployCommand(userInput, territories)) {
+        userInput = readCommand();
+    }
+    return userInput;
+}
+
+// prompts the user for input until they enter a valid command during attack/defend state; returns the valid command
+string HumanPlayerStrategy::promptValidAdvance(const multimap<int, Territory *> &territories,
+                                               const vector<Edge *> &edges) {
+    cout << "Enter flags '-t <targetid>', '-s <sourceid>' and '-a <numberofarmies>' to issue an advance order. "
+            "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
+    string userInput = readCommand();
+    while (!validateAdvanceCommand(userInput, territories, edges)) {
+        userInput = readCommand();
+    }
+    return userInput;
+}
+
+// prompts the user for input until they enter a valid command during airlift state; returns the valid command
+string HumanPlayerStrategy::promptValidAirlift(const multimap<int, Territory *> &territories) {
+    cout << "Enter flags '-t <targetid>', '-s <sourceid>' and '-a <numberofarmies>' to play your Airlift card. "
+            "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
+    string userInput = readCommand();
+    while (!validateAirliftCommand(userInput, territories)) {
+        userInput = readCommand();
+    }
+    return userInput;
+}
+
+// prompts the user for input until they enter a valid command during bomb/blockade/reinforcement state
+string HumanPlayerStrategy::promptValidId(const multimap<int, Territory *> &territories) {
+    cout << "Enter '<territoryid>' to play your card. "
+            "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
+    string userInput = readCommand();
+    while (!validateIdCommand(userInput, territories)) {
+        userInput = readCommand();
+    }
+    return userInput;
+}
+
+// prompts the user for input until they enter a valid command during diplomacy state; returns the valid command
+string HumanPlayerStrategy::promptValidId(const vector<Players::Player *> &players) {
+    cout << "Enter '<playerid>' to play your card. "
+            "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
+    string userInput = readCommand();
+    while (!validateIdCommand(userInput, players.size())) {
+        userInput = readCommand();
+    }
+    return userInput;
+}
+
+// prompts the user for input until they enter a valid command when choosing card; returns the valid command
+string HumanPlayerStrategy::promptValidId(const vector<Cards::Card *> &hand) {
+    cout << "Enter '<cardid>' to select a card "
+            "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
+    string userInput = readCommand();
+    while (!validateIdCommand(userInput, hand.size())) {
+        userInput = readCommand();
+    }
+    return userInput;
+}
+
+// prompts the user for input until they enter a valid command in the main menu; returns the valid command
+string HumanPlayerStrategy::promptValidMenuCommand() {
+    cout << "Enter one of the following commands:\n"
+            "\t'attack' to issue an advance order to attack\n"
+            "\t'defend' to issue an advance order to defend\n"
+            "\t'card' to play a card\n"
+            "\t'issueorders end' to finish issuing orders\n";
+    string userInput = readCommand();
+    while (!validateMenuCommand(userInput)) {
+        userInput = readCommand();
+    }
+    return userInput;
+}
+
+// issues a single advance order using a valid command
+void HumanPlayerStrategy::issueAdvanceOrder(const string &command, const multimap<int, Territory *> &territories,
+                                            Map *map) {
+    int srcId = flagArgument(command, "-s"), tgtId = flagArgument(command, "-t"), armyNum = flagArgument(command, "-a");
+    auto target = territories.find(tgtId)->second;
+    auto neighborsOfTgt = target->adjacentTerritoriesOwnedBy(*player, map->edges);
+    auto source = *find_if(neighborsOfTgt.begin(), neighborsOfTgt.end(),
+                           [srcId](Territory *t) { return srcId == t->countryNumber; });
+    player->orders->add(new Orders::Advance(player, map, source, target, armyNum));
+    cout << endl;
+}
+
+/**
+ * @param edges list of Edge objects present in the map
+ * @return list of territories owned by player (keys correspond to the country number)
+ */
+multimap<int, Territory *> HumanPlayerStrategy::toDefend(const vector<Edge *> &edges) {
+    multimap<int, Territory *> territoriesToDefend;
+    for (const auto &pair: player->territories) {
+        territoriesToDefend.insert(pair);
+    }
+    return territoriesToDefend;
+}
+
+/**
+ * @param edges list of Edge objects present in the map
+ * @return list of enemy territories adjacent to player's territories (keys correspond to the country number)
+ */
+multimap<int, Territory *> HumanPlayerStrategy::toAttack(const vector<Edge *> &edges) {
+    multimap<int, Territory *> territoriesToAttack;
+    for (const auto &pair: player->territories) {
+        for (const auto adjacentEnemy: pair.second->adjacentEnemyTerritories(edges)) {
+            if (!territoriesToAttack.contains(adjacentEnemy->countryNumber)) {
+                territoriesToAttack.insert(std::pair<int, Territory *>(adjacentEnemy->countryNumber, adjacentEnemy));
+            }
+        }
+    }
+    return territoriesToAttack;
+}
+
+/**
+ * Issues orders by allowing player to make decisions based on their toAttack and toDefend lists
+ * @param game the engine running the current game
+ */
+void HumanPlayerStrategy::issueOrder(const GameEngine &game) {
+    auto map = game.mapLoader->map;
+    auto edges = map->edges;
+    auto &playerHand = player->hand->cards;
+    auto deck = game.deck;
+    auto defendList = toDefend(edges);
+    auto attackList = toAttack(edges);
+    int armiesDeployed = 0;
+    string userInput;
+    bool firstIteration = true;
+
+    cout << "------ " << player->getName() << "'s turn to issue orders ------\n";
+
+    // allow the user to issue only deploy orders until all reinforcements have been used
+    while (armiesDeployed < player->reinforcementPool) {
+        cout << "You have " << (player->reinforcementPool - armiesDeployed) << " left to deploy.\n";
+
+        // print territory options just once to avoid flooding the console
+        if (firstIteration) {
+            cout << "Territories you can deploy to:\n";
+            printTerritories(defendList);
+            firstIteration = false;
+        }
+
+        userInput = promptValidDeploy(defendList);
+        int countryNum = flagArgument(userInput, "-t"), armyNum = flagArgument(userInput, "-a"); // parse input
+        player->orders->add(new Orders::Deploy(player, defendList.find(countryNum)->second, armyNum));
+        cout << endl;
+        armiesDeployed += armyNum;
+    }
+
+    // allow user to issue advance and card orders until they signify that they are finished
+    while (userInput != "issueorders end") {
+        userInput = promptValidMenuCommand();
+        if (userInput == "attack") { // advance using toDefend list
+            cout << "Territories you can attack:\n";
+            printTerritoriesWithNeighbors(edges, attackList);
+
+            userInput = promptValidAdvance(attackList, edges);
+            while (userInput != "issueorder" && userInput != "issueorders end") {
+                issueAdvanceOrder(userInput, attackList, map);
+                userInput = promptValidAdvance(attackList, edges);
+            }
+        } else if (userInput == "defend") { // advance using toAttack list
+            cout << "Territories you can defend:\n";
+            printTerritoriesWithNeighbors(edges, defendList);
+
+            userInput = promptValidAdvance(defendList, edges);
+            while (userInput != "issueorder" && userInput != "issueorders end") {
+                issueAdvanceOrder(userInput, defendList, map);
+                userInput = promptValidAdvance(defendList, edges);
+            }
+        } else if (userInput == "card") { // choose card from hand
+            player->displayCards();
+            if (playerHand.empty()) continue; // player has no cards, return to main menu
+
+            userInput = promptValidId(playerHand);
+            if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
+
+            Cards::Card *card = playerHand[stoi(userInput)];
+            string cardType = card->getType();
+
+            if (cardType == "reinforcement") {
+                cout << "Territories you can reinforce:\n";
+                printTerritories(defendList);
+                userInput = promptValidId(defendList);
+                if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
+                dynamic_cast<Cards::Reinforcement *>(card)->play(player, deck,
+                                                                 defendList.find(stoi(userInput))->second);
+            } else if (cardType == "bomb") {
+                cout << "Territories you can bomb:\n";
+                printTerritories(attackList);
+                userInput = promptValidId(attackList);
+                if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
+                dynamic_cast<Cards::Bomb *>(card)->play(player, deck, attackList.find(stoi(userInput))->second, map);
+            } else if (cardType == "airlift") {
+                cout << "Territories you can airlift to and from:\n";
+                printTerritories(defendList);
+
+                userInput = promptValidAirlift(defendList);
+                if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
+                dynamic_cast<Cards::Airlift *>(card)->play(player, deck,
+                                                           defendList.find(flagArgument(userInput, "-s"))->second,
+                                                           defendList.find(flagArgument(userInput, "-t"))->second,
+                                                           flagArgument(userInput, "-a"));
+            } else if (cardType == "blockade") {
+                cout << "Territories you can blockade:\n";
+                printTerritories(defendList);
+                userInput = promptValidId(defendList);
+                if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
+                dynamic_cast<Cards::Blockade *>(card)->play(player, deck, defendList.find(stoi(userInput))->second);
+            } else if (cardType == "diplomacy") {
+                cout << "Players you can negotiate with:\n";
+                printPlayers(game.playersList);
+                userInput = promptValidId(game.playersList);
+                if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
+                dynamic_cast<Cards::Diplomacy *>(card)->play(player, game.playersList[stoi(userInput)], deck);
+            }
+        }
+    }
 }

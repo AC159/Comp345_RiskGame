@@ -2,6 +2,7 @@
 #include <list>
 #include <map>
 #include <utility>
+#include <numeric>
 #include "Player.h"
 #include "../PlayerStrategies/PlayerStrategies.h"
 
@@ -120,8 +121,8 @@ multimap<int, Territory *> Player::toAttack(const vector<Edge *> &edges) const {
 }
 
 // creates all orders for the player's turn and places them in the player's list of orders
-void Player::issueOrder(Cards::Deck *deck, Graph::Map *map) const {
-    return this->ps->issueOrder(deck, map);
+void Player::issueOrder(const GameEngine &game) const {
+    return this->ps->issueOrder(game);
 }
 
 // accessor method for name
@@ -160,9 +161,13 @@ void Player::removeTerritory(Territory &territory) {
 
 // display player's cards
 void Player::displayCards() {
+    if (hand->cards.empty()) {
+        cout << name << "'s hand is empty." << endl;
+        return;
+    }
     cout << name << "'s hand:" << endl;
-    for (vector<Cards::Card *>::const_iterator it = hand->cards.begin(); it != hand->cards.end(); it++) {
-        cout << "\t" << (*it)->getType() << endl;
+    for (int i = 0; i < hand->cards.size(); i++) {
+        cout << " [" << i << "] " << hand->cards[i]->getType() << endl;
     }
 }
 

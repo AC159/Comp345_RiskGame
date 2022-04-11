@@ -268,7 +268,7 @@ void GameEngine::addPlayer() {
             else if (choice == "2") ps = new CheaterPlayerStrategy(p);
             else if (choice == "3") ps = new NeutralPlayerStrategy(p);
             else if (choice == "4") ps = new AggressivePlayerStrategy(p);
-            //else if (choice == "5") ps = new HumanPlayerStrategy(p);
+            else if (choice == "5") ps = new HumanPlayerStrategy(p);
 
             p->ps = ps; // assign player strategy to player
             this->playersList.push_back((p));
@@ -365,7 +365,7 @@ void GameEngine::issueOrdersPhase() {
     issueOrdersStateChange();
 
     for (auto player: playersList) {
-        player->issueOrder(deck, mapLoader->map);
+        player->issueOrder(*this);
     }
 }
 
@@ -379,7 +379,6 @@ void GameEngine::executeOrdersStateChange() {
  * returns true if a player won during the turn*/
 bool GameEngine::executeOrdersPhase() {
     executeOrdersStateChange();
-
 
     int skipStrike = 0; //the number of non-deploy orders skipped in a row
     int numOfPlayers = static_cast<int>(playersList.size());
