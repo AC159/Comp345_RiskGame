@@ -233,10 +233,8 @@ void Advance::execute() {
             //if the target is a neutral strategy player and is attacked, the target switches strategy and
             //becomes an aggressive player
            if(target->owner->ps->strategyType == "neutral"){
-            //PlayerStrategies *ps;
-            cout<<"KAMEHAMEHAAAAAAAA"<<endl;
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
-            cout<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player arrggghh"<<endl;
+            cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
            }
 
             if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { // failed to conquer
@@ -263,11 +261,9 @@ void Advance::execute() {
         //if the target is a neutral strategy player and is attacked, the target switches strategy and
         //becomes an aggressive player
         if(target->owner->ps->strategyType == "neutral"){
-            //PlayerStrategies *ps;
-            cout<<"KAMEHAMEHAAAAAAAA"<<endl;
             cout<< target->owner->getName()<<" was attacked by "<<source->owner->getName()<<" on territory: "<<target->name <<endl;
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
-            cout<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player arrggghh"<<endl;
+            cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
         }
 
         // The current player is a cheater and will therefore automatically conquer the adjacent enemy territory
@@ -395,9 +391,9 @@ void Bomb::execute() {
     }
     // bomb is considered an attack, if target is a neutral strategy player, then switch to aggressive strategy player
     if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
-        cout<<"I JUST GOT BOMBED"<<endl;
+        cout<<target->owner->getName()<<" JUST GOT BOMBED"<<endl;
         target->owner->ps = new AggressivePlayerStrategy(target->owner);
-        cout<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player arrggghh"<<endl;
+        cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
     }
     orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
     cout << orderEffect << endl;

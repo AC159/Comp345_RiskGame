@@ -253,7 +253,6 @@ void GameEngine::addPlayer() {
                 cout << "2. Cheater player" << endl;
                 cout << "3. Neutral player" << endl;
                 cout << "4. Aggressive player" << endl;
-                //TODO: impplement human player
                 cout << "5. Human player" << endl;
 
                 cout << "Enter choice: ";
@@ -352,8 +351,6 @@ void GameEngine::reinforcementPhase() {
         if (minimumBonus > 0) {
             cout << "\t• " << minimumBonus << " bonus armies to meet the minimum of 3 armies per turn\n";
         }
-        if(player->ps->strategyType =="neutral")
-        osize = player->territories.size();
     }
 }
 
