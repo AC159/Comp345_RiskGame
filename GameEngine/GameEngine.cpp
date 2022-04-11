@@ -351,8 +351,6 @@ void GameEngine::reinforcementPhase() {
         if (minimumBonus > 0) {
             cout << "\t• " << minimumBonus << " bonus armies to meet the minimum of 3 armies per turn\n";
         }
-        if(player->ps->strategyType =="neutral")
-        osize = player->territories.size();
     }
 }
 

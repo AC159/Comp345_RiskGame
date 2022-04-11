@@ -294,6 +294,7 @@ std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater
     out << "Player " << cheater.player->getName() << " is playing the cheater player strategy" << std::endl;
     return out;
 }
+
 //computer player that focuses on attack (deploys or advances armies on its strongest
 //country, then always advances to enemy territories until it cannot do so anymore).
 // ================== Aggressive Player Strategy Implementation ==================
@@ -315,20 +316,90 @@ std::ostream &operator<<(std::ostream &out, const AggressivePlayerStrategy &aggr
     return out;
 }
 
+//returns territories owned by player
 std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges) {
     std::multimap<int,Graph::Territory *> territoriesToDefend;
+    for(auto pair : this->player->territories){
+        territoriesToDefend.insert(std::pair <int,Graph::Territory *> (pair.second->numberOfArmies,pair.second));
+        std::cout << "to defend:(" << pair.second->numberOfArmies<< ", " << pair.second->name<<" owner: "<< pair.second->owner->getName()<< ")" << std::endl;
+    }
     return territoriesToDefend;
 }
-std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
+//returns adjacent enemy territories
+std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const std::vector<Graph::Edge *> &mapEdges) {
+    // a list of territories to attack in ascending order of number of armies
     std::multimap<int, Graph::Territory *> territoriesToAttack;
+    std::vector<Graph::Territory *> enemyTerritories;// adjacent enemy territories
+    for(auto pair: this->player->territories){
+        enemyTerritories = pair.second->adjacentEnemyTerritories(mapEdges);
+        for(auto *t : enemyTerritories){
+            territoriesToAttack.insert(std::pair<int,Graph::Territory *> (t->numberOfArmies,t));
+        }
+    }
+    std::multimap<int,Graph::Territory *>::iterator it;
+    for(it = territoriesToAttack.begin(); it != territoriesToAttack.end(); ++it) {
+        std::cout << "to attack:(" << it->second->numberOfArmies<< ", " << it->second->name<< ")"<<" owner: "<< it->second->owner->getName()<< ")"  << std::endl;
+    }
     return territoriesToAttack;
 }
-void AggressivePlayerStrategy::issueOrder(const GameEngine &game) {
-    auto map = game.mapLoader->map;
-    auto deck = game.deck;
-    std::cout<<this->player->getName()<<" is aggressive arrgghhh, prepare to die"<<std::endl;
 
-}
+void AggressivePlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
+    std::cout<<"a wild "<<this->player->getName()<<" appeared, prepare to die"<<std::endl;
+
+    std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
+    std::multimap<int, Graph::Territory *> toDefend = this->toDefend(map->edges);
+
+    auto weakestEnemy = toAttack.begin(); //attack the enemy territory with the least armies
+    auto strongestTerritory = toDefend.crbegin(); //territory with the most armies
+
+    // find adjacent territory to the weakest enemy to deploy armies to and attack
+    std::multimap<int, Graph::Territory *> playerAdjacentTerritories;
+    int armiesToAdvance=0;
+    for(auto *p: weakestEnemy->second->adjacentEnemyTerritories(map->edges)){
+       if(p ->owner ==this->player)
+           playerAdjacentTerritories.insert(std::pair<int,Graph::Territory *>(p->numberOfArmies,p));
+    }
+   std::cout<<"territory to attack: "<<playerAdjacentTerritories.crbegin()->second->name;
+   if(!playerAdjacentTerritories.empty()){//players has adjacent territory
+       int armiesToDeploy = this->player->reinforcementPool;
+       this->player->orders->add(new Orders::Deploy(this->player,playerAdjacentTerritories.crbegin()->second,armiesToDeploy));
+       int armiesToAdvance = armiesToDeploy + strongestTerritory->second->numberOfArmies;
+       this->player->orders->add(new Orders::Advance(this->player,map,playerAdjacentTerritories.crbegin()->second,weakestEnemy->second, armiesToAdvance));
+   }
+
+     //create an order from a card
+    if (!this->player->hand->cards.empty()) {
+        //prioritize the bomb card
+        int cardSize = (int) this->player->hand->cards.size();
+        bool noBombCard = true;
+        for(int i=0;i<cardSize;i++){
+            if(this->player->hand->cards[i]->getType() == "bomb"){
+                Cards::Card *card = this->player->hand->cards.at(i);
+                dynamic_cast<Cards::Bomb *>(card)->play(this->player, deck, toAttack.begin()->second, map);
+                noBombCard = false;
+                break;
+            }
+        }
+        if (noBombCard) {
+            //will not play diplomacy card because the player's goal is to attack enemy territories
+            //will not play airlift because the attacking territory always has the most armies
+            int randomIndex = std::experimental::randint(0, (int) this->player->hand->cards.size() - 1);
+            Cards::Card *card = this->player->hand->cards.at(randomIndex);
+            std::string type = card->getType();
+            // Play the card based on its type
+            if (type == "reinforcement") {
+                // play the reinforcement card on the first territory of the territory used to attack
+                dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, playerAdjacentTerritories.crbegin()->second);
+            }
+//            else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
+//                Graph::Territory *src = playerAdjacentTerritories.crbegin()->second;
+//                dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, playerAdjacentTerritories.crbegin()->second, src->numberOfArmies / 2);
+//            }
+//        else if (type == "blockade") {
+//                dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, playerAdjacentTerritories.crbegin()->second);
+//            }
+        }
+    }
 
 //computer player that never issues any order. If a Neutral player is attacked, it becomes an
 //Aggressive player.
@@ -360,12 +431,13 @@ std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toAttack(const std
     //returns an empty map because a neutral player doesnt issue orders
     return territoriesToAttack;
 }
-void NeutralPlayerStrategy::issueOrder(const GameEngine &game) {
-    auto map = game.mapLoader->map;
-    auto deck = game.deck;
+void NeutralPlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
     // don't issue orders, play cards
-    std::cout<<"\n"<<this->player->getName()<<" is not issuing orders because this player is neutral"<<std::endl;
+    this->player->toDefend(map->edges);
+    this->player->toAttack(map->edges);
+    std::cout<<this->player->getName()<<" is not issuing orders because this player is neutral"<<std::endl;
 }
+  
 //  ========================== Human Player Strategy class  ==========================
 HumanPlayerStrategy::HumanPlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::HUMAN_TYPE) {}
 
