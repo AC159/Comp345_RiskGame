@@ -395,6 +395,7 @@ void AggressivePlayerStrategy::issueOrder(const GameEngine &game) {
             }
         }
     }
+}
 
 //computer player that never issues any order. If a Neutral player is attacked, it becomes an
 //Aggressive player.
