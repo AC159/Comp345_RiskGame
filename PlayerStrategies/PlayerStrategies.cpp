@@ -391,13 +391,6 @@ void AggressivePlayerStrategy::issueOrder(Cards::Deck *deck, Graph::Map *map) {
                 // play the reinforcement card on the first territory of the territory used to attack
                 dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, playerAdjacentTerritories.crbegin()->second);
             }
-//            else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
-//                Graph::Territory *src = playerAdjacentTerritories.crbegin()->second;
-//                dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, playerAdjacentTerritories.crbegin()->second, src->numberOfArmies / 2);
-//            }
-//        else if (type == "blockade") {
-//                dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, playerAdjacentTerritories.crbegin()->second);
-//            }
         }
     }
 
