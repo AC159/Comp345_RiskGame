@@ -101,7 +101,6 @@ void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
 
         this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
         armiesDeployed = armiesDeployed + armiesToDeploy;
-        cout << endl;
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
@@ -127,7 +126,6 @@ void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
             if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
 
             this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
-            cout << endl;
         }
     }
 
@@ -221,7 +219,6 @@ void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
 
         this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
         armiesDeployed = armiesDeployed + armiesToDeploy;
-        cout << endl;
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
@@ -250,7 +247,6 @@ void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
             if (friendlyTerritories.at(index)->numberOfArmies <= 2) continue; // do not take armies from territories that have 2 or fewer armies
 
             this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
-            cout << endl;
         }
     }
 
@@ -719,7 +715,6 @@ void HumanPlayerStrategy::issueAdvanceOrder(const string &command, const multima
     auto source = *find_if(neighborsOfTgt.begin(), neighborsOfTgt.end(),
                            [srcId](Territory *t) { return srcId == t->countryNumber; });
     player->orders->add(new Orders::Advance(player, map, source, target, armyNum));
-    cout << endl;
 }
 
 /**
@@ -781,7 +776,6 @@ void HumanPlayerStrategy::issueOrder(const GameEngine &game) {
         userInput = promptValidDeploy(defendList);
         int countryNum = flagArgument(userInput, "-t"), armyNum = flagArgument(userInput, "-a"); // parse input
         player->orders->add(new Orders::Deploy(player, defendList.find(countryNum)->second, armyNum));
-        cout << endl;
         armiesDeployed += armyNum;
     }
 

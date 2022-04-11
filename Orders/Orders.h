@@ -56,11 +56,13 @@ protected:
  * by the player issuing this order.*/
 class Orders::Deploy : public Order {
 public:
-    Graph::Territory *target;   //the territory where armies will be deployed
-    int armies;                 //the number of armies to deploy
+    Graph::Territory *target;       //the territory where armies will be deployed
+    int armies;                     //the number of armies to deploy
+    const bool isReinforcementCard; //true if this order was issued using a reinforcement card
 
     Deploy();
     Deploy(Players::Player *issuer, Graph::Territory *target, int armies);
+    Deploy(Players::Player *issuer, Graph::Territory *target, int armies, bool reinforcement);
     Deploy(const Deploy &deploy);
     ~Deploy() override;
 

@@ -46,7 +46,7 @@ bool Order::hasNegotiation(Players::Player *player1, Players::Player *player2) {
 }
 
 // ====================== Deploy class ======================
-Deploy::Deploy() : Order(nullptr, "deploy"), target(nullptr), armies(0) {
+Deploy::Deploy() : Order(nullptr, "deploy"), target(nullptr), armies(0), isReinforcementCard(false) {
     cout << "Created a Deploy order." << endl;
 }
 
@@ -55,11 +55,21 @@ Deploy::Deploy() : Order(nullptr, "deploy"), target(nullptr), armies(0) {
  * @param target the territory where armies will be deployed (must belong to issuer for validity)
  * @param armies the number of armies to deploy (must be available in the issuer's reinforcement pool for validity)
  */
-Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies) : Order(issuer, "deploy"), target(target),
-                                                                                armies(armies) {}
+Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies)
+        : Order(issuer, "deploy"), target(target), armies(armies), isReinforcementCard(false) {}
+
+/** constructor to be used by reinforcement card
+ * @param issuer the player whose turn it is
+ * @param target the territory where armies will be deployed (must belong to issuer for validity)
+ * @param armies the number of armies to deploy (must be available in the issuer's reinforcement pool for validity)
+ * @param isReinforcementCard true if a reinforcement card was played to create this order
+ */
+Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies, bool isReinforcementCard)
+        : Order(issuer, "deploy"), target(target), armies(armies), isReinforcementCard(isReinforcementCard) {}
+
 
 // copy constructor creates shallow copy due to circular dependency
-Deploy::Deploy(const Deploy &deploy) : Order(deploy) {
+Deploy::Deploy(const Deploy &deploy) : Order(deploy), isReinforcementCard(deploy.isReinforcementCard) {
     this->target = deploy.target;
     this->armies = deploy.armies;
 }
@@ -807,7 +817,13 @@ void OrdersList::remove(int index) {
 // adds an element to the back of the list
 void OrdersList::add(Order *const newOrder) {
     if (newOrder != nullptr && newOrder->issuer != nullptr) {
-        cout << newOrder->issuer->getName() << " issued: " << *newOrder <<endl;
+        cout << newOrder->issuer->getName() << " issued: " << *newOrder;
+
+        // only add line break if order is not played by issuing a card (for cards, line is completed in play methods)
+        if (newOrder->type == "advance" ||
+            newOrder->type == "deploy" && !dynamic_cast<Deploy *>(newOrder)->isReinforcementCard) {
+            cout << endl;
+        }
     }
     orders.push_back(newOrder);
     notify(*this);

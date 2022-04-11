@@ -180,7 +180,7 @@ void Reinforcement::play(Players::Player *player, Deck *deck, Graph::Territory *
 
 
     player->reinforcementPool = player->reinforcementPool + 5;
-    player->orders->add(new Orders::Deploy(player, target, 5));
+    player->orders->add(new Orders::Deploy(player, target, 5, true));
     std::cout << " (issued by playing a reinforcement card)\n";
 
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
