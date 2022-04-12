@@ -46,7 +46,7 @@ bool Order::hasNegotiation(Players::Player *player1, Players::Player *player2) {
 }
 
 // ====================== Deploy class ======================
-Deploy::Deploy() : Order(nullptr, "deploy"), target(nullptr), armies(0) {
+Deploy::Deploy() : Order(nullptr, "deploy"), target(nullptr), armies(0), isReinforcementCard(false) {
     cout << "Created a Deploy order." << endl;
 }
 
@@ -55,11 +55,21 @@ Deploy::Deploy() : Order(nullptr, "deploy"), target(nullptr), armies(0) {
  * @param target the territory where armies will be deployed (must belong to issuer for validity)
  * @param armies the number of armies to deploy (must be available in the issuer's reinforcement pool for validity)
  */
-Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies) : Order(issuer, "deploy"), target(target),
-                                                                                armies(armies) {}
+Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies)
+        : Order(issuer, "deploy"), target(target), armies(armies), isReinforcementCard(false) {}
+
+/** constructor to be used by reinforcement card
+ * @param issuer the player whose turn it is
+ * @param target the territory where armies will be deployed (must belong to issuer for validity)
+ * @param armies the number of armies to deploy (must be available in the issuer's reinforcement pool for validity)
+ * @param isReinforcementCard true if a reinforcement card was played to create this order
+ */
+Deploy::Deploy(Players::Player *issuer, Graph::Territory *target, int armies, bool isReinforcementCard)
+        : Order(issuer, "deploy"), target(target), armies(armies), isReinforcementCard(isReinforcementCard) {}
+
 
 // copy constructor creates shallow copy due to circular dependency
-Deploy::Deploy(const Deploy &deploy) : Order(deploy) {
+Deploy::Deploy(const Deploy &deploy) : Order(deploy), isReinforcementCard(deploy.isReinforcementCard) {
     this->target = deploy.target;
     this->armies = deploy.armies;
 }
@@ -230,6 +240,13 @@ void Advance::execute() {
             int defendersKilled = static_cast<int>(round(armies * 0.6));
             int attackersKilled = static_cast<int>(round(target->numberOfArmies * 0.7));
 
+            //if the target is a neutral strategy player and is attacked, the target switches strategy and
+            //becomes an aggressive player
+           if(target->owner->ps->strategyType == "neutral"){
+            target->owner->ps = new AggressivePlayerStrategy(target->owner);
+            cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
+           }
+
             if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { // failed to conquer
                 orderEffect = to_string(armies) + " failed to take " + target->name + " from " + source->name;
 
@@ -250,6 +267,14 @@ void Advance::execute() {
         }
     } else if (valid && this->issuer->ps->strategyType == PlayerStrategies::CHEATER_TYPE) {
         orderEffect = to_string(armies) + " captured " + target->name + " from " + source->name;
+
+        //if the target is a neutral strategy player and is attacked, the target switches strategy and
+        //becomes an aggressive player
+        if(target->owner->ps->strategyType == "neutral"){
+            cout<< target->owner->getName()<<" was attacked by "<<source->owner->getName()<<" on territory: "<<target->name <<endl;
+            target->owner->ps = new AggressivePlayerStrategy(target->owner);
+            cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
+        }
 
         // The current player is a cheater and will therefore automatically conquer the adjacent enemy territory
         target->transferOwnership(issuer); // cheater player now owns the territory
@@ -374,6 +399,12 @@ void Bomb::execute() {
         orderEffect = toString();
         target->numberOfArmies /= 2;
     }
+    // bomb is considered an attack, if target is a neutral strategy player, then switch to aggressive strategy player
+    if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
+        cout<<target->owner->getName()<<" JUST GOT BOMBED"<<endl;
+        target->owner->ps = new AggressivePlayerStrategy(target->owner);
+        cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
+    }
     orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
     cout << orderEffect << endl;
     notify(*this);
@@ -415,18 +446,20 @@ void Bomb::displayStats(bool beforeExecution) const {
 }
 
 // ====================== Blockade class ======================
-Blockade::Blockade() : Order(nullptr, "blockade"), target(nullptr) {
-    cout << "Created a Blockade order." << endl;
-}
+
+// used give unique name to new neutral players created by this order
+int Blockade::newNeutralId = 0;
 
 /** creates an order with all members initialized through parameters
  * @param issuer the player whose turn it is
  * @param target the territory to turn into a neutral blockade (must belong to issuer for validity)
+ * @param players the current game players
  */
-Blockade::Blockade(Players::Player *issuer, Graph::Territory *target) : Order(issuer, "blockade"), target(target) {}
+Blockade::Blockade(Players::Player *issuer, Graph::Territory *target, std::vector<Players::Player *> &players)
+    : Order(issuer, "blockade"), target(target),  players(players){}
 
 // copy constructor creates shallow copy due to circular dependency
-Blockade::Blockade(const Blockade &blockade) : Order(blockade) {
+Blockade::Blockade(const Blockade &blockade) : Order(blockade), players(blockade.players) {
     this->target = blockade.target;
 }
 
@@ -465,12 +498,25 @@ bool Blockade::validate() {
     return false;
 }
 
-// if valid, the number of armies on the target territory are doubled and transferred to the neutral player
+// if valid, the number of armies on the target territory are doubled and transferred to a neutral player
 void Blockade::execute() {
     if (validate()) {
         orderEffect = toString();
         target->numberOfArmies *= 2;
-        target->transferOwnership(Players::Player::neutralPlayer);
+
+        // get a neutral player in the player list, if it exists
+        auto neutralPlayerIt = find_if(players.begin(), players.end(), [](Players::Player *p) {
+            return p->ps->strategyType == "neutral";
+        });
+
+        if (neutralPlayerIt == players.end()) { // neutral player must be created
+            newNeutralId += 1;
+            auto neutralPlayer = new Players::Player("neutral" + to_string(newNeutralId));
+            players.push_back(neutralPlayer);
+            target->transferOwnership(neutralPlayer);
+        } else { // neutral player exists
+            target->transferOwnership(*neutralPlayerIt);
+        }
     }
     orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
     cout << orderEffect << endl;
@@ -618,7 +664,7 @@ Negotiate::Negotiate() : Order(nullptr, "negotiate"), target(nullptr) {
 
 /** creates an order with all members initialized through parameters
  * @param issuer the player whose turn it is
- * @param target the player to negotiate with (must not be the issuer nor the neutral player validity)
+ * @param target the player to negotiate with (must not be the issuer for validity)
  */
 Negotiate::Negotiate(Players::Player *issuer, Players::Player *target) : Order(issuer, "negotiate"), target(target) {}
 
@@ -649,11 +695,13 @@ ostream &Orders::operator<<(ostream &out, const Negotiate &negotiate) {
     return negotiate.write(out);
 }
 
-// is valid if the target player is neither neutral nor the issuing player
+// is valid if the target player is not eliminated & is not the issuing player
 bool Negotiate::validate() {
     if (issuer == nullptr || target == nullptr) { // prevent runtime errors
         orderEffect = "at least one of the data members have not been properly initialized";
-    } else if (issuer == target || target->getName() == "neutral") {
+    } else if (target->isEliminated) {
+        orderEffect = "the target player has been eliminated";
+    } else if (issuer == target) {
         orderEffect = "the target player is not an enemy";
     } else {
         return true;
@@ -787,6 +835,12 @@ void OrdersList::remove(int index) {
 void OrdersList::add(Order *const newOrder) {
     if (newOrder != nullptr && newOrder->issuer != nullptr) {
         cout << newOrder->issuer->getName() << " issued: " << *newOrder;
+
+        // only add line break if order is not played by issuing a card (for cards, line is completed in play methods)
+        if (newOrder->type == "advance" ||
+            newOrder->type == "deploy" && !dynamic_cast<Deploy *>(newOrder)->isReinforcementCard) {
+            cout << endl;
+        }
     }
     orders.push_back(newOrder);
     notify(*this);

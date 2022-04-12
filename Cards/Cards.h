@@ -109,7 +109,7 @@ public:
 
     std::string getType() const override;
 
-    void play(Players::Player *player, Deck *deck, Graph::Territory *target);
+    void play(Players::Player *player, Deck *deck, Graph::Territory *target, std::vector<Players::Player *> &players);
 
     ~Blockade() override;
 };

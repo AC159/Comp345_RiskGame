@@ -8,10 +8,11 @@
 #include "../Map/Map.h"
 #include "../Orders/Orders.h"
 #include "../Cards/Cards.h"
+#include "../GameEngine/GameEngine.h"
 
-// forward declare PlayerStrategies class
+// forward declare needed classes
 class PlayerStrategies;
-
+class GameEngine;
 
 // Declare Players namespace for the Player class
 namespace Players {
@@ -31,11 +32,11 @@ public:
     Orders::OrdersList *orders; // list of orders
     int reinforcementPool; //the armies currently available for deployment
     bool receivesCard; //returns whether player has conquered territory and should receive card at the end of turn
-    static Player *neutralPlayer;
+    bool isEliminated;
     std::vector<std::string> cannotAttack; //list of players the player cannot attack due to diplomacy card
 
     Player();   // default constructor
-    Player(std::string newName);
+    Player(const std::string& newName);
 
     Player(const Player &player);   // copy constructor
     ~Player(); // destructor
@@ -53,7 +54,7 @@ public:
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) const;
 
     //creates an order object and adds it to the player's list of orders
-    void issueOrder(Cards::Deck *deck, Graph::Map *map) const;
+    void issueOrder(GameEngine &game) const;
 
     // accessor method for name
     [[nodiscard]] std::string getName() const;
