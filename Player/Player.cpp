@@ -18,6 +18,7 @@ Player::Player() {
     orders = new Orders::OrdersList();
     reinforcementPool = 0;
     receivesCard = false;
+    isEliminated = false;
 }
 
 
@@ -28,6 +29,7 @@ Player::Player(const string& newName) {
     orders = new Orders::OrdersList();
     reinforcementPool = 0;
     receivesCard = false;
+    isEliminated = false;
     if (newName == PlayerStrategies::NEUTRAL_TYPE) {
         PlayerStrategies *ps = new NeutralPlayerStrategy(this);
         this->ps = ps;
@@ -39,6 +41,7 @@ Player::Player(const Player &player) {
     this->name = player.name;
     this->reinforcementPool = player.reinforcementPool;
     this->receivesCard = player.receivesCard;
+    this->isEliminated = player.isEliminated;
 
     // create a new mapping of territories and copy all territories from other player
     for (map<int, Territory *>::const_iterator it = player.territories.begin(); it != player.territories.end(); it++) {

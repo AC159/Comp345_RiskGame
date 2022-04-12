@@ -684,6 +684,8 @@ ostream &Orders::operator<<(ostream &out, const Negotiate &negotiate) {
 bool Negotiate::validate() {
     if (issuer == nullptr || target == nullptr) { // prevent runtime errors
         orderEffect = "at least one of the data members have not been properly initialized";
+    } else if (target->isEliminated) {
+        orderEffect = "the target player has been eliminated";
     } else if (issuer == target || target->getName() == "neutral") {
         orderEffect = "the target player is not an enemy";
     } else {

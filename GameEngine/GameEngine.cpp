@@ -421,7 +421,8 @@ bool GameEngine::executeOrdersPhase() {
                 if (targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()
                     && targetPlayerIt != it) {
                     cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
-                    delete *targetPlayerIt;
+                    (*targetPlayerIt)->isEliminated = true;
+                    eliminatedPlayers.push_back(*targetPlayerIt);
                     playersList.erase(targetPlayerIt);
                 }
 
@@ -469,7 +470,10 @@ GameEngine::~GameEngine() {
     mapLoader = nullptr;
     delete processor;
     delete deck;
-    for (Players::Player *p: playersList) {
+    for (auto *p: playersList) {
+        delete p;
+    }
+    for (auto *p: eliminatedPlayers) {
         delete p;
     }
     playersList.clear();
