@@ -40,6 +40,11 @@ std::ostream &Cards::operator<<(std::ostream &out, const Deck &deck) {
 }
 
 Card *Deck::draw() {
+    // re-fill deck if it is empty
+    if (this->cards.empty()) {
+        this->fillDeckWithCards();
+    }
+
     // randomly draw a card from the deck, remove it from the deck and return a pointer to that card
     int lastCardIndex = this->cards.size() - 1;
     int randomCardIndex = std::experimental::randint(0, lastCardIndex);
