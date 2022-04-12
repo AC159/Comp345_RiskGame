@@ -307,6 +307,9 @@ void GameEngine::reinforcementPhase() {
                                  [](Players::Player *p) { return p->reinforcementPool == 50; });
     if (!firstTurn) {
         assignReinforcementStateChange();
+
+        // reset each player's reinforcement pool to 0
+        for_each(playersList.begin(), playersList.end(), [](Players::Player *p) { p->reinforcementPool = 0; });
     }
 
     for (auto player: playersList) {
