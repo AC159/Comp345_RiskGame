@@ -2,7 +2,6 @@
 #include <list>
 #include <map>
 #include <utility>
-#include <numeric>
 #include "Player.h"
 #include "../PlayerStrategies/PlayerStrategies.h"
 
@@ -10,7 +9,7 @@ using namespace std;
 using namespace Players;
 using namespace Graph;
 
-Player *Players::Player::neutralPlayer = new Player("neutral");
+Player *Players::Player::neutralPlayer = new Player(PlayerStrategies::NEUTRAL_TYPE);
 
 // default constructor
 Player::Player() {
@@ -23,12 +22,16 @@ Player::Player() {
 
 
 // constructor for Player class to initialize the name and the collection of territories, cards, and orders
-Player::Player(string newName) {
-    name = std::move(newName);
+Player::Player(const string& newName) {
+    name = newName;
     hand = new Cards::Hand();
     orders = new Orders::OrdersList();
     reinforcementPool = 0;
     receivesCard = false;
+    if (newName == PlayerStrategies::NEUTRAL_TYPE) {
+        PlayerStrategies *ps = new NeutralPlayerStrategy(this);
+        this->ps = ps;
+    }
 }
 
 

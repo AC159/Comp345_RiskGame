@@ -36,7 +36,7 @@ public:
     std::vector<std::string> cannotAttack; //list of players the player cannot attack due to diplomacy card
 
     Player();   // default constructor
-    Player(std::string newName);
+    Player(const std::string& newName);
 
     Player(const Player &player);   // copy constructor
     ~Player(); // destructor

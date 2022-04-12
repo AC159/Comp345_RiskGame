@@ -32,4 +32,5 @@ void PlayerStrategiesDriver() {
     delete aggressivePlayer;
     delete neutralPlayer;
     delete engine;
+    delete logObserver;
 }
