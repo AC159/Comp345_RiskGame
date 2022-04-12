@@ -317,7 +317,6 @@ std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toDefend(const 
     std::multimap<int,Graph::Territory *> territoriesToDefend;
     for(auto pair : this->player->territories){
         territoriesToDefend.insert(std::pair <int,Graph::Territory *> (pair.second->numberOfArmies,pair.second));
-        std::cout << "to defend:(" << pair.second->numberOfArmies<< ", " << pair.second->name<<" owner: "<< pair.second->owner->getName()<< ")" << std::endl;
     }
     return territoriesToDefend;
 }
@@ -331,10 +330,6 @@ std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const 
         for(auto *t : enemyTerritories){
             territoriesToAttack.insert(std::pair<int,Graph::Territory *> (t->numberOfArmies,t));
         }
-    }
-    std::multimap<int,Graph::Territory *>::iterator it;
-    for(it = territoriesToAttack.begin(); it != territoriesToAttack.end(); ++it) {
-        std::cout << "to attack:(" << it->second->numberOfArmies<< ", " << it->second->name<< ")"<<" owner: "<< it->second->owner->getName()<< ")"  << std::endl;
     }
     return territoriesToAttack;
 }
@@ -357,7 +352,7 @@ void AggressivePlayerStrategy::issueOrder(GameEngine &game) {
        if(p ->owner ==this->player)
            playerAdjacentTerritories.insert(std::pair<int,Graph::Territory *>(p->numberOfArmies,p));
     }
-   std::cout<<"territory to attack: "<<playerAdjacentTerritories.crbegin()->second->name;
+
    if(!playerAdjacentTerritories.empty()){//players has adjacent territory
        int armiesToDeploy = this->player->reinforcementPool;
        this->player->orders->add(new Orders::Deploy(this->player,playerAdjacentTerritories.crbegin()->second,armiesToDeploy));
