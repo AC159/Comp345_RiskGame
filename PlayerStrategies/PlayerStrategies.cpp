@@ -78,7 +78,7 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
-void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
+void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
 
@@ -141,7 +141,7 @@ void BenevolentPlayerStrategy::issueOrder(const GameEngine &game) {
             // play the reinforcement card on the first territory of the toDefend list
             dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, toDefend.begin()->second);
         } else if (type == "blockade") {
-            dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second);
+            dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second, game.playersList);
         } else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
             Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
             dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
@@ -199,7 +199,7 @@ std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std
     return territories;
 }
 
-void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
+void CheaterPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
     std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
@@ -261,7 +261,7 @@ void CheaterPlayerStrategy::issueOrder(const GameEngine &game) {
             // play the reinforcement card on the first territory of the toDefend list
             dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, toDefend.begin()->second);
         } else if (type == "blockade") {
-            dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second);
+            dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second, game.playersList);
         } else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
             Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
             dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
@@ -339,7 +339,7 @@ std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
-void AggressivePlayerStrategy::issueOrder(const GameEngine &game) {
+void AggressivePlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
     std::cout<<"a wild "<<this->player->getName()<<" appeared, prepare to die"<<std::endl;
@@ -423,7 +423,7 @@ std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toAttack(const std
     //returns an empty map because a neutral player doesnt issue orders
     return territoriesToAttack;
 }
-void NeutralPlayerStrategy::issueOrder(const GameEngine &game) {
+void NeutralPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
     // don't issue orders, play cards
@@ -749,7 +749,7 @@ multimap<int, Territory *> HumanPlayerStrategy::toAttack(const vector<Edge *> &e
  * Issues orders by allowing player to make decisions based on their toAttack and toDefend lists
  * @param game the engine running the current game
  */
-void HumanPlayerStrategy::issueOrder(const GameEngine &game) {
+void HumanPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto edges = map->edges;
     auto &playerHand = player->hand->cards;
@@ -836,7 +836,8 @@ void HumanPlayerStrategy::issueOrder(const GameEngine &game) {
                 printTerritories(defendList);
                 userInput = promptValidId(defendList);
                 if (userInput == "issueorder" || userInput == "issueorders end") continue; // skip canceled order
-                dynamic_cast<Cards::Blockade *>(card)->play(player, deck, defendList.find(stoi(userInput))->second);
+                dynamic_cast<Cards::Blockade *>(card)->play(player, deck, defendList.find(stoi(userInput))->second,
+                                                            game.playersList);
             } else if (cardType == "diplomacy") {
                 cout << "Players you can negotiate with:\n";
                 printPlayers(game.playersList);

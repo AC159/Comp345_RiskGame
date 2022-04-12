@@ -33,7 +33,6 @@ public:
     int reinforcementPool; //the armies currently available for deployment
     bool receivesCard; //returns whether player has conquered territory and should receive card at the end of turn
     bool isEliminated;
-    static Player *neutralPlayer;
     std::vector<std::string> cannotAttack; //list of players the player cannot attack due to diplomacy card
 
     Player();   // default constructor
@@ -55,7 +54,7 @@ public:
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) const;
 
     //creates an order object and adds it to the player's list of orders
-    void issueOrder(const GameEngine &game) const;
+    void issueOrder(GameEngine &game) const;
 
     // accessor method for name
     [[nodiscard]] std::string getName() const;

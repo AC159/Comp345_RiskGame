@@ -9,8 +9,6 @@ using namespace std;
 using namespace Players;
 using namespace Graph;
 
-Player *Players::Player::neutralPlayer = new Player(PlayerStrategies::NEUTRAL_TYPE);
-
 // default constructor
 Player::Player() {
     name = "No name";
@@ -127,7 +125,7 @@ multimap<int, Territory *> Player::toAttack(const vector<Edge *> &edges) const {
 }
 
 // creates all orders for the player's turn and places them in the player's list of orders
-void Player::issueOrder(const GameEngine &game) const {
+void Player::issueOrder(GameEngine &game) const {
     return this->ps->issueOrder(game);
 }
 

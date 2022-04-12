@@ -135,10 +135,10 @@ public:
  * the territory to the Neutral player. This order can only be created by playing the blockade card.*/
 class Orders::Blockade : public Order {
 public:
-    Graph::Territory *target;   //the territory to turn into a neutral blockade
+    Graph::Territory *target;                //the territory to turn into a neutral blockade
+    std::vector<Players::Player *> &players; //the list of players currently playing the game
 
-    Blockade();
-    Blockade(Players::Player *issuer, Graph::Territory *target);
+    Blockade(Players::Player *issuer, Graph::Territory *target, std::vector<Players::Player *> &players);
     Blockade(const Blockade&);
     ~Blockade() override;
 

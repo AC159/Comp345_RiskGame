@@ -446,18 +446,17 @@ void Bomb::displayStats(bool beforeExecution) const {
 }
 
 // ====================== Blockade class ======================
-Blockade::Blockade() : Order(nullptr, "blockade"), target(nullptr) {
-    cout << "Created a Blockade order." << endl;
-}
 
 /** creates an order with all members initialized through parameters
  * @param issuer the player whose turn it is
  * @param target the territory to turn into a neutral blockade (must belong to issuer for validity)
+ * @param players the current game players
  */
-Blockade::Blockade(Players::Player *issuer, Graph::Territory *target) : Order(issuer, "blockade"), target(target) {}
+Blockade::Blockade(Players::Player *issuer, Graph::Territory *target, std::vector<Players::Player *> &players)
+    : Order(issuer, "blockade"), target(target),  players(players){}
 
 // copy constructor creates shallow copy due to circular dependency
-Blockade::Blockade(const Blockade &blockade) : Order(blockade) {
+Blockade::Blockade(const Blockade &blockade) : Order(blockade), players(blockade.players) {
     this->target = blockade.target;
 }
 
@@ -496,12 +495,24 @@ bool Blockade::validate() {
     return false;
 }
 
-// if valid, the number of armies on the target territory are doubled and transferred to the neutral player
+// if valid, the number of armies on the target territory are doubled and transferred to a neutral player
 void Blockade::execute() {
     if (validate()) {
         orderEffect = toString();
         target->numberOfArmies *= 2;
-        target->transferOwnership(Players::Player::neutralPlayer);
+
+        // get a neutral player in the player list, if it exists
+        auto neutralPlayerIt = find_if(players.begin(), players.end(), [](Players::Player *p) {
+            return p->ps->strategyType == "neutral";
+        });
+
+        if (neutralPlayerIt == players.end()) { // neutral player must be created
+            auto neutralPlayer = new Players::Player("neutral");
+            players.push_back(neutralPlayer);
+            target->transferOwnership(neutralPlayer);
+        } else { // neutral player exists
+            target->transferOwnership(*neutralPlayerIt);
+        }
     }
     orderEffect = (issuer == nullptr ? "" : issuer->getName()) + " executed: " + orderEffect;
     cout << orderEffect << endl;
@@ -649,7 +660,7 @@ Negotiate::Negotiate() : Order(nullptr, "negotiate"), target(nullptr) {
 
 /** creates an order with all members initialized through parameters
  * @param issuer the player whose turn it is
- * @param target the player to negotiate with (must not be the issuer nor the neutral player validity)
+ * @param target the player to negotiate with (must not be the issuer for validity)
  */
 Negotiate::Negotiate(Players::Player *issuer, Players::Player *target) : Order(issuer, "negotiate"), target(target) {}
 
@@ -680,13 +691,13 @@ ostream &Orders::operator<<(ostream &out, const Negotiate &negotiate) {
     return negotiate.write(out);
 }
 
-// is valid if the target player is neither neutral nor the issuing player
+// is valid if the target player is not eliminated & is not the issuing player
 bool Negotiate::validate() {
     if (issuer == nullptr || target == nullptr) { // prevent runtime errors
         orderEffect = "at least one of the data members have not been properly initialized";
     } else if (target->isEliminated) {
         orderEffect = "the target player has been eliminated";
-    } else if (issuer == target || target->getName() == "neutral") {
+    } else if (issuer == target) {
         orderEffect = "the target player is not an enemy";
     } else {
         return true;

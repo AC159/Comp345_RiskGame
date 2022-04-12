@@ -387,8 +387,8 @@ bool GameEngine::executeOrdersPhase() {
     bool doneDeploying = false;
 
     while (ordersRemain()) {
-        for (auto it = playersList.begin(); it < playersList.end();) {
-            Players::Player *player = *it;
+        for (int i = 0; i < playersList.size();) {
+            Players::Player *player = playersList[i];
             Orders::Order *topOrder = player->orders->element(0);
 
             //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
@@ -400,12 +400,13 @@ bool GameEngine::executeOrdersPhase() {
                 skipStrike = 0;
 
                 //save the targeted territory's owner to check if they should be eliminated afterwards
-                auto targetPlayerIt = playersList.end();
+                long targetPlayerIndex = -1;
                 if (topOrder->type == "advance") {
                     Orders::Advance &advanceOrder = (dynamic_cast<Orders::Advance &>(*topOrder));
                     if (advanceOrder.target != nullptr) { // avoid runtime error
-                        targetPlayerIt = std::find(playersList.begin(), playersList.end(),
-                                                   advanceOrder.target->owner);
+                        targetPlayerIndex =
+                                std::find(playersList.begin(), playersList.end(), advanceOrder.target->owner) -
+                                playersList.begin();
                     }
                 }
 
@@ -419,12 +420,12 @@ bool GameEngine::executeOrdersPhase() {
                 }
 
                 //target player is eliminated if their last territory was taken after an advance order
-                if (targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()
-                    && targetPlayerIt != it) {
-                    cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
-                    (*targetPlayerIt)->isEliminated = true;
-                    eliminatedPlayers.push_back(*targetPlayerIt);
-                    playersList.erase(targetPlayerIt);
+                if (targetPlayerIndex != -1 && playersList[targetPlayerIndex]->territories.empty()
+                    && playersList[targetPlayerIndex] != player) {
+                    cout << " → " << playersList[targetPlayerIndex]->getName() << " is eliminated." << endl;
+                    playersList[targetPlayerIndex]->isEliminated = true;
+                    eliminatedPlayers.push_back(playersList[targetPlayerIndex]);
+                    playersList.erase(playersList.begin() + targetPlayerIndex);
                 }
 
                 //player eliminates self if they played a blockade on their last territory
@@ -432,13 +433,13 @@ bool GameEngine::executeOrdersPhase() {
                     cout << " → " << player->getName() << " is eliminated." << endl;
                     player->isEliminated = true;
                     eliminatedPlayers.push_back(player);
-                    it = playersList.erase(it);
+                    playersList.erase(playersList.begin() + i);
                 } else {
-                    it++;
+                    i++;
                 }
             } else {
                 skipStrike++;
-                it++;
+                i++;
             }
         }
     }

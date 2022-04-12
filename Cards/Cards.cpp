@@ -216,9 +216,10 @@ std::string Blockade::getType() const {
     return this->type;
 }
 
-void Blockade::play(Players::Player *player, Deck *deck, Graph::Territory *target) {
+void Blockade::play(Players::Player *player, Deck *deck, Graph::Territory *target,
+                    std::vector<Players::Player *> &players) {
     // issue a blockade order and remove that card from the player's hand of cards and put it back into the deck
-    auto *blockade = new Orders::Blockade(player, target);
+    auto *blockade = new Orders::Blockade(player, target, players);
     player->orders->add(blockade);
     std::cout << " (issued by playing a blockade card)" << std::endl;
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),

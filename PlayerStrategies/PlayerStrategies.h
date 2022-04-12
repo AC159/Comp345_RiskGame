@@ -26,7 +26,7 @@ public:
 
     virtual std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) = 0;
     virtual std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) = 0;
-    virtual void issueOrder(const GameEngine &game) = 0;
+    virtual void issueOrder(GameEngine &game) = 0;
 
     PlayerStrategies(const PlayerStrategies &ps);
     PlayerStrategies(Players::Player *p, std::string strategyType);
@@ -38,7 +38,7 @@ class BenevolentPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
-    void issueOrder(const GameEngine &game) override;
+    void issueOrder(GameEngine &game) override;
 
     BenevolentPlayerStrategy& operator=(const BenevolentPlayerStrategy &b);
     friend std::ostream& operator<<(std::ostream &out, const BenevolentPlayerStrategy &b);
@@ -52,7 +52,7 @@ class CheaterPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
-    void issueOrder(const GameEngine &game) override;
+    void issueOrder(GameEngine &game) override;
 
     CheaterPlayerStrategy& operator=(const CheaterPlayerStrategy &cheater);
     friend std::ostream& operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater);
@@ -66,7 +66,7 @@ class AggressivePlayerStrategy: public PlayerStrategies{
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
-    void issueOrder(const GameEngine &game) override;
+    void issueOrder(GameEngine &game) override;
 
     AggressivePlayerStrategy& operator=(const AggressivePlayerStrategy &aggressive);
     friend std::ostream& operator<<(std::ostream &out, const AggressivePlayerStrategy &aggressive);
@@ -80,7 +80,7 @@ class NeutralPlayerStrategy: public PlayerStrategies{
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
-    void issueOrder(const GameEngine &game) override;
+    void issueOrder(GameEngine &game) override;
 
     NeutralPlayerStrategy& operator=(const NeutralPlayerStrategy &neutral);
     friend std::ostream& operator<<(std::ostream &out, const NeutralPlayerStrategy &neutral);
@@ -95,7 +95,7 @@ class HumanPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &edges) override;
     std::multimap<int, Graph::Territory *> toAttack(const std::vector<Graph::Edge *> &edges) override;
-    void issueOrder(const GameEngine &game) override;
+    void issueOrder(GameEngine &game) override;
 
     HumanPlayerStrategy& operator=(const HumanPlayerStrategy &h);
     friend std::ostream& operator<<(std::ostream &out, const HumanPlayerStrategy &h);
