@@ -447,6 +447,9 @@ void Bomb::displayStats(bool beforeExecution) const {
 
 // ====================== Blockade class ======================
 
+// used give unique name to new neutral players created by this order
+int Blockade::newNeutralId = 0;
+
 /** creates an order with all members initialized through parameters
  * @param issuer the player whose turn it is
  * @param target the territory to turn into a neutral blockade (must belong to issuer for validity)
@@ -507,7 +510,8 @@ void Blockade::execute() {
         });
 
         if (neutralPlayerIt == players.end()) { // neutral player must be created
-            auto neutralPlayer = new Players::Player("neutral");
+            newNeutralId += 1;
+            auto neutralPlayer = new Players::Player("neutral" + to_string(newNeutralId));
             players.push_back(neutralPlayer);
             target->transferOwnership(neutralPlayer);
         } else { // neutral player exists

@@ -153,6 +153,9 @@ public:
     std::ostream & write(std::ostream &out) const override;
     [[nodiscard]] std::string toString() const override;
     void displayStats(bool beforeExecution) const override;
+
+private:
+    static int newNeutralId;
 };
 
 /* An airlift order tells a number of armies taken from a source territory to be moved to a target territory.
