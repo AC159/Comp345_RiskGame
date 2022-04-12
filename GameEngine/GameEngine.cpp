@@ -387,7 +387,7 @@ bool GameEngine::executeOrdersPhase() {
     bool doneDeploying = false;
 
     while (ordersRemain()) {
-        for (auto it = playersList.begin(); it < playersList.end(); it++) {
+        for (auto it = playersList.begin(); it < playersList.end();) {
             Players::Player *player = *it;
             Orders::Order *topOrder = player->orders->element(0);
 
@@ -410,6 +410,7 @@ bool GameEngine::executeOrdersPhase() {
                 }
 
                 topOrder->execute();
+                player->orders->remove(0);
 
                 //player won if they own all territories
                 if (player->territories.size() == mapLoader->map->territories.size()) {
@@ -417,7 +418,7 @@ bool GameEngine::executeOrdersPhase() {
                     return true;
                 }
 
-                //player is eliminated if their last territory was taken
+                //target player is eliminated if their last territory was taken after an advance order
                 if (targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()
                     && targetPlayerIt != it) {
                     cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
@@ -426,9 +427,18 @@ bool GameEngine::executeOrdersPhase() {
                     playersList.erase(targetPlayerIt);
                 }
 
-                player->orders->remove(0);
+                //player eliminates self if they played a blockade on their last territory
+                if (player->territories.empty()) {
+                    cout << " → " << player->getName() << " is eliminated." << endl;
+                    player->isEliminated = true;
+                    eliminatedPlayers.push_back(player);
+                    it = playersList.erase(it);
+                } else {
+                    it++;
+                }
             } else {
                 skipStrike++;
+                it++;
             }
         }
     }
