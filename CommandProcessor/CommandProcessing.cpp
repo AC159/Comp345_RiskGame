@@ -174,16 +174,22 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             }
             wordsBetween.erase(wordsBetween.begin(), wordsBetween.end());
 
-            // check number of player strats
+            // check number of player strats and if each player strategy is a Aggressive, Neutral, Benevolent or Cheater strategy
             lineBetween = readCommandInput.substr(readCommandInput.find("-P") + 2, readCommandInput.find("-G") - readCommandInput.find("-P") - 2);
             istringstream parse3(lineBetween);
             while(parse3 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
             numberOfWordsBetween = wordsBetween.size();
-            if(numberOfWordsBetween < 1 || numberOfWordsBetween > 5){
+            if(numberOfWordsBetween < 2 || numberOfWordsBetween > 4){
                 cout << "Invalid number of player strategies." << endl;
                 return false;
+            }
+            for(string ps: wordsBetween){
+                if(ps != "Aggressive" && ps != "Neutral" && ps != "Benevolent" && ps != "Cheater"){
+                    cout << ps << " is not a player strategy." << endl;
+                    return false;
+                }
             }
             wordsBetween.erase(wordsBetween.begin(), wordsBetween.end());
 
@@ -205,7 +211,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
                 }
             }
             int noOfGames = std::stoi(wordsBetween.at(0));
-            if(noOfGames < 10 || noOfGames > 50){
+            if(noOfGames < 1 || noOfGames > 5){
                 cout << "Invalid number of games." << endl;
                 return false;
             }

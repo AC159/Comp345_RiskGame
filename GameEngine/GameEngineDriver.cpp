@@ -30,6 +30,8 @@ void GameEngine::gamePlayDriver() {
 // demonstrates part 2: tournament mode
 void GameEngine::tournamentModeDriver(){
     GameEngine* game = new GameEngine();
+    LogObserver *logObserver = new LogObserver();
+    Subject::attach(logObserver);
     string welcomeBanner =
             "WWWWWWWW                           WWWWWWWW                                                                                                          \n"
             "W::::::W                           W::::::W                                                                                                          \n"
@@ -63,6 +65,7 @@ void GameEngine::tournamentModeDriver(){
         game->tournamentMode(*command);
     }
     else {
+        cout << "Tournament command invalid." << endl;
         command->saveEffect("Invalid command.");
     }
 }

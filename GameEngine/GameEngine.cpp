@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <utility>
 #include <experimental/random>
+//#include <iomanip>
+//#include <fstream>
 
 
 #ifdef _WIN32 // any windows system
@@ -441,12 +443,12 @@ void GameEngine::tournamentMode(Command &command) {
     string tournamentCommand = command.command;
     vector<string> maps;
     vector<string> playerStrategies;
+    vector<string> winners;
     int noOfGames;
     int maxNoOfTurns;
 
     // get maps from command
     string lineBetween = tournamentCommand.substr(tournamentCommand.find("-M") + 2, tournamentCommand.find("-P") - tournamentCommand.find("-M") - 2);
-    cout << lineBetween << endl;
     istringstream parse2(lineBetween);
     while (parse2 >> lineBetween) {
         maps.push_back(lineBetween);
@@ -469,14 +471,14 @@ void GameEngine::tournamentMode(Command &command) {
     lineBetween = tournamentCommand.substr(tournamentCommand.find("-D") + 2);
     maxNoOfTurns = std::stoi(lineBetween);
 
-    cout << "*" << endl;
-    for(string m: maps)
-        cout << m << endl;
-    for(string ps: playerStrategies)
-        cout << ps << endl;
-    cout << noOfGames << endl;
-    cout << maxNoOfTurns << endl;
-    cout << "*" << endl;
+//    cout << "*" << endl;
+//    for(string m: maps)
+//        cout << m << endl;
+//    for(string ps: playerStrategies)
+//        cout << ps << endl;
+//    cout << noOfGames << endl;
+//    cout << maxNoOfTurns << endl;
+//    cout << "*" << endl;
 
 //    for(string m: maps){
 //        bool validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + m + "/" + m + ".map");
@@ -492,37 +494,108 @@ void GameEngine::tournamentMode(Command &command) {
 //    }
 
 
-
+    // play each maps by noOfGames times
     for(string map: maps){
-        changeState("start");
-        if(!this->mapLoader->loadMap("../WarzoneMaps/" + map + "/" + map + ".map")){
-            cout << "Invalid map file." << endl;
-            return;
+        for(int i = 0; i < noOfGames; i++) {
+            changeState("start");
+            if (!this->mapLoader->loadMap("../WarzoneMaps/" + map + "/" + map + ".map")) {
+                cout << map + ".map is an invalid map file." << endl;
+                return;
+            }
+
+            mapLoadedStateChange();
+            if (!mapLoader->map->validate()) {
+                cout << map + " is an invalid map." << endl;
+            }
+
+            mapValidatedStateChange();
+
+            playersAddedStateChange();
+            for (string player: playerStrategies) {
+                Players::Player *p = new Players::Player();
+                this->playersList.push_back((p));
+            }
+
+            assignReinforcementStateChange();
+            mainGameLoop();
+            winStateChange();
+
+            // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
+            if(playersList.size() == 1)
+                winners.push_back(playersList.at(0)->getName());
+            else
+                winners.push_back("Draw");
+
+            // reset map and players list
+            delete mapLoader->map;
+            mapLoader->map = new Graph::Map();
+            for (Players::Player *p: playersList) {
+                delete p;
+            }
+            playersList.clear();
         }
+    }
+    fstream output("gamelog.txt", std::ios::out);
 
-        mapLoadedStateChange();
-        if(!mapLoader->map->validate()){
-            cout << "Invalid map." << endl;
+    output << "Tournament mode: " << endl;
+    output << "M: ";
+    for(string map: maps)
+        output << map << ", ";
+    output << "\b\b" << " " << endl;
+    output << "P: ";
+    for(string player: playerStrategies)
+        output << player << ", ";
+    output << "\b\b" << " " << endl;
+    output << ("G: " + noOfGames) << endl;
+    output << ("D: " + maxNoOfTurns) << endl << endl;
+
+    int noOfColumns = noOfGames + 1;
+    int width = 14;
+    string indent = " ";
+    char filler1 = ' ';
+    char filler2 = '-';
+
+    // for resetting output format
+    ios init(NULL);
+    init.copyfmt(output);
+
+    // header row of the table
+    for(int i = 0; i < noOfColumns; i++)
+        output << left << setw(width) << setfill(filler2) << "" << "|";
+    output << "|";
+    for(int i = 0; i < noOfColumns; i++){
+        if(i == 0){
+            output << left << setw(width) << setfill(filler1) << "" << "|";
         }
+        else
+            output << left << setw(width) << setfill(filler1) << (indent + "Game " + i) << "|";
+    }
+    output << "|";
+    for(int i = 0; i < noOfColumns; i++)
+            output << left << setw(width) << setfill(filler2) << ("") << "|";
 
-        mapValidatedStateChange();
+    output.copyfmt(init);
 
-        playersAddedStateChange();
-        for(string player: playerStrategies){
-            Players::Player *p = new Players::Player();
-            this->playersList.push_back((p));
+    // consequent rows of the table
+    auto winnerName = winners.begin();
+    auto mapName = maps.begin();
+    for(int i = 0; i < maps.size() * 2; i++) {
+        if(i % 2 == 0) {
+            for (int column = 0; column < noOfColumns; column++) {
+                if (column == 0) {
+                    output << left << setw(width) << setfill(filler1) << (indent + mapName) << "|";
+                    mapName++;
+                } else {
+                    output << left << setw(width) << setfill(filler1) << (indent + winnerName) << "|";
+                    winnerName++;
+                }
+            }
+        } else {
+            output << "|";
+            for (int column = 0; column < noOfColumns; column++){
+                output << left << setw(width) << setfill(filler2) << ("") << "|";
+            }
         }
-
-        assignReinforcementStateChange();
-        mainGameLoop();
-        winStateChange();
-
-        delete mapLoader->map;
-        mapLoader->map = new Graph::Map();
-        for (Players::Player *p: playersList) {
-            delete p;
-        }
-        playersList.clear();
     }
 }
 
