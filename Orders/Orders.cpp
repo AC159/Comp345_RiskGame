@@ -242,7 +242,7 @@ void Advance::execute() {
 
             //if the target is a neutral strategy player and is attacked, the target switches strategy and
             //becomes an aggressive player
-           if(target->owner->ps->strategyType == "neutral"){
+           if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
             cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
            }
@@ -270,7 +270,7 @@ void Advance::execute() {
 
         //if the target is a neutral strategy player and is attacked, the target switches strategy and
         //becomes an aggressive player
-        if(target->owner->ps->strategyType == "neutral"){
+        if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
             cout<< target->owner->getName()<<" was attacked by "<<source->owner->getName()<<" on territory: "<<target->name <<endl;
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
             cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
