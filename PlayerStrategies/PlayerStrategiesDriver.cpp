@@ -1,5 +1,4 @@
 #include "PlayerStrategies.h"
-#include "../GameEngine/GameEngine.h"
 
 void PlayerStrategiesDriver() {
 
@@ -13,17 +12,12 @@ void PlayerStrategiesDriver() {
     auto *neutralPlayer = new Players::Player("p3");
     auto *neutralStrategy = new NeutralPlayerStrategy(neutralPlayer);
 
-
-
     // Assign strategy to player
     benevolentPlayer->ps = benevolentStrategy;
     aggressivePlayer->ps = aggressiveStrategy;
     neutralPlayer->ps = neutralStrategy;
 
-
     auto *engine = new GameEngine();
-    auto *logObserver = new LogObserver();
-    Subject::attach(logObserver);
     engine->startupPhase();
     engine->mainGameLoop();
     engine->winStateChange();
@@ -32,5 +26,4 @@ void PlayerStrategiesDriver() {
     delete aggressivePlayer;
     delete neutralPlayer;
     delete engine;
-    delete logObserver;
 }
