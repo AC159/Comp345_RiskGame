@@ -59,19 +59,20 @@ void GameEngine::tournamentModeDriver() {
     getline(cin, str);
     cout << endl;
 
+    //ensuring that user input is either 1 or 2
     while (str != "1" && str != "2") {
         cout << "Invalid selection! Please enter a valid option number: ";
         getline(cin, str);
         cout << endl;
     }
 
-    if (str == "1") {
+    if (str == "1") { //if input is 1, execute logic to read tournament commands from file
         cout << "Enter command file path: ";
-        getline(cin, str);
+        getline(cin, str); //reading command file path and storing it in the str variable
         FileLineReader *flr = new FileLineReader(str);
         flr->openFile();
         if (flr->isFileOpen())
-            while (!flr->checkEOF()) {
+            while (!flr->checkEOF()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
                 string fileLineCommand = flr->readLineFromFile();
                 bool validateTournament = cp->validate(fileLineCommand, *game);
                 Command *command = new Command(fileLineCommand);
@@ -89,7 +90,7 @@ void GameEngine::tournamentModeDriver() {
                 game = new GameEngine();
             }
 
-    } else if (str == "2") {
+    } else if (str == "2") { //if input is 2, execute logic for reading command from console
         cout
                 << "Enter tournament command (tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>: "
                 << endl;

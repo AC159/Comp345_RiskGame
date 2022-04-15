@@ -534,13 +534,14 @@ void GameEngine::tournamentMode(Command &command) {
             cout << "<<<<<<<<<<<<<<<" << " Game number: " << i + 1 << " >>>>>>>>>>>>>>>" << endl;
 
             changeState("start");
-            if (!this->mapLoader->loadMap("../WarzoneMaps/" + map + "/" + map + ".map")) {
+            if (!this->mapLoader->loadMap("../WarzoneMaps/" + map + "/" + map +
+                                          ".map")) { //checking that map has loaded before proceeding with the game
                 cout << map + ".map is an invalid map file." << endl;
                 return;
             }
 
             mapLoadedStateChange();
-            if (!mapLoader->map->validate()) {
+            if (!mapLoader->map->validate()) { //validating map before proceeding with the game
                 cout << map + " is an invalid map." << endl;
                 return;
             }
@@ -569,7 +570,7 @@ void GameEngine::tournamentMode(Command &command) {
             cin.rdbuf(orig); //setting cin to its original state; runtime error occurs otherwise
 
             assignReinforcementStateChange();
-            if (mainGameLoop(maxNoOfTurns))
+            if (mainGameLoop(maxNoOfTurns)) //if a winner is declared, the win state change is invoked
                 winStateChange();
 
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
