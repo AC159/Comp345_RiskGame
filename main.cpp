@@ -12,6 +12,9 @@ using namespace Players;
 
 int main() {
 
+    auto *logObserver = new LogObserver();
+    Subject::attach(logObserver);
+
     string userInput;
 
     do {
@@ -34,5 +37,6 @@ int main() {
             cout << "ERROR: Invalid input!" << endl;
     } while (userInput != "3");
 
+    delete logObserver;
     return 0;
 }
