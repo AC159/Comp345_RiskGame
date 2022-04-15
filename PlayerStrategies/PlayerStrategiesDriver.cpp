@@ -18,8 +18,6 @@ void PlayerStrategiesDriver() {
     neutralPlayer->ps = neutralStrategy;
 
     auto *engine = new GameEngine();
-    auto *logObserver = new LogObserver();
-    Subject::attach(logObserver);
     engine->startupPhase();
     engine->mainGameLoop();
     engine->winStateChange();
@@ -28,5 +26,4 @@ void PlayerStrategiesDriver() {
     delete aggressivePlayer;
     delete neutralPlayer;
     delete engine;
-    delete logObserver;
 }
