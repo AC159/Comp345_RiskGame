@@ -283,7 +283,7 @@ void GameEngine::addPlayer() {
 }
 
 //==== main game loop: reinforcement, order issuing & execution phases ====
-void GameEngine::mainGameLoop() {
+bool GameEngine::mainGameLoop() {
     bool playerWon = false;
     int turnCount = 0;
     while (!playerWon) {
@@ -297,6 +297,7 @@ void GameEngine::mainGameLoop() {
         issueOrdersPhase();
         playerWon = executeOrdersPhase(); //player win and player eliminations are determined in the execution phase
     }
+    return playerWon;
 }
 
 //=============assign reinforcement state =================
@@ -599,9 +600,10 @@ void GameEngine::tournamentMode(Command &command) {
             cin.rdbuf(orig); //setting cin to its original state; runtime error occurs otherwise
 
             assignReinforcementStateChange();
-            mainGameLoop();
-            winStateChange();
+            if (mainGameLoop())
+                winStateChange();
 
+            //TODO: fix below condition for winning player; losing player is not removed from playerlist
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
             if (playersList.size() == 1)
                 winners.push_back(playersList.at(0)->getName());
@@ -617,6 +619,11 @@ void GameEngine::tournamentMode(Command &command) {
             playersList.clear();
         }
     }
+
+    for (auto winner: winners)
+        cout << winner << " ";
+    cout << endl;
+
     return; //TODO: remove this line once the tournament is running properly; this line is included to avoid flooding gamelog.txt while testing
 
     fstream output("gamelog.txt", std::ios::out);

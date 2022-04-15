@@ -47,7 +47,7 @@ public:
     void addPlayer();
 
 //==== main game loop: reinforcement, order issuing & execution phases ====
-    void mainGameLoop();
+    bool mainGameLoop();
 
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();

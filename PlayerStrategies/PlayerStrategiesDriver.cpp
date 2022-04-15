@@ -25,8 +25,8 @@ void PlayerStrategiesDriver() {
     auto *logObserver = new LogObserver();
     Subject::attach(logObserver);
     engine->startupPhase();
-    engine->mainGameLoop();
-    engine->winStateChange();
+    if (engine->mainGameLoop())
+        engine->winStateChange();
 
 //    delete benevolentPlayer;
 //    delete aggressivePlayer;
