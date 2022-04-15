@@ -561,10 +561,6 @@ void GameEngine::tournamentMode(Command &command) {
     cout << noOfGames << endl;
     cout << maxNoOfTurns << endl;
 
-//    return;
-
-    //TODO: implement read command from file
-
     // play each maps by noOfGames times
     for (string map: maps) {
         for (int i = 0; i < noOfGames; i++) {
@@ -632,7 +628,8 @@ void GameEngine::tournamentMode(Command &command) {
         else
             cout << "Name: " << winner.first << endl;
 
-    fstream output("gamelog.txt", std::ios::out);
+    fstream output;
+    output.open("../gamelog.txt", std::ios_base::app | std::ios_base::in);
 
     output << "Tournament mode: " << endl;
     output << "M: ";
@@ -692,6 +689,8 @@ void GameEngine::tournamentMode(Command &command) {
             else
                 output << "|" << setfill(filler2) << setw(width) << "-" << "|" << endl;
     }
+
+    output << endl << endl;
 }
 
 //GameEngine class destructor

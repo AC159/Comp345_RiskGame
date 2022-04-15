@@ -28,8 +28,8 @@ void GameEngine::gamePlayDriver() {
 }
 
 // demonstrates part 2: tournament mode
-void GameEngine::tournamentModeDriver(){
-    GameEngine* game = new GameEngine();
+void GameEngine::tournamentModeDriver() {
+    GameEngine *game = new GameEngine();
     LogObserver *logObserver = new LogObserver();
     Subject::attach(logObserver);
     string welcomeBanner =
@@ -52,20 +52,61 @@ void GameEngine::tournamentModeDriver(){
 
     cout << welcomeBanner << endl << endl;
 
-    cout << "Enter tournament command (tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>: " << endl;
-    CommandProcessor* cp = new CommandProcessor();
-    Command* command = &cp->getCommand();
+    CommandProcessor *cp = new CommandProcessor();
 
-    string temp = command->command;
+    cout << "Command entry methods:\n1. Read from file\n2. Enter in console\nEnter option number: ";
+    string str = "";
+    getline(cin, str);
+    cout << endl;
 
-    bool validateTournament = cp->validate(temp, *game);
-
-    if(validateTournament){
-        command->saveEffect("Tournament command valid.");
-        game->tournamentMode(*command);
+    while (str != "1" && str != "2") {
+        cout << "Invalid selection! Please enter a valid option number: ";
+        getline(cin, str);
+        cout << endl;
     }
-    else {
-        cout << "Tournament command invalid." << endl;
-        command->saveEffect("Invalid command.");
+
+    if (str == "1") {
+        cout << "Enter command file path: ";
+        getline(cin, str);
+        FileLineReader *flr = new FileLineReader(str);
+        flr->openFile();
+        if (flr->isFileOpen())
+            while (!flr->checkEOF()) {
+                string fileLineCommand = flr->readLineFromFile();
+                bool validateTournament = cp->validate(fileLineCommand, *game);
+                Command *command = new Command(fileLineCommand);
+
+                if (validateTournament) {
+                    command->saveEffect("Tournament command valid.");
+                    game->tournamentMode(*command);
+                } else {
+                    cout << "Tournament command invalid." << endl;
+                    command->saveEffect("Invalid command.");
+                }
+
+                delete command;
+                delete game;
+                game = new GameEngine();
+            }
+
+    } else if (str == "2") {
+        cout
+                << "Enter tournament command (tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>: "
+                << endl;
+//        CommandProcessor *cp = new CommandProcessor();
+        Command *command = &cp->getCommand();
+        cout << command->command << endl;
+
+        string temp = command->command;
+
+        bool validateTournament = cp->validate(temp, *game);
+
+        if (validateTournament) {
+            command->saveEffect("Tournament command valid.");
+            game->tournamentMode(*command);
+        } else {
+            cout << "Tournament command invalid." << endl;
+            command->saveEffect("Invalid command.");
+        }
     }
 }
