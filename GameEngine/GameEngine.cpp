@@ -263,7 +263,8 @@ void GameEngine::addPlayer() {
                 else cout << "Invalid input! Please enter a valid choice." << endl;
             }
             cin.ignore();
-            auto *p = new Players::Player(command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
+            auto *p = new Players::Player(
+                    command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
             PlayerStrategies *ps;
 
             if (choice == "1") ps = new BenevolentPlayerStrategy(p);
@@ -449,7 +450,7 @@ bool GameEngine::executeOrdersPhase() {
         }
     }
 
-    for (const auto &player : playersList) {
+    for (const auto &player: playersList) {
         player->cannotAttack.clear(); //reset each player's negotiation list at the end of the turn
 
         if (player->receivesCard) {
@@ -467,7 +468,7 @@ bool GameEngine::executeOrdersPhase() {
 // returns whether any of the players have orders left in their order list
 bool GameEngine::ordersRemain() {
     if (std::all_of(playersList.begin(), playersList.end(),
-                    [](Players::Player *p){ return p->orders->length() == 0; })) {
+                    [](Players::Player *p) { return p->orders->length() == 0; })) {
         return false;
     }
     return true;
@@ -563,7 +564,7 @@ void GameEngine::tournamentMode(Command &command) {
     // play each maps by noOfGames times
     for (string map: maps) {
         for (int i = 0; i < noOfGames; i++) {
-            cout<< "<<<<<<<<<<<<<<<" << " Game number: " << i << " >>>>>>>>>>>>>>>" <<endl;
+            cout << "<<<<<<<<<<<<<<<" << " Game number: " << i + 1 << " >>>>>>>>>>>>>>>" << endl;
 
             changeState("start");
             if (!this->mapLoader->loadMap("../WarzoneMaps/" + map + "/" + map + ".map")) {
@@ -592,9 +593,6 @@ void GameEngine::tournamentMode(Command &command) {
                     cout << player->getName() << endl;
                 delete mapLoader->map;
                 mapLoader->map = new Graph::Map();
-                for (Players::Player *p: playersList) {
-                    delete p;
-                }
                 playersList.clear();
                 continue;
             }
@@ -612,6 +610,7 @@ void GameEngine::tournamentMode(Command &command) {
             // reset map and players list
             delete mapLoader->map;
             mapLoader->map = new Graph::Map();
+            //TODO: remove the below loop for player deletion; no longer needed and will cause segmentation fault if not removed; playerList.clear() is still needed, however
             for (Players::Player *p: playersList) {
                 delete p;
             }
