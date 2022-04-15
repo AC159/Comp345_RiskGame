@@ -242,7 +242,7 @@ void Advance::execute() {
 
             //if the target is a neutral strategy player and is attacked, the target switches strategy and
             //becomes an aggressive player
-           if(target->owner->ps->strategyType == "neutral"){
+           if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
                delete target->owner->ps; //deleting neutral strat player not to cause memory leaks
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
             cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
@@ -271,7 +271,7 @@ void Advance::execute() {
 
         //if the target is a neutral strategy player and is attacked, the target switches strategy and
         //becomes an aggressive player
-        if(target->owner->ps->strategyType == "neutral"){
+        if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
             cout<< target->owner->getName()<<" was attacked by "<<source->owner->getName()<<" on territory: "<<target->name <<endl;
             delete target->owner->ps; //deleting neutral strat player not to cause memory leaks
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
@@ -509,12 +509,12 @@ void Blockade::execute() {
 
         // get a neutral player in the player list, if it exists
         auto neutralPlayerIt = find_if(players.begin(), players.end(), [](Players::Player *p) {
-            return p->ps->strategyType == "neutral";
+            return p->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE;
         });
 
         if (neutralPlayerIt == players.end()) { // neutral player must be created
             newNeutralId += 1;
-            auto neutralPlayer = new Players::Player("neutral" + to_string(newNeutralId));
+            auto neutralPlayer = new Players::Player(PlayerStrategies::NEUTRAL_TYPE + to_string(newNeutralId));
             players.push_back(neutralPlayer);
             target->transferOwnership(neutralPlayer);
         } else { // neutral player exists
