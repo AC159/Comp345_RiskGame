@@ -15,7 +15,6 @@ namespace Orders {
     class Airlift;
     class Negotiate;
     class OrdersList;
-    void ordersDriver();
     std::ostream & operator<<(std::ostream &out, const Order &order);
     std::ostream & operator<<(std::ostream &out, const Deploy &deploy);
     std::ostream & operator<<(std::ostream &out, const Advance &advance);
@@ -57,11 +56,13 @@ protected:
  * by the player issuing this order.*/
 class Orders::Deploy : public Order {
 public:
-    Graph::Territory *target;   //the territory where armies will be deployed
-    int armies;                 //the number of armies to deploy
+    Graph::Territory *target;       //the territory where armies will be deployed
+    int armies;                     //the number of armies to deploy
+    const bool isReinforcementCard; //true if this order was issued using a reinforcement card
 
     Deploy();
     Deploy(Players::Player *issuer, Graph::Territory *target, int armies);
+    Deploy(Players::Player *issuer, Graph::Territory *target, int armies, bool reinforcement);
     Deploy(const Deploy &deploy);
     ~Deploy() override;
 
@@ -134,10 +135,10 @@ public:
  * the territory to the Neutral player. This order can only be created by playing the blockade card.*/
 class Orders::Blockade : public Order {
 public:
-    Graph::Territory *target;   //the territory to turn into a neutral blockade
+    Graph::Territory *target;                //the territory to turn into a neutral blockade
+    std::vector<Players::Player *> &players; //the list of players currently playing the game
 
-    Blockade();
-    Blockade(Players::Player *issuer, Graph::Territory *target);
+    Blockade(Players::Player *issuer, Graph::Territory *target, std::vector<Players::Player *> &players);
     Blockade(const Blockade&);
     ~Blockade() override;
 
@@ -152,6 +153,9 @@ public:
     std::ostream & write(std::ostream &out) const override;
     [[nodiscard]] std::string toString() const override;
     void displayStats(bool beforeExecution) const override;
+
+private:
+    static int newNeutralId;
 };
 
 /* An airlift order tells a number of armies taken from a source territory to be moved to a target territory.

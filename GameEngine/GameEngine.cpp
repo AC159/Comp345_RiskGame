@@ -2,8 +2,7 @@
 #include <filesystem>
 #include <utility>
 #include <experimental/random>
-//#include <iomanip>
-//#include <fstream>
+#include "../PlayerStrategies/PlayerStrategies.h"
 
 
 #ifdef _WIN32 // any windows system
@@ -21,7 +20,7 @@ GameEngine::GameEngine() {
     processor = new CommandProcessor();
     deck = new Cards::Deck();
     deck->fillDeckWithCards();
-    state = "NULL";
+    state = "NULL"; //TODO: keep an eye out for this added line in case it is interfering with main branch functionality
 }
 
 GameEngine::GameEngine(const GameEngine &game) {
@@ -58,7 +57,7 @@ ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
 // method to set and output current game state
 void GameEngine::changeState(string changedState) {
     this->state = std::move(changedState);
-    cout << "========== state = " << this->state << " ==========" << endl;
+    cout << "\n========== state = " << this->state << " ==========" << endl;
     notify(*this);
 }
 
@@ -249,8 +248,31 @@ void GameEngine::addPlayer() {
             command.saveEffect(effect);
             continue;
         } else {
-            auto *p = new Players::Player(
-                    command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
+            string choice;
+            while (true) {
+                cout << "What kind of player would you like to be? " << endl;
+                cout << "1. Benevolent player" << endl;
+                cout << "2. Cheater player" << endl;
+                cout << "3. Neutral player" << endl;
+                cout << "4. Aggressive player" << endl;
+                cout << "5. Human player" << endl;
+
+                cout << "Enter choice: ";
+                cin >> choice;
+                if (choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5") break;
+                else cout << "Invalid input! Please enter a valid choice." << endl;
+            }
+            cin.ignore();
+            auto *p = new Players::Player(command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
+            PlayerStrategies *ps;
+
+            if (choice == "1") ps = new BenevolentPlayerStrategy(p);
+            else if (choice == "2") ps = new CheaterPlayerStrategy(p);
+            else if (choice == "3") ps = new NeutralPlayerStrategy(p);
+            else if (choice == "4") ps = new AggressivePlayerStrategy(p);
+            else if (choice == "5") ps = new HumanPlayerStrategy(p);
+
+            p->ps = ps; // assign player strategy to player
             this->playersList.push_back((p));
             count++;
             command.saveEffect("playersadded");
@@ -287,6 +309,9 @@ void GameEngine::reinforcementPhase() {
                                  [](Players::Player *p) { return p->reinforcementPool == 50; });
     if (!firstTurn) {
         assignReinforcementStateChange();
+
+        // reset each player's reinforcement pool to 0
+        for_each(playersList.begin(), playersList.end(), [](Players::Player *p) { p->reinforcementPool = 0; });
     }
 
     for (auto player: playersList) {
@@ -345,7 +370,9 @@ void GameEngine::issueOrdersPhase() {
     issueOrdersStateChange();
 
     for (auto player: playersList) {
-        player->issueOrder(deck, mapLoader->map);
+        cout << "\n———→ " << player->getName() << "'s turn to issue orders using " << player->ps->strategyType
+             << " strategy\n";
+        player->issueOrder(*this);
     }
 }
 
@@ -355,7 +382,7 @@ void GameEngine::executeOrdersStateChange() {
     GameEngine::changeState("execute orders");
 }
 
-/* executes all issued orders in round-robin fashion accross the players, prioritizing deploy orders
+/* executes all issued orders in round-robin fashion across the players, prioritizing deploy orders
  * returns true if a player won during the turn*/
 bool GameEngine::executeOrdersPhase() {
     executeOrdersStateChange();
@@ -365,8 +392,8 @@ bool GameEngine::executeOrdersPhase() {
     bool doneDeploying = false;
 
     while (ordersRemain()) {
-        for (auto it = playersList.begin(); it < playersList.end(); it++) {
-            Players::Player *player = *it;
+        for (int i = 0; i < playersList.size();) {
+            Players::Player *player = playersList[i];
             Orders::Order *topOrder = player->orders->element(0);
 
             //deployment is confirmed to be completed once every player's top order was found to not be of deploy type
@@ -378,16 +405,18 @@ bool GameEngine::executeOrdersPhase() {
                 skipStrike = 0;
 
                 //save the targeted territory's owner to check if they should be eliminated afterwards
-                auto targetPlayerIt = playersList.end();
+                long targetPlayerIndex = -1;
                 if (topOrder->type == "advance") {
                     Orders::Advance &advanceOrder = (dynamic_cast<Orders::Advance &>(*topOrder));
                     if (advanceOrder.target != nullptr) { // avoid runtime error
-                        targetPlayerIt = std::find(playersList.begin(), playersList.end(),
-                                                   advanceOrder.target->owner);
+                        targetPlayerIndex =
+                                std::find(playersList.begin(), playersList.end(), advanceOrder.target->owner) -
+                                playersList.begin();
                     }
                 }
 
                 topOrder->execute();
+                player->orders->remove(0);
 
                 //player won if they own all territories
                 if (player->territories.size() == mapLoader->map->territories.size()) {
@@ -395,22 +424,32 @@ bool GameEngine::executeOrdersPhase() {
                     return true;
                 }
 
-                //player is eliminated if their last territory was taken
-                if (targetPlayerIt != playersList.end() && (*targetPlayerIt)->territories.empty()
-                    && targetPlayerIt != it) {
-                    cout << " → " << (*targetPlayerIt)->getName() << " is eliminated." << endl;
-                    delete *targetPlayerIt;
-                    playersList.erase(targetPlayerIt);
+                //target player is eliminated if their last territory was taken after an advance order
+                if (targetPlayerIndex != -1 && playersList[targetPlayerIndex]->territories.empty()
+                    && playersList[targetPlayerIndex] != player) {
+                    cout << " → " << playersList[targetPlayerIndex]->getName() << " is eliminated." << endl;
+                    playersList[targetPlayerIndex]->isEliminated = true;
+                    eliminatedPlayers.push_back(playersList[targetPlayerIndex]);
+                    playersList.erase(playersList.begin() + targetPlayerIndex);
                 }
 
-                player->orders->remove(0);
+                //player eliminates self if they played a blockade on their last territory
+                if (player->territories.empty()) {
+                    cout << " → " << player->getName() << " is eliminated." << endl;
+                    player->isEliminated = true;
+                    eliminatedPlayers.push_back(player);
+                    playersList.erase(playersList.begin() + i);
+                } else {
+                    i++;
+                }
             } else {
                 skipStrike++;
+                i++;
             }
         }
     }
 
-    for (const auto &player: playersList) {
+    for (const auto &player : playersList) {
         player->cannotAttack.clear(); //reset each player's negotiation list at the end of the turn
 
         if (player->receivesCard) {
@@ -428,7 +467,7 @@ bool GameEngine::executeOrdersPhase() {
 // returns whether any of the players have orders left in their order list
 bool GameEngine::ordersRemain() {
     if (std::all_of(playersList.begin(), playersList.end(),
-                    [](Players::Player *p) { return p->orders->length() == 0; })) {
+                    [](Players::Player *p){ return p->orders->length() == 0; })) {
         return false;
     }
     return true;
@@ -650,7 +689,10 @@ GameEngine::~GameEngine() {
     mapLoader = nullptr;
     delete processor;
     delete deck;
-    for (Players::Player *p: playersList) {
+    for (auto *p: playersList) {
+        delete p;
+    }
+    for (auto *p: eliminatedPlayers) {
         delete p;
     }
     playersList.clear();

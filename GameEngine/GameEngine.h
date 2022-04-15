@@ -68,6 +68,7 @@ public:
     void tournamentMode(Command& command);
 
 private:
+    vector<Players::Player *> eliminatedPlayers;
     string state;
 
     void changeState(string state); //state to change current stated and output current state

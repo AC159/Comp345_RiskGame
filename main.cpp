@@ -3,6 +3,8 @@
 #include "Player/Player.h"
 #include "GameEngine/GameEngine.h"
 #include "CommandProcessor/CommandProcessing.h"
+#include "PlayerStrategies/PlayerStrategies.h"
+
 
 using namespace std;
 using namespace Graph;
@@ -14,8 +16,8 @@ int main() {
 
     do {
         cout << "Command list:\n"
-                "1. Part 1: Command processor and command adapter\n"
-                "2. Part 2: Tournament mode\n"
+                "1. Part 1: Player Strategies\n"
+                "2. Part 2: Tournament Mode\n"
                 "3. Exit\n"
                 "Select the part you would like to run: ";
         cin >> userInput;
@@ -23,8 +25,8 @@ int main() {
         cout << endl;
 
         if (userInput == "1") {
-            cout << "Part 1: Command processor and command adapter" << endl;
-            CommandProcessor::commandProcessorDriver();
+            cout << "Part 1: Player Strategies" << endl;
+            PlayerStrategiesDriver();
         } else if (userInput == "2") {
             cout << "Part 2: Tournament mode" << endl;
             GameEngine::tournamentModeDriver();
@@ -32,6 +34,5 @@ int main() {
             cout << "ERROR: Invalid input!" << endl;
     } while (userInput != "3");
 
-    delete Players::Player::neutralPlayer;
     return 0;
 }

@@ -40,6 +40,11 @@ std::ostream &Cards::operator<<(std::ostream &out, const Deck &deck) {
 }
 
 Card *Deck::draw() {
+    // re-fill deck if it is empty
+    if (this->cards.empty()) {
+        this->fillDeckWithCards();
+    }
+
     // randomly draw a card from the deck, remove it from the deck and return a pointer to that card
     int lastCardIndex = this->cards.size() - 1;
     int randomCardIndex = std::experimental::randint(0, lastCardIndex);
@@ -180,7 +185,7 @@ void Reinforcement::play(Players::Player *player, Deck *deck, Graph::Territory *
 
 
     player->reinforcementPool = player->reinforcementPool + 5;
-    player->orders->add(new Orders::Deploy(player, target, 5));
+    player->orders->add(new Orders::Deploy(player, target, 5, true));
     std::cout << " (issued by playing a reinforcement card)\n";
 
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
@@ -216,9 +221,10 @@ std::string Blockade::getType() const {
     return this->type;
 }
 
-void Blockade::play(Players::Player *player, Deck *deck, Graph::Territory *target) {
+void Blockade::play(Players::Player *player, Deck *deck, Graph::Territory *target,
+                    std::vector<Players::Player *> &players) {
     // issue a blockade order and remove that card from the player's hand of cards and put it back into the deck
-    auto *blockade = new Orders::Blockade(player, target);
+    auto *blockade = new Orders::Blockade(player, target, players);
     player->orders->add(blockade);
     std::cout << " (issued by playing a blockade card)" << std::endl;
     auto it = std::find(player->hand->cards.begin(), player->hand->cards.end(),
