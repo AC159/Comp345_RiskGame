@@ -243,6 +243,7 @@ void Advance::execute() {
             //if the target is a neutral strategy player and is attacked, the target switches strategy and
             //becomes an aggressive player
            if(target->owner->ps->strategyType == "neutral"){
+               delete target->owner->ps; //deleting neutral strat player not to cause memory leaks
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
             cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
            }
@@ -272,6 +273,7 @@ void Advance::execute() {
         //becomes an aggressive player
         if(target->owner->ps->strategyType == "neutral"){
             cout<< target->owner->getName()<<" was attacked by "<<source->owner->getName()<<" on territory: "<<target->name <<endl;
+            delete target->owner->ps; //deleting neutral strat player not to cause memory leaks
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
             cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
         }
@@ -401,6 +403,7 @@ void Bomb::execute() {
     }
     // bomb is considered an attack, if target is a neutral strategy player, then switch to aggressive strategy player
     if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
+        delete target->owner->ps; //deleting neutral strat player not to cause memory leaks
         cout<<target->owner->getName()<<" JUST GOT BOMBED"<<endl;
         target->owner->ps = new AggressivePlayerStrategy(target->owner);
         cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
