@@ -151,8 +151,10 @@ void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
 
             // sort these territories based on the number of armies in each of them
             // this function uses the overloaded operator < in the Territory class
-            std::sort(enemyTerritories.begin(), enemyTerritories.end());
-            dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
+            if (!enemyTerritories.empty()) {
+                std::sort(enemyTerritories.begin(), enemyTerritories.end());
+                dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
+            }
         }
     }
 
