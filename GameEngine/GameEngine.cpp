@@ -424,6 +424,14 @@ bool GameEngine::executeOrdersPhase() {
                 //player won if they own all territories
                 if (player->territories.size() == mapLoader->map->territories.size()) {
                     cout << player->getName() << " won!" << endl;
+                    //loop to remove the last losing player from the playerList, ensuring playerList ends with a size of 1
+                    for (int i = 0; i < playersList.size(); i++)
+                        if (player->getName() != playersList.at(i)->getName()) {
+                            playersList.at(i)->isEliminated = true;
+                            eliminatedPlayers.push_back(playersList.at(i));
+                            playersList.erase(playersList.begin() + i);
+                            i--;
+                        }
                     return true;
                 }
 
@@ -556,7 +564,6 @@ void GameEngine::tournamentMode(Command &command) {
 //    return;
 
     //TODO: implement max number of turns
-    //TODO: implement winner player names storage and display
 
     // play each maps by noOfGames times
     for (string map: maps) {
@@ -620,9 +627,9 @@ void GameEngine::tournamentMode(Command &command) {
         }
     }
 
+    cout << "Winners list:" << endl;
     for (auto winner: winners)
-        cout << winner << " ";
-    cout << endl;
+        cout << winner << endl;
 
     return; //TODO: remove this line once the tournament is running properly; this line is included to avoid flooding gamelog.txt while testing
 
