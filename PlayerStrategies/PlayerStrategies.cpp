@@ -300,18 +300,23 @@ std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater
 //country, then always advances to enemy territories until it cannot do so anymore).
 // ================== Aggressive Player Strategy Implementation ==================
 
+// constructor
 AggressivePlayerStrategy::AggressivePlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::AGGRESSIVE_TYPE) {}
 
+// copy constructor
 AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy &aggressive) : PlayerStrategies(aggressive.player,PlayerStrategies::AGGRESSIVE_TYPE){}
 
+// destructor
 AggressivePlayerStrategy::~AggressivePlayerStrategy() = default;
 
+// assignment operator
 AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy &aggressive) {
     if (this ==&aggressive) return *this;
     this->player =aggressive.player;
     return *this;
 }
 
+// stream insertion operator
 std::ostream &operator<<(std::ostream &out, const AggressivePlayerStrategy &aggressive) {
     out << "Player " << aggressive.player->getName() << " is playing the aggressive player strategy" << std::endl;
     return out;
@@ -339,6 +344,11 @@ std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
+/**
+ * Aggressive player moves all his armies to defend his strongest territory and
+ * attacks the weakest adjacent enemy territory with that army
+ * @param game the engine running the current game
+ */
 void AggressivePlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
@@ -393,36 +403,43 @@ void AggressivePlayerStrategy::issueOrder(GameEngine &game) {
     }
 }
 
-//computer player that never issues any order. If a Neutral player is attacked, it becomes an
-//Aggressive player.
+//computer player that never issues any order. If a Neutral player is attacked, it becomes an aggressive player
 // ================== Neutral Player Strategy Implementation ==================
+//constructor
 NeutralPlayerStrategy::NeutralPlayerStrategy(Players::Player *p) : PlayerStrategies(p,PlayerStrategies::NEUTRAL_TYPE) {}
-
+// copy constructor
 NeutralPlayerStrategy::NeutralPlayerStrategy(const NeutralPlayerStrategy &neutral) : PlayerStrategies(neutral.player, PlayerStrategies::NEUTRAL_TYPE) {}
 
+// destructor
 NeutralPlayerStrategy::~NeutralPlayerStrategy() = default;
 
+// assignment operator
 NeutralPlayerStrategy& NeutralPlayerStrategy::operator=(const NeutralPlayerStrategy &neutral){
     if(this ==&neutral) return *this;
     this->player = neutral.player;
     return *this;
 }
-
+// stream insertion operator
 std::ostream &operator<<(std::ostream &out, const NeutralPlayerStrategy &neutral) {
     out << "Player " << neutral.player->getName() << " is playing the neutral player strategy" << std::endl;
     return out;
 }
-
+// method returns empty list of territories todefend since the neutral player does not issue orders
 std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges){
     std::multimap<int,Graph::Territory *> territoriesToDefend;
     //returns an empty map because a neutral player doesnt issue orders
     return territoriesToDefend;
 }
+// method returns empty list of territories toAttack since the neutral player does not issue orders
 std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
     std::multimap<int, Graph::Territory *> territoriesToAttack;
     //returns an empty map because a neutral player doesnt issue orders
     return territoriesToAttack;
 }
+/**
+ * Neutral player does not issue orders and does not play cards
+ * @param game the engine running the current game
+ */
 void NeutralPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
