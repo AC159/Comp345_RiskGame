@@ -110,6 +110,7 @@ void GameEngine::gameStart() {
         }
     }
 
+    cout << endl;
     cout << "Assigning territories to players..." << endl;
     // copy all territory pointers into another vector in order to randomly distribute territories to players
     vector<Graph::Territory *> territories = this->mapLoader->map->territories;
@@ -554,7 +555,6 @@ void GameEngine::tournamentMode(Command &command) {
 //    return;
 
     //TODO: implement max number of turns
-    //TODO: implement player strategies in tournament
     //TODO: implement winner player names storage and display
 
     // play each maps by noOfGames times
@@ -571,7 +571,7 @@ void GameEngine::tournamentMode(Command &command) {
             mapLoadedStateChange();
             if (!mapLoader->map->validate()) {
                 cout << map + " is an invalid map." << endl;
-                return; //TODO: test that this is appropriate/working properly in this case; should prevent the game from continuing if the map is not validated
+                return;
             }
 
             mapValidatedStateChange();
@@ -592,21 +592,14 @@ void GameEngine::tournamentMode(Command &command) {
                 this->playersList.push_back((p));
             }
 
-            //TODO: remove the below code block
-            {
-                for (auto player: playersList)
-                    cout << player->getName() << " " << player->ps->strategyType <<endl;
-                delete mapLoader->map;
-                mapLoader->map = new Graph::Map();
-                for (Players::Player *p: playersList) {
-                    delete p;
-                }
-                playersList.clear();
-                continue;
-            }
+            streambuf *orig = std::cin.rdbuf(); //saving original cin state
+            cin.rdbuf(istringstream(
+                    "gamestart").rdbuf()); //injecting "gamestart" string into cin to be read by gameStart() method
+            gameStart(); //calling gameStart() method to assign territories and cards to players
+            cin.rdbuf(orig); //setting cin to its original state; runtime error occurs otherwise
 
             assignReinforcementStateChange();
-            mainGameLoop(); //TODO: need to assign territories to players
+            mainGameLoop();
             winStateChange();
 
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
