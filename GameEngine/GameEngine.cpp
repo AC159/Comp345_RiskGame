@@ -495,7 +495,7 @@ void GameEngine::tournamentMode(Command &command) {
     string tournamentCommand = command.command;
     vector<string> maps;
     vector<string> playerStrategies;
-    vector<string> winners;
+    multimap<string, string> winners;
     int noOfGames;
     int maxNoOfTurns;
 
@@ -564,6 +564,7 @@ void GameEngine::tournamentMode(Command &command) {
 //    return;
 
     //TODO: implement max number of turns
+    //TODO: implement read command from file
 
     // play each maps by noOfGames times
     for (string map: maps) {
@@ -610,12 +611,11 @@ void GameEngine::tournamentMode(Command &command) {
             if (mainGameLoop())
                 winStateChange();
 
-            //TODO: fix below condition for winning player; losing player is not removed from playerlist
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
             if (playersList.size() == 1)
-                winners.push_back(playersList.at(0)->getName());
+                winners.emplace(playersList.at(0)->getName(), playersList.at(0)->ps->strategyType);
             else
-                winners.push_back("Draw");
+                winners.emplace("Draw", "");
 
             // reset map and players list
             delete mapLoader->map;
@@ -629,7 +629,11 @@ void GameEngine::tournamentMode(Command &command) {
 
     cout << "Winners list:" << endl;
     for (auto winner: winners)
-        cout << winner << endl;
+        if (winner.first != "Draw")
+            cout << "Name: " << winner.first << ", Strategy: " << winner.second << endl;
+        else
+            cout << "Name: " << winner.first << endl;
+
 
     return; //TODO: remove this line once the tournament is running properly; this line is included to avoid flooding gamelog.txt while testing
 
