@@ -139,7 +139,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
         }
     }
     else if(vectorSize > 5){
-        if(currentState == "NULL" && inputWords.at(0) == "tournament" && inputWords.at(1) == "-M"){
+        if(currentState == "" && inputWords.at(0) == "tournament" && inputWords.at(1) == "-M"){
             int previousPos = 1; // position of the past '-'
             string nextStr[3] = {"P", "G", "D"}; // next string in the tournament string
             int index = 0; // index for nextStr[]

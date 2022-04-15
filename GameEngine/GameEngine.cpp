@@ -20,7 +20,6 @@ GameEngine::GameEngine() {
     processor = new CommandProcessor();
     deck = new Cards::Deck();
     deck->fillDeckWithCards();
-    state = "NULL"; //TODO: keep an eye out for this added line in case it is interfering with main branch functionality
 }
 
 GameEngine::GameEngine(const GameEngine &game) {
@@ -289,7 +288,10 @@ bool GameEngine::mainGameLoop(int maxNumberOfTurns) {
     while (!playerWon) {
         turnCount++;
         if (turnCount == maxNumberOfTurns + 1) {
-            cout << "* ERROR:  Too many turns. Main game loop terminated to avoid infinite loop. *\n" << endl;
+            if (maxNumberOfTurns == 500)
+                cout << "* ERROR: Too many turns. Main game loop terminated to avoid infinite loop. *\n" << endl;
+            else
+                cout << "* " << maxNumberOfTurns << " turns have been played. Game concludes as a draw. *\n" << endl;
             break;
         }
         cout << " —▶ TURN " << turnCount << endl;
@@ -526,41 +528,6 @@ void GameEngine::tournamentMode(Command &command) {
     lineBetween = tournamentCommand.substr(tournamentCommand.find("-D") + 2);
     maxNoOfTurns = std::stoi(lineBetween);
 
-//    cout << "*" << endl;
-//    for(string m: maps)
-//        cout << m << endl;
-//    for(string ps: playerStrategies)
-//        cout << ps << endl;
-//    cout << noOfGames << endl;
-//    cout << maxNoOfTurns << endl;
-//    cout << "*" << endl;
-
-//    for(string m: maps){
-//        bool validateFile = this->mapLoader->loadMap("../WarzoneMaps/" + m + "/" + m + ".map");
-//        if(validateFile){
-//            if(!mapLoader->map->validate())
-//                cout << "Invalid map." << endl;
-//        }
-//        else {
-//            cout << "Invalid map file." << endl;
-//        }
-//        delete mapLoader->map;
-//        mapLoader->map = new Graph::Map();
-//    }
-
-
-//delete below code upto return
-    for (auto map: maps)
-        cout << map << " ";
-    cout << endl;
-
-    for (auto strategy: playerStrategies)
-        cout << strategy << " ";
-    cout << endl;
-
-    cout << noOfGames << endl;
-    cout << maxNoOfTurns << endl;
-
     // play each maps by noOfGames times
     for (string map: maps) {
         for (int i = 0; i < noOfGames; i++) {
@@ -620,13 +587,6 @@ void GameEngine::tournamentMode(Command &command) {
             playersList.clear();
         }
     }
-
-    cout << "Winners list:" << endl;
-    for (auto winner: winners)
-        if (winner.first != "Draw")
-            cout << "Name: " << winner.first << ", Strategy: " << winner.second << endl;
-        else
-            cout << "Name: " << winner.first << endl;
 
     fstream output;
     output.open("../gamelog.txt", std::ios_base::app | std::ios_base::in);
@@ -691,6 +651,57 @@ void GameEngine::tournamentMode(Command &command) {
     }
 
     output << endl << endl;
+
+    cout << "Tournament mode: " << endl;
+    cout << "M: ";
+    for (string map: maps)
+        cout << map << ", ";
+    cout << endl;
+    cout << "P: ";
+    for (string player: playerStrategies)
+        cout << player << ", ";
+    cout << endl;
+    cout << "G: " << noOfGames << endl;
+    cout << "D: " << maxNoOfTurns << endl << endl << "|";
+
+    init.copyfmt(cout);
+
+    // header row of the table
+    for (int i = 0; i < noOfColumns; i++)
+        cout << left << setw(width) << setfill(filler2) << "" << "|";
+    cout << endl << "|";
+
+    for (int i = 0; i < noOfColumns; i++) {
+        if (i == 0) {
+            cout << left << setw(width) << setfill(filler1) << "" << "|";
+        } else
+            cout << left << setw(width) << setfill(filler1) << (indent + "Game " + to_string(i)) << "|";
+    }
+    cout << endl << "|";
+    for (int i = 0; i < noOfColumns; i++)
+        cout << left << setw(width) << setfill(filler2) << ("") << "|";
+    cout << endl;
+
+    cout.copyfmt(init);
+
+    // consequent rows of the table
+    for (int i = 0; i < maps.size(); i++) {
+        cout << "| " << maps.at(i) << setfill(filler1) << setw(width - maps.at(i).length() + 1);
+        for (int j = i * noOfGames; j < (i + 1) * noOfGames; j++)
+            if (j != (i + 1) * noOfGames - 1)
+                cout << "| " << winners.at(j).second << setfill(filler1)
+                     << setw(width - winners.at(j).second.length() + 1);
+            else
+                cout << "| " << winners.at(j).second << setfill(filler1)
+                     << setw(width - winners.at(j).second.length()) << "|" << endl;
+        for (int j = 0; j <= noOfGames; j++)
+            if (j != noOfGames)
+                cout << "|" << setfill(filler2) << setw(width) << "-";
+            else
+                cout << "|" << setfill(filler2) << setw(width) << "-" << "|" << endl;
+    }
+
+    cout << endl << endl;
 }
 
 //GameEngine class destructor
