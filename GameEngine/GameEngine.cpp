@@ -495,7 +495,7 @@ void GameEngine::tournamentMode(Command &command) {
     string tournamentCommand = command.command;
     vector<string> maps;
     vector<string> playerStrategies;
-    multimap<string, string> winners;
+    vector<pair<string, string>> winners;
     int noOfGames;
     int maxNoOfTurns;
 
@@ -611,9 +611,9 @@ void GameEngine::tournamentMode(Command &command) {
 
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
             if (playersList.size() == 1)
-                winners.emplace(playersList.at(0)->getName(), playersList.at(0)->ps->strategyType);
+                winners.push_back(make_pair(playersList.at(0)->getName(), playersList.at(0)->ps->strategyType));
             else
-                winners.emplace("Draw", "");
+                winners.push_back(make_pair("Draw", "Draw"));
 
             // reset map and players list
             delete mapLoader->map;
@@ -632,22 +632,19 @@ void GameEngine::tournamentMode(Command &command) {
         else
             cout << "Name: " << winner.first << endl;
 
-
-    return; //TODO: remove this line once the tournament is running properly; this line is included to avoid flooding gamelog.txt while testing
-
     fstream output("gamelog.txt", std::ios::out);
 
     output << "Tournament mode: " << endl;
     output << "M: ";
     for (string map: maps)
         output << map << ", ";
-    output << "\b\b" << " " << endl;
+    output << endl;
     output << "P: ";
     for (string player: playerStrategies)
         output << player << ", ";
-    output << "\b\b" << " " << endl;
-    output << ("G: " + noOfGames) << endl;
-    output << ("D: " + maxNoOfTurns) << endl << endl;
+    output << endl;
+    output << "G: " << noOfGames << endl;
+    output << "D: " << maxNoOfTurns << endl << endl << "|";
 
     int noOfColumns = noOfGames + 1;
     int width = 14;
@@ -662,39 +659,38 @@ void GameEngine::tournamentMode(Command &command) {
     // header row of the table
     for (int i = 0; i < noOfColumns; i++)
         output << left << setw(width) << setfill(filler2) << "" << "|";
-    output << "|";
+    output << endl << "|";
+
     for (int i = 0; i < noOfColumns; i++) {
         if (i == 0) {
             output << left << setw(width) << setfill(filler1) << "" << "|";
         } else
             output << left << setw(width) << setfill(filler1) << (indent + "Game " + to_string(i)) << "|";
     }
-    output << "|";
+    output << endl << "|";
     for (int i = 0; i < noOfColumns; i++)
         output << left << setw(width) << setfill(filler2) << ("") << "|";
+    output << endl;
 
     output.copyfmt(init);
 
     // consequent rows of the table
     auto winnerName = winners.begin();
     auto mapName = maps.begin();
-    for (int i = 0; i < maps.size() * 2; i++) {
-        if (i % 2 == 0) {
-            for (int column = 0; column < noOfColumns; column++) {
-                if (column == 0) {
-//                    output << left << setw(width) << setfill(filler1) << (indent + mapName) << "|";
-                    mapName++;
-                } else {
-//                    output << left << setw(width) << setfill(filler1) << (indent + winnerName) << "|";
-                    winnerName++;
-                }
-            }
-        } else {
-            output << "|";
-            for (int column = 0; column < noOfColumns; column++) {
-                output << left << setw(width) << setfill(filler2) << ("") << "|";
-            }
-        }
+    for (int i = 0; i < maps.size(); i++) {
+        output << "| " << maps.at(i) << setfill(filler1) << setw(width - maps.at(i).length() + 1);
+        for (int j = i * noOfGames; j < (i + 1) * noOfGames; j++)
+            if (j != (i + 1) * noOfGames - 1)
+                output << "| " << winners.at(j).second << setfill(filler1)
+                       << setw(width - winners.at(j).second.length() + 1);
+            else
+                output << "| " << winners.at(j).second << setfill(filler1)
+                       << setw(width - winners.at(j).second.length()) << "|" << endl;
+        for (int j = 0; j <= noOfGames; j++)
+            if (j != noOfGames)
+                output << "|" << setfill(filler2) << setw(width) << "-";
+            else
+                output << "|" << setfill(filler2) << setw(width) << "-" << "|" << endl;
     }
 }
 
