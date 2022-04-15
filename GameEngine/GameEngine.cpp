@@ -538,12 +538,8 @@ void GameEngine::tournamentMode(Command &command) {
 //        mapLoader->map = new Graph::Map();
 //    }
 
-//    vector<string> maps;
-//    vector<string> playerStrategies;
-//    vector<string> winners;
-//    int noOfGames;
-//    int maxNoOfTurns;
 
+//delete below code upto return
     for (auto map: maps)
         cout << map << " ";
     cout << endl;
@@ -582,23 +578,35 @@ void GameEngine::tournamentMode(Command &command) {
 
             playersAddedStateChange();
             int playerNumber = 1;
+            //TODO: change below loop logic; if first player strategy is aggressive, all players are aggressive for first game (I think, based on assignment description output)
             for (string player: playerStrategies) {
                 Players::Player *p = new Players::Player("Player " + to_string(playerNumber++));
+                if (player == "Benevolent")
+                    p->ps = new BenevolentPlayerStrategy(p);
+                else if (player == "Aggressive")
+                    p->ps = new AggressivePlayerStrategy(p);
+                else if (player == "Neutral")
+                    p->ps = new NeutralPlayerStrategy(p);
+                else if (player == "Cheater")
+                    p->ps = new CheaterPlayerStrategy(p);
                 this->playersList.push_back((p));
             }
 
             //TODO: remove the below code block
             {
                 for (auto player: playersList)
-                    cout << player->getName() << endl;
+                    cout << player->getName() << " " << player->ps->strategyType <<endl;
                 delete mapLoader->map;
                 mapLoader->map = new Graph::Map();
+                for (Players::Player *p: playersList) {
+                    delete p;
+                }
                 playersList.clear();
                 continue;
             }
 
             assignReinforcementStateChange();
-            mainGameLoop();
+            mainGameLoop(); //TODO: need to assign territories to players
             winStateChange();
 
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
@@ -610,7 +618,6 @@ void GameEngine::tournamentMode(Command &command) {
             // reset map and players list
             delete mapLoader->map;
             mapLoader->map = new Graph::Map();
-            //TODO: remove the below loop for player deletion; no longer needed and will cause segmentation fault if not removed; playerList.clear() is still needed, however
             for (Players::Player *p: playersList) {
                 delete p;
             }
