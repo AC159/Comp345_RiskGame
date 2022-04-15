@@ -26,7 +26,7 @@ int main() {
             cout << "Part 1: Command processor and command adapter" << endl;
             CommandProcessor::commandProcessorDriver();
         } else if (userInput == "2") {
-            cout << "Part 2: Tournamend mode" << endl;
+            cout << "Part 2: Tournament mode" << endl;
             GameEngine::tournamentModeDriver();
         } else if (userInput != "3")
             cout << "ERROR: Invalid input!" << endl;

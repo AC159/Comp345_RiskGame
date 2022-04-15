@@ -97,8 +97,9 @@ void GameEngine::startupPhase() {
 
 void GameEngine::gameStart() {
     while (true) {
-        cout << "Use the 'gamestart' command to distribute territories, determine play order, assign initial armies and draw cards from the deck"
-             << endl;
+        cout
+                << "Use the 'gamestart' command to distribute territories, determine play order, assign initial armies and draw cards from the deck"
+                << endl;
         Command command = processor->getCommand();
         if (!processor->validate(command.command, *this)) {
             cout << "Invalid command! Please try again." << endl;
@@ -248,7 +249,8 @@ void GameEngine::addPlayer() {
             command.saveEffect(effect);
             continue;
         } else {
-            auto *p = new Players::Player(command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
+            auto *p = new Players::Player(
+                    command.command.substr(command.command.find_last_of(' ') + 1, command.command.length()));
             this->playersList.push_back((p));
             count++;
             command.saveEffect("playersadded");
@@ -260,7 +262,7 @@ void GameEngine::addPlayer() {
 void GameEngine::mainGameLoop() {
     bool playerWon = false;
     int turnCount = 0;
-    while(!playerWon) {
+    while (!playerWon) {
         turnCount++;
         if (turnCount == 500) {
             cout << "* ERROR:  Too many turns. Main game loop terminated to avoid infinite loop. *\n" << endl;
@@ -408,7 +410,7 @@ bool GameEngine::executeOrdersPhase() {
         }
     }
 
-    for (const auto &player : playersList) {
+    for (const auto &player: playersList) {
         player->cannotAttack.clear(); //reset each player's negotiation list at the end of the turn
 
         if (player->receivesCard) {
@@ -426,7 +428,7 @@ bool GameEngine::executeOrdersPhase() {
 // returns whether any of the players have orders left in their order list
 bool GameEngine::ordersRemain() {
     if (std::all_of(playersList.begin(), playersList.end(),
-                    [](Players::Player *p){ return p->orders->length() == 0; })) {
+                    [](Players::Player *p) { return p->orders->length() == 0; })) {
         return false;
     }
     return true;
@@ -448,7 +450,8 @@ void GameEngine::tournamentMode(Command &command) {
     int maxNoOfTurns;
 
     // get maps from command
-    string lineBetween = tournamentCommand.substr(tournamentCommand.find("-M") + 2, tournamentCommand.find("-P") - tournamentCommand.find("-M") - 2);
+    string lineBetween = tournamentCommand.substr(tournamentCommand.find("-M") + 2,
+                                                  tournamentCommand.find("-P") - tournamentCommand.find("-M") - 2);
     istringstream parse2(lineBetween);
     while (parse2 >> lineBetween) {
         maps.push_back(lineBetween);
@@ -456,15 +459,17 @@ void GameEngine::tournamentMode(Command &command) {
     int numberOfMaps = maps.size();
 
     // get player strats from command
-    lineBetween = tournamentCommand.substr(tournamentCommand.find("-P") + 2, tournamentCommand.find("-G") - tournamentCommand.find("-P") - 2);
+    lineBetween = tournamentCommand.substr(tournamentCommand.find("-P") + 2,
+                                           tournamentCommand.find("-G") - tournamentCommand.find("-P") - 2);
     istringstream parse3(lineBetween);
-    while(parse3 >> lineBetween){
+    while (parse3 >> lineBetween) {
         playerStrategies.push_back(lineBetween);
     }
     int numberOfStrategies = playerStrategies.size();
 
     // get no of games from command
-    lineBetween = tournamentCommand.substr(tournamentCommand.find("-G") + 2, tournamentCommand.find("-D") - tournamentCommand.find("-G") -2);
+    lineBetween = tournamentCommand.substr(tournamentCommand.find("-G") + 2,
+                                           tournamentCommand.find("-D") - tournamentCommand.find("-G") - 2);
     noOfGames = std::stoi(lineBetween);
 
     // get no of turns from command
@@ -493,10 +498,34 @@ void GameEngine::tournamentMode(Command &command) {
 //        mapLoader->map = new Graph::Map();
 //    }
 
+//    vector<string> maps;
+//    vector<string> playerStrategies;
+//    vector<string> winners;
+//    int noOfGames;
+//    int maxNoOfTurns;
+
+    for (auto map: maps)
+        cout << map << " ";
+    cout << endl;
+
+    for (auto strategy: playerStrategies)
+        cout << strategy << " ";
+    cout << endl;
+
+    cout << noOfGames << endl;
+    cout << maxNoOfTurns << endl;
+
+//    return;
+
+    //TODO: implement max number of turns
+    //TODO: implement player strategies in tournament
+    //TODO: implement winner player names storage and display
 
     // play each maps by noOfGames times
-    for(string map: maps){
-        for(int i = 0; i < noOfGames; i++) {
+    for (string map: maps) {
+        for (int i = 0; i < noOfGames; i++) {
+            cout<< "<<<<<<<<<<<<<<<" << " Game number: " << i << " >>>>>>>>>>>>>>>" <<endl;
+
             changeState("start");
             if (!this->mapLoader->loadMap("../WarzoneMaps/" + map + "/" + map + ".map")) {
                 cout << map + ".map is an invalid map file." << endl;
@@ -506,14 +535,29 @@ void GameEngine::tournamentMode(Command &command) {
             mapLoadedStateChange();
             if (!mapLoader->map->validate()) {
                 cout << map + " is an invalid map." << endl;
+                return; //TODO: test that this is appropriate/working properly in this case; should prevent the game from continuing if the map is not validated
             }
 
             mapValidatedStateChange();
 
             playersAddedStateChange();
+            int playerNumber = 1;
             for (string player: playerStrategies) {
-                Players::Player *p = new Players::Player();
+                Players::Player *p = new Players::Player("Player " + to_string(playerNumber++));
                 this->playersList.push_back((p));
+            }
+
+            //TODO: remove the below code block
+            {
+                for (auto player: playersList)
+                    cout << player->getName() << endl;
+                delete mapLoader->map;
+                mapLoader->map = new Graph::Map();
+                for (Players::Player *p: playersList) {
+                    delete p;
+                }
+                playersList.clear();
+                continue;
             }
 
             assignReinforcementStateChange();
@@ -521,7 +565,7 @@ void GameEngine::tournamentMode(Command &command) {
             winStateChange();
 
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
-            if(playersList.size() == 1)
+            if (playersList.size() == 1)
                 winners.push_back(playersList.at(0)->getName());
             else
                 winners.push_back("Draw");
@@ -535,15 +579,17 @@ void GameEngine::tournamentMode(Command &command) {
             playersList.clear();
         }
     }
+    return; //TODO: remove this line once the tournament is running properly; this line is included to avoid flooding gamelog.txt while testing
+
     fstream output("gamelog.txt", std::ios::out);
 
     output << "Tournament mode: " << endl;
     output << "M: ";
-    for(string map: maps)
+    for (string map: maps)
         output << map << ", ";
     output << "\b\b" << " " << endl;
     output << "P: ";
-    for(string player: playerStrategies)
+    for (string player: playerStrategies)
         output << player << ", ";
     output << "\b\b" << " " << endl;
     output << ("G: " + noOfGames) << endl;
@@ -560,39 +606,38 @@ void GameEngine::tournamentMode(Command &command) {
     init.copyfmt(output);
 
     // header row of the table
-    for(int i = 0; i < noOfColumns; i++)
+    for (int i = 0; i < noOfColumns; i++)
         output << left << setw(width) << setfill(filler2) << "" << "|";
     output << "|";
-    for(int i = 0; i < noOfColumns; i++){
-        if(i == 0){
+    for (int i = 0; i < noOfColumns; i++) {
+        if (i == 0) {
             output << left << setw(width) << setfill(filler1) << "" << "|";
-        }
-        else
-            output << left << setw(width) << setfill(filler1) << (indent + "Game " + i) << "|";
+        } else
+            output << left << setw(width) << setfill(filler1) << (indent + "Game " + to_string(i)) << "|";
     }
     output << "|";
-    for(int i = 0; i < noOfColumns; i++)
-            output << left << setw(width) << setfill(filler2) << ("") << "|";
+    for (int i = 0; i < noOfColumns; i++)
+        output << left << setw(width) << setfill(filler2) << ("") << "|";
 
     output.copyfmt(init);
 
     // consequent rows of the table
     auto winnerName = winners.begin();
     auto mapName = maps.begin();
-    for(int i = 0; i < maps.size() * 2; i++) {
-        if(i % 2 == 0) {
+    for (int i = 0; i < maps.size() * 2; i++) {
+        if (i % 2 == 0) {
             for (int column = 0; column < noOfColumns; column++) {
                 if (column == 0) {
-                    output << left << setw(width) << setfill(filler1) << (indent + mapName) << "|";
+//                    output << left << setw(width) << setfill(filler1) << (indent + mapName) << "|";
                     mapName++;
                 } else {
-                    output << left << setw(width) << setfill(filler1) << (indent + winnerName) << "|";
+//                    output << left << setw(width) << setfill(filler1) << (indent + winnerName) << "|";
                     winnerName++;
                 }
             }
         } else {
             output << "|";
-            for (int column = 0; column < noOfColumns; column++){
+            for (int column = 0; column < noOfColumns; column++) {
                 output << left << setw(width) << setfill(filler2) << ("") << "|";
             }
         }
