@@ -93,7 +93,7 @@ void GameEngine::tournamentModeDriver() {
         cout
                 << "Enter tournament command (tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>: "
                 << endl;
-//        CommandProcessor *cp = new CommandProcessor();
+
         Command *command = &cp->getCommand();
         cout << command->command << endl;
 

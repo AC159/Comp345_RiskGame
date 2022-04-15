@@ -140,18 +140,15 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
     }
     else if(vectorSize > 5){
         if(currentState == "" && inputWords.at(0) == "tournament" && inputWords.at(1) == "-M"){
-            int previousPos = 1; // position of the past '-'
             string nextStr[3] = {"P", "G", "D"}; // next string in the tournament string
             int index = 0; // index for nextStr[]
 
             // check order of tournament commands
-            int i = 2;
-            for(i = 2; i < vectorSize; i++){
+            for(int i = 2; i < vectorSize; i++){
                 string temp = inputWords.at(i);
                 if(temp.substr(0, 1) == "-") {
                     if(index < 3 && temp.substr(1, 2) == nextStr[index]){
                         index++;
-                        previousPos = i;
                     }
                     else{
                         cout << " Invalid tournament command." << endl;
