@@ -283,12 +283,12 @@ void GameEngine::addPlayer() {
 }
 
 //==== main game loop: reinforcement, order issuing & execution phases ====
-bool GameEngine::mainGameLoop() {
+bool GameEngine::mainGameLoop(int maxNumberOfTurns) {
     bool playerWon = false;
     int turnCount = 0;
     while (!playerWon) {
         turnCount++;
-        if (turnCount == 500) {
+        if (turnCount == maxNumberOfTurns + 1) {
             cout << "* ERROR:  Too many turns. Main game loop terminated to avoid infinite loop. *\n" << endl;
             break;
         }
@@ -563,7 +563,6 @@ void GameEngine::tournamentMode(Command &command) {
 
 //    return;
 
-    //TODO: implement max number of turns
     //TODO: implement read command from file
 
     // play each maps by noOfGames times
@@ -586,8 +585,7 @@ void GameEngine::tournamentMode(Command &command) {
             mapValidatedStateChange();
 
             playersAddedStateChange();
-            int playerNumber = 1;
-            //TODO: change below loop logic; if first player strategy is aggressive, all players are aggressive for first game (I think, based on assignment description output)
+            int playerNumber = 1; //parameter to store a player number used in player naming
             for (string player: playerStrategies) {
                 Players::Player *p = new Players::Player("Player " + to_string(playerNumber++));
                 if (player == "Benevolent")
@@ -608,7 +606,7 @@ void GameEngine::tournamentMode(Command &command) {
             cin.rdbuf(orig); //setting cin to its original state; runtime error occurs otherwise
 
             assignReinforcementStateChange();
-            if (mainGameLoop())
+            if (mainGameLoop(maxNoOfTurns))
                 winStateChange();
 
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector

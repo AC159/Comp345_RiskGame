@@ -47,7 +47,7 @@ public:
     void addPlayer();
 
 //==== main game loop: reinforcement, order issuing & execution phases ====
-    bool mainGameLoop();
+    bool mainGameLoop(int maxNumberOfTurns = 500);
 
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();
