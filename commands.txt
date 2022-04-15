@@ -1,0 +1,2 @@
+tournament -M Solar Canada -P Aggressive Benevolent Benevolent -G 2 -D 50
+tournament -M Solar Canada -P Aggressive Benevolent Benevolent -G 2 -D 20
