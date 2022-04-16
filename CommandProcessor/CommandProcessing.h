@@ -43,7 +43,6 @@ public:
     string stringToLog() const;
     Command& getCommand();
     bool validate(const string& readCommandInput, const GameEngine &gameEngine);
-    static void commandProcessorDriver();
 private:
     virtual string readCommand();
     void saveCommand(Command &command);

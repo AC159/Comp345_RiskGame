@@ -25,8 +25,6 @@ public:
     string stringToLog() const override;
     GameEngine& operator=(const GameEngine &gameEngine);
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
-    static void gameStartupDriver();
-    static void gamePlayDriver();
     static void tournamentModeDriver();
 
     //added for implementation of As2 part1
@@ -64,7 +62,6 @@ public:
 
 //============= win state =================
     void winStateChange();
-    int validateWinCommand();
 
     void tournamentMode(Command& command);
 
