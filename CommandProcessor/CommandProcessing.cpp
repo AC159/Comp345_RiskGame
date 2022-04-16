@@ -123,7 +123,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
     while (parse >> temp){
         inputWords.push_back(temp);
     }
-    int vectorSize = static_cast<int>inputWords.size();
+    int vectorSize = static_cast<int>(inputWords.size());
     userInputCommand = inputWords.at(0);
 
     if (vectorSize == 2) {
@@ -164,7 +164,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse2 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            int numberOfWordsBetween = static_cast<int>wordsBetween.size();
+            int numberOfWordsBetween = static_cast<int>(wordsBetween.size());
             if(numberOfWordsBetween < 1 || numberOfWordsBetween > 5){
                 cout << "Invalid number of maps." << endl;
                 return false;
@@ -177,7 +177,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse3 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            numberOfWordsBetween = static_cast<int>wordsBetween.size();
+            numberOfWordsBetween = static_cast<int>(wordsBetween.size());
             if(numberOfWordsBetween < 2 || numberOfWordsBetween > 4){
                 cout << "Invalid number of player strategies." << endl;
                 return false;
@@ -196,7 +196,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse4 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            numberOfWordsBetween = static_cast<int>wordsBetween.size();
+            numberOfWordsBetween = static_cast<int>(wordsBetween.size());
             if(numberOfWordsBetween != 1){
                 cout << "Invalid number of games string." << endl;
                 return false;
@@ -220,7 +220,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse5 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            numberOfWordsBetween = static_cast<int>wordsBetween.size();
+            numberOfWordsBetween = static_cast<int>(wordsBetween.size());
             if(numberOfWordsBetween != 1){
                 cout << "Invalid number of turns string." << endl;
                 return false;
