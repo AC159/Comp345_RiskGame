@@ -2,9 +2,7 @@
 
 // demonstrates part 2: tournament mode
 void GameEngine::tournamentModeDriver() {
-    auto *game = new GameEngine();
-    auto *logObserver = new LogObserver();
-    Subject::attach(logObserver);
+    auto game = new GameEngine();
     string welcomeBanner =
             "WWWWWWWW                           WWWWWWWW                                                                                                          \n"
             "W::::::W                           W::::::W                                                                                                          \n"
@@ -25,8 +23,6 @@ void GameEngine::tournamentModeDriver() {
 
     cout << welcomeBanner << endl << endl;
 
-    auto *cp = new CommandProcessor();
-
     cout << "Command entry methods:\n1. Read from file\n2. Enter in console\nEnter option number: ";
     string str;
     getline(cin, str);
@@ -45,27 +41,25 @@ void GameEngine::tournamentModeDriver() {
         cout << "Enter file name: ";
         getline(cin, str); //reading command file path and storing it in the str variable
         str = "../" + str + ".txt";
-        auto *flr = new FileLineReader(str);
-        flr->openFile();
-        if (flr->isFileOpen())
-            while (!flr->checkEOF()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
-                string fileLineCommand = flr->readLineFromFile();
-                bool validateTournament = cp->validate(fileLineCommand, *game);
-                auto *command = new Command(fileLineCommand);
+        auto flr = FileLineReader(str);
+        flr.openFile();
+        if (flr.isFileOpen())
+            while (!flr.checkEOF()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
+                string fileLineCommand = flr.readLineFromFile();
+                bool validateTournament = game->processor->validate(fileLineCommand, *game);
+                auto command = Command(fileLineCommand);
 
                 if (validateTournament) {
-                    command->saveEffect("Tournament command valid.");
-                    game->tournamentMode(*command);
+                    command.saveEffect("Tournament command valid.");
+                    game->tournamentMode(command);
                 } else {
                     cout << "Tournament command invalid." << endl;
-                    command->saveEffect("Invalid command.");
+                    command.saveEffect("Invalid command.");
                 }
 
-                delete command;
                 delete game;
                 game = new GameEngine();
             }
-
     } else if (str == "2") { //if input is 2, execute logic for reading command from console
         cout << "Tournament command: tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>" << endl;
         cout << "List of available valid map files(at least 1, not more than 5): " << endl;
@@ -84,16 +78,17 @@ void GameEngine::tournamentModeDriver() {
         cout << "*Map files and player strategies are separated by spaces" << endl;
         cout << "*(e.g tournament -M canada solar -P Aggressive Cheater -G 2 -D 15)." << endl;
 
-        Command *command = &cp->getCommand();
+        Command command = game->processor->getCommand();
 
         //prompt user to re-enter a tournament command until a valid one is given
-        while (!cp->validate(command->command, *game)) {
-            command->saveEffect("Invalid command.");
+        while (!game->processor->validate(command.command, *game)) {
+            command.saveEffect("Invalid command.");
             cout << "Try again. ";
-            command = &cp->getCommand();
+            command = game->processor->getCommand();
         }
 
-        command->saveEffect("Tournament command valid.");
-        game->tournamentMode(*command);
+        command.saveEffect("Tournament command valid.");
+        game->tournamentMode(command);
     }
+    delete game;
 }

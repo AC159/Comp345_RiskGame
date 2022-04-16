@@ -587,13 +587,22 @@ void GameEngine::tournamentMode(Command &command) {
             else
                 winners.emplace_back("Draw", "Draw");
 
-            // reset map and players list
-            delete mapLoader->map;
-            mapLoader->map = new Graph::Map();
-            for (Players::Player *p: playersList) {
+            // fully reset game in preparation for the next round
+            delete mapLoader;
+            delete processor;
+            delete deck;
+            for (auto *p: playersList) {
+                delete p;
+            }
+            for (auto *p: eliminatedPlayers) {
                 delete p;
             }
             playersList.clear();
+            eliminatedPlayers.clear();
+            mapLoader = new Graph::MapLoader();
+            processor = new CommandProcessor();
+            deck = new Cards::Deck();
+            deck->fillDeckWithCards();
         }
     }
 
