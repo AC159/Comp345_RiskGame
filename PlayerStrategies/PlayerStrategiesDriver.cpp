@@ -1,5 +1,6 @@
 #include "PlayerStrategies.h"
 
+// demonstrates part 1: the player strategy pattern
 void PlayerStrategiesDriver() {
 
     // Create several players with different strategies

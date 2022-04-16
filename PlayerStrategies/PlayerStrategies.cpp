@@ -12,28 +12,35 @@ const std::string PlayerStrategies::NEUTRAL_TYPE = "neutral";
 using namespace std;
 using namespace Graph;
 
+// constructor to be used by subclasses
 PlayerStrategies::PlayerStrategies(Players::Player *p, std::string strategyType) {
     this->player = p;
     this->strategyType = std::move(strategyType);
 }
 
+// creates shallow copy (avoids cyclic dependency issues)
 PlayerStrategies::PlayerStrategies(const PlayerStrategies &ps) {
     this->player = ps.player;
     this->strategyType = ps.strategyType;
 }
 
+// dynamically allocated players should be deleted elsewhere
 PlayerStrategies::~PlayerStrategies() = default;
 
+// ================== Benevolent Player Strategy Implementation ==================
 BenevolentPlayerStrategy::BenevolentPlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::BENEVOLENT_TYPE) {}
 
+// creates shallow copy (avoids cyclic dependency issues)
 BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy &b) : PlayerStrategies(b.player, PlayerStrategies::BENEVOLENT_TYPE) {}
 
+// creates shallow copy via assignment operator (avoids cyclic dependency issues)
 BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy &b) {
     if (this == &b) return *this;
     this->player = b.player;
     return *this;
 }
 
+// outputs the player's name and strategy via the stream insertion operator
 std::ostream &operator<<(std::ostream &out, const BenevolentPlayerStrategy &b) {
     out << "Player " << b.player->getName() << " is playing the benevolent player strategy" << std::endl;
     return out;
@@ -76,6 +83,7 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
+// issues orders and plays cards only to defend the player's weakest territories; never attacks other players
 void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
@@ -159,14 +167,16 @@ void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
 
 }
 
+// dynamically allocated players should be deleted elsewhere
 BenevolentPlayerStrategy::~BenevolentPlayerStrategy() = default;
 
 // ================== Cheater Player Strategy Implementation ==================
-
 CheaterPlayerStrategy::CheaterPlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::CHEATER_TYPE) {}
 
+// creates shallow copy (avoids cyclic dependency issues)
 CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy &cheater) : PlayerStrategies(cheater.player, PlayerStrategies::CHEATER_TYPE) {}
 
+// memory de-allocation of player should be handled externally
 CheaterPlayerStrategy::~CheaterPlayerStrategy() = default;
 
 /**
@@ -200,6 +210,7 @@ std::multimap<int, Graph::Territory *> CheaterPlayerStrategy::toAttack(const std
     return territories;
 }
 
+// advance orders issued with this strategy will result in the target territory to be automatically conquered
 void CheaterPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
@@ -285,12 +296,14 @@ void CheaterPlayerStrategy::issueOrder(GameEngine &game) {
 
 }
 
+// creates shallow copy via assignment operator (avoids cyclic dependency issues)
 CheaterPlayerStrategy &CheaterPlayerStrategy::operator=(const CheaterPlayerStrategy &cheater) {
     if (this == &cheater) return *this;
     this->player = cheater.player;
     return *this;
 }
 
+// outputs the player's name and strategy via the stream insertion operator
 std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater) {
     out << "Player " << cheater.player->getName() << " is playing the cheater player strategy" << std::endl;
     return out;
@@ -300,18 +313,23 @@ std::ostream &operator<<(std::ostream &out, const CheaterPlayerStrategy &cheater
 //country, then always advances to enemy territories until it cannot do so anymore).
 // ================== Aggressive Player Strategy Implementation ==================
 
+// constructor
 AggressivePlayerStrategy::AggressivePlayerStrategy(Players::Player *p) : PlayerStrategies(p, PlayerStrategies::AGGRESSIVE_TYPE) {}
 
+// copy constructor
 AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy &aggressive) : PlayerStrategies(aggressive.player,PlayerStrategies::AGGRESSIVE_TYPE){}
 
+// destructor
 AggressivePlayerStrategy::~AggressivePlayerStrategy() = default;
 
+// assignment operator
 AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy &aggressive) {
     if (this ==&aggressive) return *this;
     this->player =aggressive.player;
     return *this;
 }
 
+// stream insertion operator
 std::ostream &operator<<(std::ostream &out, const AggressivePlayerStrategy &aggressive) {
     out << "Player " << aggressive.player->getName() << " is playing the aggressive player strategy" << std::endl;
     return out;
@@ -339,6 +357,11 @@ std::multimap<int, Graph::Territory *> AggressivePlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
+/**
+ * Aggressive player moves all his armies to defend his strongest territory and
+ * attacks the weakest adjacent enemy territory with that army
+ * @param game the engine running the current game
+ */
 void AggressivePlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
@@ -393,36 +416,43 @@ void AggressivePlayerStrategy::issueOrder(GameEngine &game) {
     }
 }
 
-//computer player that never issues any order. If a Neutral player is attacked, it becomes an
-//Aggressive player.
+//computer player that never issues any order. If a Neutral player is attacked, it becomes an aggressive player
 // ================== Neutral Player Strategy Implementation ==================
+//constructor
 NeutralPlayerStrategy::NeutralPlayerStrategy(Players::Player *p) : PlayerStrategies(p,PlayerStrategies::NEUTRAL_TYPE) {}
-
+// copy constructor
 NeutralPlayerStrategy::NeutralPlayerStrategy(const NeutralPlayerStrategy &neutral) : PlayerStrategies(neutral.player, PlayerStrategies::NEUTRAL_TYPE) {}
 
+// destructor
 NeutralPlayerStrategy::~NeutralPlayerStrategy() = default;
 
+// assignment operator
 NeutralPlayerStrategy& NeutralPlayerStrategy::operator=(const NeutralPlayerStrategy &neutral){
     if(this ==&neutral) return *this;
     this->player = neutral.player;
     return *this;
 }
-
+// stream insertion operator
 std::ostream &operator<<(std::ostream &out, const NeutralPlayerStrategy &neutral) {
     out << "Player " << neutral.player->getName() << " is playing the neutral player strategy" << std::endl;
     return out;
 }
-
+// method returns empty list of territories todefend since the neutral player does not issue orders
 std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges){
     std::multimap<int,Graph::Territory *> territoriesToDefend;
     //returns an empty map because a neutral player doesnt issue orders
     return territoriesToDefend;
 }
+// method returns empty list of territories toAttack since the neutral player does not issue orders
 std::multimap<int, Graph::Territory *> NeutralPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
     std::multimap<int, Graph::Territory *> territoriesToAttack;
     //returns an empty map because a neutral player doesnt issue orders
     return territoriesToAttack;
 }
+/**
+ * Neutral player does not issue orders and does not play cards
+ * @param game the engine running the current game
+ */
 void NeutralPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
@@ -499,9 +529,9 @@ string HumanPlayerStrategy::readCommand() {
 }
 
 /**
- * @param command a user command in the valid format
+ * @param command a user command in the valid format (combination of '-t', '-a', and/or '-s' each followed by a number)
  * @param flag flag whose arguments to capture (should be "-t", "-a", or "-s")
- * @return the number id that was entered in the command after the flag
+ * @return the number that was entered in the command after the flag
  */
 int HumanPlayerStrategy::flagArgument(const string &command, const string &flag) {
     regex delimiter; // delimiter is set to ignore all text in between flag's argument
@@ -746,7 +776,7 @@ multimap<int, Territory *> HumanPlayerStrategy::toAttack(const vector<Edge *> &e
 }
 
 /**
- * Issues orders by allowing player to make decisions based on their toAttack and toDefend lists
+ * Issues orders by allowing player to make decisions based on their toAttack and toDefend lists through console input
  * @param game the engine running the current game
  */
 void HumanPlayerStrategy::issueOrder(GameEngine &game) {

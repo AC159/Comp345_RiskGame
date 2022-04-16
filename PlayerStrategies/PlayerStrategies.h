@@ -13,6 +13,7 @@ using namespace Graph;
 
 void PlayerStrategiesDriver();
 
+//abstract base class following the Strategy pattern
 class PlayerStrategies {
 public:
     Players::Player *player;
@@ -33,7 +34,7 @@ public:
     virtual ~PlayerStrategies();
 };
 
-
+//player that defends his own territories
 class BenevolentPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
@@ -48,6 +49,7 @@ public:
     ~BenevolentPlayerStrategy() override;
 };
 
+//player that automatically conquers adjacent territories
 class CheaterPlayerStrategy : public PlayerStrategies {
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
@@ -62,6 +64,7 @@ public:
     ~CheaterPlayerStrategy() override;
 };
 
+//player that only attacks enemy territories
 class AggressivePlayerStrategy: public PlayerStrategies{
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
@@ -76,6 +79,7 @@ public:
     ~AggressivePlayerStrategy() override;
 };
 
+//player that does not issue orders
 class NeutralPlayerStrategy: public PlayerStrategies{
 public:
     std::multimap<int, Graph::Territory *> toDefend(const std::vector<Graph::Edge *> &mapEdges) override;
