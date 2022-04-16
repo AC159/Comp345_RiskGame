@@ -683,7 +683,7 @@ string HumanPlayerStrategy::promptValidId(const vector<Players::Player *> &playe
 
 // prompts the user for input until they enter a valid command when choosing card; returns the valid command
 string HumanPlayerStrategy::promptValidId(const vector<Cards::Card *> &hand) {
-    cout << "Enter '<cardid>' to select a card "
+    cout << "Enter '<cardid>' to select a card. "
             "Otherwise, enter 'issueorder' to return to the main menu or 'issueorders end' to finish.\n";
     string userInput = readCommand();
     while (!validateIdCommand(userInput, hand.size())) {

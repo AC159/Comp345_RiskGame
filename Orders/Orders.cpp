@@ -242,11 +242,13 @@ void Advance::execute() {
 
             //if the target is a neutral strategy player and is attacked, the target switches strategy and
             //becomes an aggressive player
-           if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
-               delete target->owner->ps; //deleting neutral strat player not to cause memory leaks
-            target->owner->ps = new AggressivePlayerStrategy(target->owner);
-            cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
-           }
+            if (target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE) {
+                delete target->owner->ps; //deleting neutral strategy to prevent cause memory leaks
+                target->owner->ps = new AggressivePlayerStrategy(target->owner);
+                cout << "** " << target->owner->getName() << " is attacked by " << source->owner->getName()
+                     << " on territory " << target->name << " — " << target->owner->getName() << " is now an "
+                     << target->owner->ps->strategyType << " player **" << endl;
+            }
 
             if (target->numberOfArmies > defendersKilled || armies <= attackersKilled) { // failed to conquer
                 orderEffect = to_string(armies) + " failed to take " + target->name + " from " + source->name;
@@ -272,10 +274,11 @@ void Advance::execute() {
         //if the target is a neutral strategy player and is attacked, the target switches strategy and
         //becomes an aggressive player
         if(target->owner->ps->strategyType == PlayerStrategies::NEUTRAL_TYPE){
-            cout<< target->owner->getName()<<" was attacked by "<<source->owner->getName()<<" on territory: "<<target->name <<endl;
-            delete target->owner->ps; //deleting neutral strat player not to cause memory leaks
+            delete target->owner->ps; //deleting neutral strategy to prevent memory leaks
             target->owner->ps = new AggressivePlayerStrategy(target->owner);
-            cout<<"** "<<target->owner->getName()<<" is now an "<<target->owner->ps->strategyType<<" player **"<<endl;
+            cout << "** " << target->owner->getName() << " is attacked by " << source->owner->getName()
+                 << " on territory " << target->name << " — " << target->owner->getName() << " is now an "
+                 << target->owner->ps->strategyType << " player **" << endl;
         }
 
         // The current player is a cheater and will therefore automatically conquer the adjacent enemy territory
