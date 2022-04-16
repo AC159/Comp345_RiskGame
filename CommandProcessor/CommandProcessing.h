@@ -21,7 +21,7 @@ public:
     Command(const Command &command);
     ~Command();
 
-    Command& operator=(const Command &command);
+    Command& operator=(const Command &c);
     friend ostream& operator<<(ostream &out, const Command &command);
     string stringToLog() const override;
     void saveEffect(string commandEffect);
@@ -32,7 +32,7 @@ public:
     string currentState;
     vector<Command *> commandList;
     CommandProcessor();
-    CommandProcessor(const CommandProcessor &commandProcessor);
+    [[maybe_unused]] CommandProcessor(const CommandProcessor &commandProcessor);
     virtual ~CommandProcessor();
 
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);

@@ -23,10 +23,10 @@ Command::Command(const Command &command) {
 Command::~Command() = default;
 
 // assignment operator
-Command& Command::operator=(const Command &command) {
-    if (this == &command) return *this;
-    this->command = command.command;
-    this->effect = command.effect;
+Command& Command::operator=(const Command &c) {
+    if (this == &c) return *this;
+    this->command = c.command;
+    this->effect = c.effect;
     return *this;
 }
 
@@ -50,7 +50,7 @@ string Command::stringToLog() const {
 CommandProcessor::CommandProcessor() = default;
 
 // copy constructor
-CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor) {
+[[maybe_unused]] CommandProcessor::CommandProcessor(const CommandProcessor &commandProcessor) {
     this->currentState = commandProcessor.currentState;
     for (Command *c : commandProcessor.commandList) {
         commandList.push_back(new Command(*c));
@@ -95,7 +95,7 @@ ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor){
 
 Command& CommandProcessor::getCommand() {
     string read = readCommand();
-    Command *c = new Command(read);
+    auto *c = new Command(read);
     saveCommand(*c);
     return *c;
 }
@@ -123,7 +123,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
     while (parse >> temp){
         inputWords.push_back(temp);
     }
-    int vectorSize= inputWords.size();
+    int vectorSize = static_cast<int>inputWords.size();
     userInputCommand = inputWords.at(0);
 
     if (vectorSize == 2) {
@@ -139,7 +139,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
         }
     }
     else if(vectorSize > 5){
-        if(currentState == "" && inputWords.at(0) == "tournament" && inputWords.at(1) == "-M"){
+        if(currentState.empty() && inputWords.at(0) == "tournament" && inputWords.at(1) == "-M"){
             string nextStr[3] = {"P", "G", "D"}; // next string in the tournament string
             int index = 0; // index for nextStr[]
 
@@ -164,7 +164,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse2 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            int numberOfWordsBetween = wordsBetween.size();
+            int numberOfWordsBetween = static_cast<int>wordsBetween.size();
             if(numberOfWordsBetween < 1 || numberOfWordsBetween > 5){
                 cout << "Invalid number of maps." << endl;
                 return false;
@@ -177,12 +177,12 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse3 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            numberOfWordsBetween = wordsBetween.size();
+            numberOfWordsBetween = static_cast<int>wordsBetween.size();
             if(numberOfWordsBetween < 2 || numberOfWordsBetween > 4){
                 cout << "Invalid number of player strategies." << endl;
                 return false;
             }
-            for(string ps: wordsBetween){
+            for(const string &ps: wordsBetween){
                 if(ps != "Aggressive" && ps != "Neutral" && ps != "Benevolent" && ps != "Cheater"){
                     cout << ps << " is not a player strategy." << endl;
                     return false;
@@ -196,7 +196,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse4 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            numberOfWordsBetween = wordsBetween.size();
+            numberOfWordsBetween = static_cast<int>wordsBetween.size();
             if(numberOfWordsBetween != 1){
                 cout << "Invalid number of games string." << endl;
                 return false;
@@ -220,7 +220,7 @@ bool CommandProcessor::validate(const string& readCommandInput, const GameEngine
             while(parse5 >> lineBetween){
                 wordsBetween.push_back(lineBetween);
             }
-            numberOfWordsBetween = wordsBetween.size();
+            numberOfWordsBetween = static_cast<int>wordsBetween.size();
             if(numberOfWordsBetween != 1){
                 cout << "Invalid number of turns string." << endl;
                 return false;
