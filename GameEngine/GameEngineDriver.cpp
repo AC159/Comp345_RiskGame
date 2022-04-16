@@ -67,8 +67,11 @@ void GameEngine::tournamentModeDriver() {
     }
 
     if (str == "1") { //if input is 1, execute logic to read tournament commands from file
-        cout << "Enter command file path: ";
+        cout << "Available files: " << endl;
+        cout << "   commands" << endl;
+        cout << "Enter file name: ";
         getline(cin, str); //reading command file path and storing it in the str variable
+        str = "../" + str + ".txt";
         FileLineReader *flr = new FileLineReader(str);
         flr->openFile();
         if (flr->isFileOpen())
@@ -91,9 +94,22 @@ void GameEngine::tournamentModeDriver() {
             }
 
     } else if (str == "2") { //if input is 2, execute logic for reading command from console
-        cout
-                << "Enter tournament command (tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>: "
-                << endl;
+        cout << "Tournament command: tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>" << endl;
+        cout << "List of available valid map files(at least 1, not more than 5): " << endl;
+        cout << "   canada" << endl;
+        cout << "   solar" << endl;
+        cout << "   bigeurope" << endl;
+        cout << "List of player strategies(at least 2, not more than 4): " << endl;
+        cout << "   Aggressive" << endl;
+        cout << "   Benevolent" << endl;
+        cout << "   Neutral" << endl;
+        cout << "   Cheater" << endl;
+        cout << "Valid number of games: " << endl;
+        cout << "   1 to 5" << endl;
+        cout << "Valid max number of turns: " << endl;
+        cout << "   10 to 50" << endl;
+        cout << "*Map files and player strategies are separated by spaces" << endl;
+        cout << "*(e.g tournament -M canada solar -P Aggressive Cheater -G 2 -D 15)." << endl;
 
         Command *command = &cp->getCommand();
         cout << command->command << endl;
