@@ -120,8 +120,8 @@ void GameEngine::gameStart() {
     cout << "Assigning territories to players..." << endl;
     // copy all territory pointers into another vector in order to randomly distribute territories to players
     vector<Graph::Territory *> territories = this->mapLoader->map->territories;
-    int nbrOfTerritories = territories.size();
-    while (territories.size() > 0) {
+    int nbrOfTerritories = static_cast<int>(territories.size());
+    while (!territories.empty()) {
         for (auto *player: this->playersList) {
             if (nbrOfTerritories == 0) break;
             int random;
@@ -130,7 +130,7 @@ void GameEngine::gameStart() {
             territories.at(random)->transferOwnership(player);
             if (random != nbrOfTerritories) territories.erase(territories.begin() + random);
             else territories.erase(territories.end() - 1);
-            nbrOfTerritories = territories.size();
+            nbrOfTerritories = static_cast<int>(territories.size());
         }
     }
 
@@ -434,12 +434,12 @@ bool GameEngine::executeOrdersPhase() {
                 if (player->territories.size() == mapLoader->map->territories.size()) {
                     cout << player->getName() << " won!" << endl;
                     //loop to remove the last losing player from the playerList, ensuring playerList ends with a size of 1
-                    for (int i = 0; i < playersList.size(); i++)
-                        if (player->getName() != playersList.at(i)->getName()) {
-                            playersList.at(i)->isEliminated = true;
-                            eliminatedPlayers.push_back(playersList.at(i));
-                            playersList.erase(playersList.begin() + i);
-                            i--;
+                    for (int j = 0; j < playersList.size(); j++)
+                        if (player->getName() != playersList.at(j)->getName()) {
+                            playersList.at(j)->isEliminated = true;
+                            eliminatedPlayers.push_back(playersList.at(j));
+                            playersList.erase(playersList.begin() + j);
+                            j--;
                         }
                     return true;
                 }
@@ -516,7 +516,7 @@ void GameEngine::tournamentMode(Command &command) {
     while (parse2 >> lineBetween) {
         maps.push_back(lineBetween);
     }
-    int numberOfMaps = maps.size();
+    int numberOfMaps = static_cast<int>(maps.size());
 
     // get player strats from command
     lineBetween = tournamentCommand.substr(tournamentCommand.find("-P") + 2,
@@ -525,7 +525,7 @@ void GameEngine::tournamentMode(Command &command) {
     while (parse3 >> lineBetween) {
         playerStrategies.push_back(lineBetween);
     }
-    int numberOfStrategies = playerStrategies.size();
+    int numberOfStrategies = static_cast<int>(playerStrategies.size());
 
     // get no of games from command
     lineBetween = tournamentCommand.substr(tournamentCommand.find("-G") + 2,
@@ -537,7 +537,7 @@ void GameEngine::tournamentMode(Command &command) {
     maxNoOfTurns = std::stoi(lineBetween);
 
     // play each maps by noOfGames times
-    for (string map: maps) {
+    for (const string &map: maps) {
         for (int i = 0; i < noOfGames; i++) {
             cout << "<<<<<<<<<<<<<<<" << " Game number: " << i + 1 << " >>>>>>>>>>>>>>>" << endl;
 
@@ -558,8 +558,8 @@ void GameEngine::tournamentMode(Command &command) {
 
             playersAddedStateChange();
             int playerNumber = 1; //parameter to store a player number used in player naming
-            for (string player: playerStrategies) {
-                Players::Player *p = new Players::Player("Player " + to_string(playerNumber++));
+            for (const string &player: playerStrategies) {
+                auto *p = new Players::Player("Player " + to_string(playerNumber++));
                 if (player == "Benevolent")
                     p->ps = new BenevolentPlayerStrategy(p);
                 else if (player == "Aggressive")
@@ -583,9 +583,9 @@ void GameEngine::tournamentMode(Command &command) {
 
             // name of the winner is put in the winners vector if there's only one player left in the list, otherwise put Draw in the vector
             if (playersList.size() == 1)
-                winners.push_back(make_pair(playersList.at(0)->getName(), playersList.at(0)->ps->strategyType));
+                winners.emplace_back(playersList.at(0)->getName(), playersList.at(0)->ps->strategyType);
             else
-                winners.push_back(make_pair("Draw", "Draw"));
+                winners.emplace_back("Draw", "Draw");
 
             // reset map and players list
             delete mapLoader->map;
@@ -602,11 +602,11 @@ void GameEngine::tournamentMode(Command &command) {
 
     output << "Tournament mode: " << endl;
     output << "M: ";
-    for (string map: maps)
+    for (const string &map: maps)
         output << map << ", ";
     output << endl;
     output << "P: ";
-    for (string player: playerStrategies)
+    for (const string &player: playerStrategies)
         output << player << ", ";
     output << endl;
     output << "G: " << noOfGames << endl;
@@ -663,11 +663,11 @@ void GameEngine::tournamentMode(Command &command) {
 
     cout << "Tournament mode: " << endl;
     cout << "M: ";
-    for (string map: maps)
+    for (const string &map: maps)
         cout << map << ", ";
     cout << endl;
     cout << "P: ";
-    for (string player: playerStrategies)
+    for (const string &player: playerStrategies)
         cout << player << ", ";
     cout << endl;
     cout << "G: " << noOfGames << endl;

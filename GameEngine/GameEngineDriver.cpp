@@ -2,8 +2,8 @@
 
 // demonstrates part 2: tournament mode
 void GameEngine::tournamentModeDriver() {
-    GameEngine *game = new GameEngine();
-    LogObserver *logObserver = new LogObserver();
+    auto *game = new GameEngine();
+    auto *logObserver = new LogObserver();
     Subject::attach(logObserver);
     string welcomeBanner =
             "WWWWWWWW                           WWWWWWWW                                                                                                          \n"
@@ -25,10 +25,10 @@ void GameEngine::tournamentModeDriver() {
 
     cout << welcomeBanner << endl << endl;
 
-    CommandProcessor *cp = new CommandProcessor();
+    auto *cp = new CommandProcessor();
 
     cout << "Command entry methods:\n1. Read from file\n2. Enter in console\nEnter option number: ";
-    string str = "";
+    string str;
     getline(cin, str);
     cout << endl;
 
@@ -45,13 +45,13 @@ void GameEngine::tournamentModeDriver() {
         cout << "Enter file name: ";
         getline(cin, str); //reading command file path and storing it in the str variable
         str = "../" + str + ".txt";
-        FileLineReader *flr = new FileLineReader(str);
+        auto *flr = new FileLineReader(str);
         flr->openFile();
         if (flr->isFileOpen())
             while (!flr->checkEOF()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
                 string fileLineCommand = flr->readLineFromFile();
                 bool validateTournament = cp->validate(fileLineCommand, *game);
-                Command *command = new Command(fileLineCommand);
+                auto *command = new Command(fileLineCommand);
 
                 if (validateTournament) {
                     command->saveEffect("Tournament command valid.");
