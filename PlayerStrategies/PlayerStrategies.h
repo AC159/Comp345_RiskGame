@@ -13,6 +13,7 @@ using namespace Graph;
 
 void PlayerStrategiesDriver();
 
+//abstract base class following the Strategy pattern
 class PlayerStrategies {
 public:
     Players::Player *player;
@@ -77,6 +78,7 @@ public:
     AggressivePlayerStrategy(const AggressivePlayerStrategy &aggressive);
     ~AggressivePlayerStrategy() override;
 };
+
 //player that does not issue orders
 class NeutralPlayerStrategy: public PlayerStrategies{
 public:
