@@ -518,6 +518,8 @@ void Blockade::execute() {
         if (neutralPlayerIt == players.end()) { // neutral player must be created
             newNeutralId += 1;
             auto neutralPlayer = new Players::Player(PlayerStrategies::NEUTRAL_TYPE + to_string(newNeutralId));
+            PlayerStrategies *ps = new NeutralPlayerStrategy(neutralPlayer);
+            neutralPlayer->ps = ps;
             players.push_back(neutralPlayer);
             target->transferOwnership(neutralPlayer);
         } else { // neutral player exists

@@ -47,19 +47,6 @@ std::ostream &operator<<(std::ostream &out, const BenevolentPlayerStrategy &b) {
  *
  * */
 std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges) {
-    std::multimap<int, Graph::Territory *> territoriesToDefend;
-    for (auto pair : this->player->territories) {
-        territoriesToDefend.insert(std::pair<int, Graph::Territory*> (pair.second->numberOfArmies, pair.second));
-    }
-    return territoriesToDefend;
-}
-
-/**
- * @params edges list of Edge objects present in the map
- * @returns list of territories owned by the benevolent player to be "attacked" by this player in priority.
- * The benevolent player will issue Advance orders on these territories.
- * */
-std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
     std::multimap<int, Graph::Territory *> territoriesToAttack;
 
     // Find territories that have adjacent enemy territories and prioritize them based on the number of armies they have
@@ -67,7 +54,7 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const 
     for (auto pair : this->player->territories) {
         // Check if this territory has any adjacent enemy territories, if yes, then add it to the list of territories to attack.
         // The benevolent player will create advance orders on these territories in the issueOrder() method
-        enemyTerritories = pair.second->adjacentEnemyTerritories(edges);
+        enemyTerritories = pair.second->adjacentEnemyTerritories(mapEdges);
         if (!enemyTerritories.empty()) {
             territoriesToAttack.insert(std::pair<int, Graph::Territory *> (pair.second->numberOfArmies, pair.second));
         }
@@ -76,55 +63,69 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const 
     return territoriesToAttack;
 }
 
+/**
+ * @params edges list of Edge objects present in the map
+ * @returns list of territories owned by the benevolent player to be "attacked" by this player in priority.
+ * The benevolent player will issue Advance orders on these territories.
+ * */
+std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
+    // The toAttack method is not relevant for the Benevolent player, we just use the toDefend method since this player does not attack other players
+    std::multimap<int, Graph::Territory *> territories;
+    return territories;
+}
+
 void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
     auto map = game.mapLoader->map;
     auto deck = game.deck;
 
-    std::multimap<int, Graph::Territory *> toAttack = this->toAttack(map->edges);
     std::multimap<int, Graph::Territory *> toDefend = this->toDefend(map->edges);
-
-    double randomMultiplier;
 
     // Create Deploy orders on the territories returned by the toDefend() method
     int armiesDeployed = 0;
+    int listSize = toDefend.size();
+    int territoriesRemaining = listSize >= 10 ? listSize * 0.1 : listSize; // Get the top 10% of the weakest territories to defend
+    if (territoriesRemaining < 1) territoriesRemaining = listSize;
+    int armiesToDeploy = this->player->reinforcementPool >= territoriesRemaining ?  this->player->reinforcementPool / territoriesRemaining : 1;
     for (auto &pair : toDefend) {
 
-        // generate a value between 0 and 1 exclusive
-        randomMultiplier = ((double) rand() / (RAND_MAX));
+        if (armiesDeployed >= this->player->reinforcementPool || territoriesRemaining == 0) break;
 
-        int armiesToDeploy = floor((this->player->reinforcementPool - armiesDeployed) * randomMultiplier);
-        if (armiesToDeploy < 1) armiesToDeploy = 1;
-
-        if (armiesDeployed >= this->player->reinforcementPool) break;
-
+        if (territoriesRemaining == 1) {
+            // Last territory of the top 10 will get the remaining armies left to deploy
+            armiesToDeploy = this->player->reinforcementPool - armiesDeployed;
+        }
         this->player->orders->add(new Orders::Deploy(this->player, pair.second, armiesToDeploy));
         armiesDeployed = armiesDeployed + armiesToDeploy;
+        territoriesRemaining--;
     }
 
     // Create Advance orders on the territories returned by the toAttack() method
     // Get the list of territories owned by the current player that have no enemy neighbors
     std::vector<Graph::Territory *> friendlyTerritories;
 
-    // Create Advance orders
-    for (auto &pair : toAttack) {
+    // create Advance orders
+    for (auto &pair : toDefend) {
 
-        friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
+        // this will return the territories owned by the current player that are adjacent to the territory to be attacked
+        friendlyTerritories = pair.second->adjacentEnemyTerritories(map->edges);
+
         if (!friendlyTerritories.empty()) {
             // sort these territories based on the number of armies in each of them
             // this function uses the overloaded operator < in the Territory class
-            std::sort(friendlyTerritories.begin(), friendlyTerritories.end());
+            std::sort(friendlyTerritories.begin(), friendlyTerritories.end(), std::greater<>());
 
-            int index = (int) friendlyTerritories.size() - 1;
+            // Find the territory owned by the current player that has the most armies
+            Players::Player *currentOwner = this->player;
+            auto it = std::find_if(friendlyTerritories.begin(), friendlyTerritories.end(), [&currentOwner](Territory *t) {return t->owner == currentOwner;});
 
-            // generate a value between 0 and 1 exclusive
-            randomMultiplier = ((double) rand() / (RAND_MAX));
+            if (it != friendlyTerritories.end()) {
+                // From the friendly territory that is adjacent to the current enemy territory to be attacked, take a random amount of armies to transfer
+                int armiesToAdvance = floor((*it)->numberOfArmies * 0.25); // take 25% of the armies of the strongest territory and transfer them to the weakest
+                if (armiesToAdvance < 1) armiesToAdvance = 1;
+                if ((*it)->numberOfArmies <= 2 || (*it)->numberOfArmies <= armiesToAdvance) continue; // do not take armies from territories that have 2 or fewer armies
 
-            int armiesToAdvance = floor(friendlyTerritories.at(index)->numberOfArmies * randomMultiplier);
-            if (armiesToAdvance < 1) armiesToAdvance = 1;
-
-            // do not take armies from territories that have 2 or fewer armies
-            if (friendlyTerritories.at(index)->numberOfArmies <= 2 || friendlyTerritories.at(index)->numberOfArmies <= armiesToAdvance) continue;
-            this->player->orders->add(new Orders::Advance(this->player, map, friendlyTerritories.at(index), pair.second, armiesToAdvance));
+                this->player->orders->add(new Orders::Advance(this->player, map, *it, pair.second, armiesToAdvance));
+            }
         }
     }
 
