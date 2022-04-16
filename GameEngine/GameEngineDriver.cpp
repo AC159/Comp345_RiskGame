@@ -41,24 +41,21 @@ void GameEngine::tournamentModeDriver() {
         cout << "Enter file name: ";
         getline(cin, str); //reading command file path and storing it in the str variable
         str = "../" + str + ".txt";
-        auto flr = FileLineReader(str);
-        flr.openFile();
+
+        auto fcp = new FileCommandProcessorAdapter(str);
 
         //prompt user to re-enter a file name until an existing one is given
-        while (!flr.isFileOpen()) {
+        while (!fcp->isFLRFileOpen()) {
             cout << "Try again. Enter file name: ";
             getline(cin, str);
             str = "../" + str + ".txt";
-            flr = FileLineReader(str);
-            flr.openFile();
+            delete fcp;
+            fcp = new FileCommandProcessorAdapter(str);
         }
 
-
-        while (!flr.checkEOF()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
-            string fileLineCommand = flr.readLineFromFile();
-            bool validateTournament = game->processor->validate(fileLineCommand, *game);
-            auto command = Command(fileLineCommand);
-
+        while (fcp->moreCommands()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
+            auto command = fcp->getCommand();
+            bool validateTournament = game->processor->validate(command.command, *game);
             if (validateTournament) {
                 command.saveEffect("Tournament command valid.");
                 game->tournamentMode(command);
@@ -70,6 +67,7 @@ void GameEngine::tournamentModeDriver() {
             delete game;
             game = new GameEngine();
         }
+        delete fcp;
     } else if (str == "2") { //if input is 2, execute logic for reading command from console
         cout << "Tournament command: tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>" << endl;
         cout << "List of available valid map files(at least 1, not more than 5): " << endl;
@@ -92,7 +90,7 @@ void GameEngine::tournamentModeDriver() {
 
         //prompt user to re-enter a tournament command until a valid one is given
         while (!game->processor->validate(command.command, *game)) {
-            command.saveEffect("Invalid command.");
+            command.saveEffect("Tournament command invalid.");
             cout << "Try again. ";
             command = game->processor->getCommand();
         }
