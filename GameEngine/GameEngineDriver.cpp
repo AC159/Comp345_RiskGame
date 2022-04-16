@@ -43,23 +43,33 @@ void GameEngine::tournamentModeDriver() {
         str = "../" + str + ".txt";
         auto flr = FileLineReader(str);
         flr.openFile();
-        if (flr.isFileOpen())
-            while (!flr.checkEOF()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
-                string fileLineCommand = flr.readLineFromFile();
-                bool validateTournament = game->processor->validate(fileLineCommand, *game);
-                auto command = Command(fileLineCommand);
 
-                if (validateTournament) {
-                    command.saveEffect("Tournament command valid.");
-                    game->tournamentMode(command);
-                } else {
-                    cout << "Tournament command invalid." << endl;
-                    command.saveEffect("Invalid command.");
-                }
+        //prompt user to re-enter a file name until an existing one is given
+        while (!flr.isFileOpen()) {
+            cout << "Try again. Enter file name: ";
+            getline(cin, str);
+            str = "../" + str + ".txt";
+            flr = FileLineReader(str);
+            flr.openFile();
+        }
 
-                delete game;
-                game = new GameEngine();
+
+        while (!flr.checkEOF()) { //if not at the end of the file, we read line by line and execute each tournament command sequentially
+            string fileLineCommand = flr.readLineFromFile();
+            bool validateTournament = game->processor->validate(fileLineCommand, *game);
+            auto command = Command(fileLineCommand);
+
+            if (validateTournament) {
+                command.saveEffect("Tournament command valid.");
+                game->tournamentMode(command);
+            } else {
+                cout << "Tournament command invalid." << endl;
+                command.saveEffect("Invalid command.");
             }
+
+            delete game;
+            game = new GameEngine();
+        }
     } else if (str == "2") { //if input is 2, execute logic for reading command from console
         cout << "Tournament command: tournament -M <listofmapfiles> -P <listofplayerstrategies> -G <numberofgames> -D <maxnumberofturns>" << endl;
         cout << "List of available valid map files(at least 1, not more than 5): " << endl;
