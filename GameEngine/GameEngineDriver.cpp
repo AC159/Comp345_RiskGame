@@ -85,18 +85,15 @@ void GameEngine::tournamentModeDriver() {
         cout << "*(e.g tournament -M canada solar -P Aggressive Cheater -G 2 -D 15)." << endl;
 
         Command *command = &cp->getCommand();
-        cout << command->command << endl;
 
-        string temp = command->command;
-
-        bool validateTournament = cp->validate(temp, *game);
-
-        if (validateTournament) {
-            command->saveEffect("Tournament command valid.");
-            game->tournamentMode(*command);
-        } else {
-            cout << "Tournament command invalid." << endl;
+        //prompt user to re-enter a tournament command until a valid one is given
+        while (!cp->validate(command->command, *game)) {
             command->saveEffect("Invalid command.");
+            cout << "Try again. ";
+            command = &cp->getCommand();
         }
+
+        command->saveEffect("Tournament command valid.");
+        game->tournamentMode(*command);
     }
 }
