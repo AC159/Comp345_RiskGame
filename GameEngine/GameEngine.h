@@ -11,6 +11,7 @@
 
 using namespace std;
 
+// Warzone game controller
 class GameEngine : public ILoggable, public Subject {
 public:
     CommandProcessor* processor;

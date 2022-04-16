@@ -11,6 +11,7 @@ using namespace std;
 
 class GameEngine;
 
+// stores a command taken from a file or console input along with its effect
 class Command : public ILoggable, public Subject {
 public:
     string command;
@@ -27,6 +28,7 @@ public:
     void saveEffect(string commandEffect);
 };
 
+// provides functionalities for commands such as reading them, storing them, and validating them based on states
 class CommandProcessor : public ILoggable, public Subject {
 public:
     string currentState;
@@ -47,6 +49,7 @@ private:
     void saveCommand(Command &command);
 };
 
+// provides functionalities for reading from files
 class FileLineReader {
 public:
     FileLineReader();

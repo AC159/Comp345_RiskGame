@@ -11,10 +11,12 @@
 #define PLATFORM "unix"
 #endif
 
+// returns the current game phase
 string GameEngine::getState() const {
     return this->state;
 }
 
+// dynamically instantiates a filled deck, and empty mapLoader and processor
 GameEngine::GameEngine() {
     mapLoader = new Graph::MapLoader();
     processor = new CommandProcessor();
@@ -22,6 +24,7 @@ GameEngine::GameEngine() {
     deck->fillDeckWithCards();
 }
 
+// creates deep copy of processor & deck, and shallow copy of mapLoader & playersList
 GameEngine::GameEngine(const GameEngine &game) {
     this->mapLoader = game.mapLoader;
     this->processor = new CommandProcessor(); // generate a new command processor
@@ -29,10 +32,12 @@ GameEngine::GameEngine(const GameEngine &game) {
     this->deck = new Cards::Deck(*game.deck);
 }
 
+// returns a string of the current state to be output to the log file when notified
 string GameEngine::stringToLog() const {
     return "Game engine state: " + this->state;
 }
 
+// creates copy via assignment operator
 GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     if (this == &gameEngine) return *this;
     delete this->mapLoader;
@@ -48,6 +53,7 @@ GameEngine &GameEngine::operator=(const GameEngine &gameEngine) {
     return *this;
 }
 
+// outputs the num of players via the stream insertion operator
 ostream &operator<<(ostream &out, const GameEngine &gameEngine) {
     out << "Nbr of players: " << gameEngine.playersList.size() << endl;
     return out;
@@ -61,8 +67,8 @@ void GameEngine::changeState(string changedState) {
 }
 
 //=============Start state ================
-// method to show game start welcome message
 
+// runs the whole startup phase: map selection & validation, player addition, and distribution of territories
 void GameEngine::startupPhase() {
     changeState("start");
     string welcomeBanner =
@@ -93,6 +99,7 @@ void GameEngine::startupPhase() {
     assignReinforcementStateChange();
 }
 
+// fairly assigns territories, gives 50 armies & 2 cards to each player, and randomizes play order
 void GameEngine::gameStart() {
     while (true) {
         cout
@@ -493,6 +500,7 @@ void GameEngine::winStateChange() {
     cout << "Congratulations! You are the winner of this game!" << endl;
 }
 
+// runs all games based on a tournament command and records a summary of the results
 void GameEngine::tournamentMode(Command &command) {
     string tournamentCommand = command.command;
     vector<string> maps;

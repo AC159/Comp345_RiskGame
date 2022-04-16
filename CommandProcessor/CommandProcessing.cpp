@@ -93,6 +93,7 @@ ostream& operator<<(ostream &out, const CommandProcessor &commandProcessor){
     return out;
 }
 
+// prompts for user input, creates & returns a new command object from it while also saving it to the command list
 Command& CommandProcessor::getCommand() {
     string read = readCommand();
     auto *c = new Command(read);
@@ -100,6 +101,7 @@ Command& CommandProcessor::getCommand() {
     return *c;
 }
 
+// prompts for and returns user input
 string CommandProcessor::readCommand() {
     string readCommandInput;
     cout << "Input command:";
@@ -107,6 +109,7 @@ string CommandProcessor::readCommand() {
     return readCommandInput;
 }
 
+// adds command to the command list
 void CommandProcessor::saveCommand(Command &command) {
     commandList.push_back(&command);
     notify(*this); // notify all observers of this subject to write log to file
