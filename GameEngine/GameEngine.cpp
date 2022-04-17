@@ -516,7 +516,6 @@ void GameEngine::tournamentMode(Command &command) {
     while (parse2 >> lineBetween) {
         maps.push_back(lineBetween);
     }
-    int numberOfMaps = static_cast<int>(maps.size());
 
     // get player strats from command
     lineBetween = tournamentCommand.substr(tournamentCommand.find("-P") + 2,
@@ -525,7 +524,6 @@ void GameEngine::tournamentMode(Command &command) {
     while (parse3 >> lineBetween) {
         playerStrategies.push_back(lineBetween);
     }
-    int numberOfStrategies = static_cast<int>(playerStrategies.size());
 
     // get no of games from command
     lineBetween = tournamentCommand.substr(tournamentCommand.find("-G") + 2,
