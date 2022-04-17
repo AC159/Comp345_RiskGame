@@ -65,8 +65,7 @@ std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toDefend(const 
 
 /**
  * @params edges list of Edge objects present in the map
- * @returns list of territories owned by the benevolent player to be "attacked" by this player in priority.
- * The benevolent player will issue Advance orders on these territories.
+ * @returns empty list since the Benevolent player doesn't issue attacks
  * */
 std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toAttack(const std::vector<Graph::Edge *> &edges) {
     // The toAttack method is not relevant for the Benevolent player, we just use the toDefend method since this player does not attack other players
@@ -99,15 +98,11 @@ void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
         territoriesRemaining--;
     }
 
-    // Create Advance orders on the territories returned by the toAttack() method
-    // Get the list of territories owned by the current player that have no enemy neighbors
-    std::vector<Graph::Territory *> friendlyTerritories;
-
-    // create Advance orders
+    // create Advance orders from the strongest territories to the weakest
     for (auto &pair : toDefend) {
 
         // this will return the territories owned by the current player that are adjacent to the territory to be defended
-        friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
+        std::vector<Graph::Territory *> friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
 
         if (!friendlyTerritories.empty()) {
             // sort these territories based on the number of armies in each of them
@@ -115,7 +110,7 @@ void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
             // sorted in descending order of the number of armies per territory
             std::sort(friendlyTerritories.begin(), friendlyTerritories.end(), std::greater<>());
 
-            // From the friendly territory that is adjacent to the current enemy territory to be attacked, take a random amount of armies to transfer
+            // From the friendly territory that is adjacent to the current enemy territory to be defended, take a random amount of armies to transfer
             auto it = friendlyTerritories.begin(); // get the territory owned by the current player that has the most armies
             int armiesToAdvance = floor((*it)->numberOfArmies * 0.25); // take 25% of the armies of the strongest territory and transfer them to the weakest
             if (armiesToAdvance < 1) armiesToAdvance = 1;
