@@ -11,6 +11,7 @@
 
 using namespace std;
 
+// Warzone game controller
 class GameEngine : public ILoggable, public Subject {
 public:
     CommandProcessor* processor;
@@ -24,8 +25,7 @@ public:
     string stringToLog() const override;
     GameEngine& operator=(const GameEngine &gameEngine);
     friend ostream& operator<<(ostream &out, const GameEngine &gameEngine);
-    static void gameStartupDriver();
-    static void gamePlayDriver();
+    static void tournamentModeDriver();
 
     //added for implementation of As2 part1
     string getState() const;
@@ -46,7 +46,7 @@ public:
     void addPlayer();
 
 //==== main game loop: reinforcement, order issuing & execution phases ====
-    void mainGameLoop();
+    bool mainGameLoop(int maxNumberOfTurns = 500);
 
 //============= assign reinforcement state =================
     void assignReinforcementStateChange();
@@ -62,7 +62,8 @@ public:
 
 //============= win state =================
     void winStateChange();
-    int validateWinCommand();
+
+    void tournamentMode(Command& command);
 
 private:
     vector<Players::Player *> eliminatedPlayers;

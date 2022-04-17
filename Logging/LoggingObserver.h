@@ -50,7 +50,6 @@ public:
     friend std::ostream& operator<<(std::ostream &out, const LogObserver &logObserver);
     LogObserver& operator=(const LogObserver &logObserver);
     void update(const ILoggable &loggable) override;
-    static void LoggingDriver();
     ~LogObserver() override;
 };
 

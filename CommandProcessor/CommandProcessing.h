@@ -11,6 +11,7 @@ using namespace std;
 
 class GameEngine;
 
+// stores a command taken from a file or console input along with its effect
 class Command : public ILoggable, public Subject {
 public:
     string command;
@@ -21,18 +22,19 @@ public:
     Command(const Command &command);
     ~Command();
 
-    Command& operator=(const Command &command);
+    Command& operator=(const Command &c);
     friend ostream& operator<<(ostream &out, const Command &command);
     string stringToLog() const override;
     void saveEffect(string commandEffect);
 };
 
+// provides functionalities for commands such as reading them, storing them, and validating them based on states
 class CommandProcessor : public ILoggable, public Subject {
 public:
     string currentState;
     vector<Command *> commandList;
     CommandProcessor();
-    CommandProcessor(const CommandProcessor &commandProcessor);
+    [[maybe_unused]] CommandProcessor(const CommandProcessor &commandProcessor);
     virtual ~CommandProcessor();
 
     CommandProcessor& operator=(const CommandProcessor &commandProcessor);
@@ -40,13 +42,13 @@ public:
 
     string stringToLog() const;
     Command& getCommand();
-    bool validate(string userInput, const GameEngine &gameEngine);
-    static void commandProcessorDriver();
+    bool validate(const string& readCommandInput, const GameEngine &gameEngine);
 private:
     virtual string readCommand();
     void saveCommand(Command &command);
 };
 
+// provides functionalities for reading from files
 class FileLineReader {
 public:
     FileLineReader();

@@ -47,7 +47,7 @@ LogObserver::LogObserver(const LogObserver &logObserver) {
 }
 
 void LogObserver::openLogFileStream() {
-    this->fileStream.open("gamelog.txt", std::ios::out);
+    this->fileStream.open("gamelog.txt", std::ios::app);
 }
 
 void LogObserver::closeLogFileStream() {
