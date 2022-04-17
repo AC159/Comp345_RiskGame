@@ -607,8 +607,9 @@ void GameEngine::tournamentMode(Command &command) {
     }
 
     fstream output;
-    output.open("../gamelog.txt", std::ios_base::app | std::ios_base::in);
+    output.open("gamelog.txt", std::ios_base::app | std::ios_base::in);
 
+    // tournament settings
     output << "Tournament mode: " << endl;
     output << "M: ";
     for (const string &map: maps)
@@ -670,6 +671,7 @@ void GameEngine::tournamentMode(Command &command) {
 
     output << endl << endl;
 
+    // tournament settings
     cout << "Tournament mode: " << endl;
     cout << "M: ";
     for (const string &map: maps)
