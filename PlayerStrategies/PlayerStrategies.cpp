@@ -47,20 +47,20 @@ std::ostream &operator<<(std::ostream &out, const BenevolentPlayerStrategy &b) {
  *
  * */
 std::multimap<int, Graph::Territory *> BenevolentPlayerStrategy::toDefend(const std::vector<Graph::Edge *> &mapEdges) {
-    std::multimap<int, Graph::Territory *> territoriesToAttack;
+    std::multimap<int, Graph::Territory *> territoriesToDefend;
 
     // Find territories that have adjacent enemy territories and prioritize them based on the number of armies they have
     std::vector<Graph::Territory *> enemyTerritories;
     for (auto pair : this->player->territories) {
-        // Check if this territory has any adjacent enemy territories, if yes, then add it to the list of territories to attack.
-        // The benevolent player will create advance orders on these territories in the issueOrder() method
+        // Check if this territory has any adjacent enemy territories, if yes, then add it to the list of territories to defend.
+        // The benevolent player will create advance (and deploy orders on the top 10% of them) orders on these territories in the issueOrder() method
         enemyTerritories = pair.second->adjacentEnemyTerritories(mapEdges);
         if (!enemyTerritories.empty()) {
-            territoriesToAttack.insert(std::pair<int, Graph::Territory *> (pair.second->numberOfArmies, pair.second));
+            territoriesToDefend.insert(std::pair<int, Graph::Territory *> (pair.second->numberOfArmies, pair.second));
         }
     }
 
-    return territoriesToAttack;
+    return territoriesToDefend;
 }
 
 /**
@@ -106,26 +106,22 @@ void BenevolentPlayerStrategy::issueOrder(GameEngine &game) {
     // create Advance orders
     for (auto &pair : toDefend) {
 
-        // this will return the territories owned by the current player that are adjacent to the territory to be attacked
-        friendlyTerritories = pair.second->adjacentEnemyTerritories(map->edges);
+        // this will return the territories owned by the current player that are adjacent to the territory to be defended
+        friendlyTerritories = pair.second->adjacentFriendlyTerritories(map->edges);
 
         if (!friendlyTerritories.empty()) {
             // sort these territories based on the number of armies in each of them
             // this function uses the overloaded operator < in the Territory class
+            // sorted in descending order of the number of armies per territory
             std::sort(friendlyTerritories.begin(), friendlyTerritories.end(), std::greater<>());
 
-            // Find the territory owned by the current player that has the most armies
-            Players::Player *currentOwner = this->player;
-            auto it = std::find_if(friendlyTerritories.begin(), friendlyTerritories.end(), [&currentOwner](Territory *t) {return t->owner == currentOwner;});
+            // From the friendly territory that is adjacent to the current enemy territory to be attacked, take a random amount of armies to transfer
+            auto it = friendlyTerritories.begin(); // get the territory owned by the current player that has the most armies
+            int armiesToAdvance = floor((*it)->numberOfArmies * 0.25); // take 25% of the armies of the strongest territory and transfer them to the weakest
+            if (armiesToAdvance < 1) armiesToAdvance = 1;
+            if ((*it)->numberOfArmies <= 2 || (*it)->numberOfArmies <= armiesToAdvance) continue; // do not take armies from territories that have 2 or fewer armies
 
-            if (it != friendlyTerritories.end()) {
-                // From the friendly territory that is adjacent to the current enemy territory to be attacked, take a random amount of armies to transfer
-                int armiesToAdvance = floor((*it)->numberOfArmies * 0.25); // take 25% of the armies of the strongest territory and transfer them to the weakest
-                if (armiesToAdvance < 1) armiesToAdvance = 1;
-                if ((*it)->numberOfArmies <= 2 || (*it)->numberOfArmies <= armiesToAdvance) continue; // do not take armies from territories that have 2 or fewer armies
-
-                this->player->orders->add(new Orders::Advance(this->player, map, *it, pair.second, armiesToAdvance));
-            }
+            this->player->orders->add(new Orders::Advance(this->player, map, *it, pair.second, armiesToAdvance));
         }
     }
 
