@@ -28,10 +28,6 @@ Player::Player(const string& newName) {
     reinforcementPool = 0;
     receivesCard = false;
     isEliminated = false;
-    if (newName.starts_with(PlayerStrategies::NEUTRAL_TYPE)) {
-        PlayerStrategies *ps = new NeutralPlayerStrategy(this);
-        this->ps = ps;
-    }
 }
 
 
