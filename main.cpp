@@ -29,9 +29,21 @@ int main() {
 
         if (userInput == "1") {
             cout << "Part 1: Player Strategies" << endl;
+
+            // clear game log file in preparation for new logs
+            ofstream ofs;
+            ofs.open("gamelog.txt", ofstream::out | ofstream::trunc);
+            ofs.close();
+
             PlayerStrategiesDriver();
         } else if (userInput == "2") {
             cout << "Part 2: Tournament mode" << endl;
+
+            // clear game log file in preparation for new logs
+            ofstream ofs;
+            ofs.open("gamelog.txt", ofstream::out | ofstream::trunc);
+            ofs.close();
+
             GameEngine::tournamentModeDriver();
         } else if (userInput != "3")
             cout << "ERROR: Invalid input!" << endl;
