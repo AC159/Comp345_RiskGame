@@ -257,21 +257,9 @@ void CheaterPlayerStrategy::issueOrder(GameEngine &game) {
         if (type == "reinforcement") {
             // play the reinforcement card on the first territory of the toDefend list
             dynamic_cast<Cards::Reinforcement *>(card)->play(this->player, deck, toDefend.begin()->second);
-        } else if (type == "blockade") {
-            dynamic_cast<Cards::Blockade *>(card)->play(this->player, deck, toDefend.begin()->second, game.playersList);
         } else if (type == "airlift" && this->player->territories.size() > 1) { // airlift orders only make sense if the player owns more than 1 territory
             Graph::Territory *src = toDefend.rbegin()->second; // take half the armies from the territory that has the most armies
             dynamic_cast<Cards::Airlift *>(card)->play(this->player, deck, src, toDefend.begin()->second, src->numberOfArmies / 2);
-        } else if (type == "diplomacy") {
-            // Play the diplomacy card on the largest enemy territory
-            std::vector<Graph::Territory *> enemyTerritories = toDefend.begin()->second->adjacentEnemyTerritories(map->edges);
-
-            if (!enemyTerritories.empty()) {
-                // sort these territories based on the number of armies in each of them
-                // this function uses the overloaded operator < in the Territory class
-                std::sort(enemyTerritories.begin(), enemyTerritories.end());
-                dynamic_cast<Cards::Diplomacy *>(card)->play(this->player, enemyTerritories.at(enemyTerritories.size()-1)->owner, deck);
-            }
         }
     }
 
